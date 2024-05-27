@@ -1,6 +1,7 @@
 package com.example.utube.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,9 +30,19 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private VideoAdapter videoAdapter;
     private Button btnLogin, btnThemeSwitch, btnRegister;
+    private SharedPreferences sharedPreferences;
+    private static final String PREFS_NAME = "theme_prefs";
+    private static final String THEME_KEY = "current_theme";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        if (sharedPreferences.getBoolean(THEME_KEY, false)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -48,14 +60,29 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        btnThemeSwitch.setOnClickListener(v -> {
-            // Implement theme switch logic please
-        });
-
         btnRegister.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
             startActivity(intent);
         });
+
+        btnThemeSwitch.setText(sharedPreferences.getBoolean(THEME_KEY, false) ? "Day Mode" : "Night Mode");
+        btnThemeSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isNightMode = sharedPreferences.getBoolean(THEME_KEY, false);
+                if (isNightMode) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    sharedPreferences.edit().putBoolean(THEME_KEY, false).apply();
+                    btnThemeSwitch.setText("Night Mode");
+                } else {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                    sharedPreferences.edit().putBoolean(THEME_KEY, true).apply();
+                    btnThemeSwitch.setText("Day Mode");
+                }
+            }
+        });
+
+
 
         loadVideoData();
     }
