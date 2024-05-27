@@ -1,0 +1,18 @@
+[
+  {
+    "picture": "https://example.com/video1.jpg",
+    "name": "Video 1",
+    "author": "Author 1",
+    "authorProfilePicture": "https://example.com/author1.jpg",
+    "views": 1000,
+    "uploadTime": "1 day ago"
+  },
+  {
+    "picture": "https://example.com/video2.jpg",
+    "name": "Video 2",
+    "author": "Author 2",
+    "authorProfilePicture": "https://example.com/author2.jpg",
+    "views": 2000,
+    "uploadTime": "2 days ago"
+  }
+]

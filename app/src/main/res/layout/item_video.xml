@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/video_thumbnail"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/video_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Video Title"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="4dp">
+
+        <ImageView
+            android:id="@+id/author_profile_pic"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/ic_profile" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/video_author"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Author Name" />
+
+            <TextView
+                android:id="@+id/video_views"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Views" />
+
+            <TextView
+                android:id="@+id/video_upload_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Upload Time" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
