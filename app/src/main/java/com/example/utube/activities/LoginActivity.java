@@ -53,6 +53,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private boolean validateLogin(String username, String password) {
         // Replace with actual validation logic
-        return username.equals("user") && password.equals("password");
+       // return username.equals("user") && password.equals("password");
+        return true;
     }
 }

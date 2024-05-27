@@ -6,16 +6,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.utube.R;
-import com.example.utube.activities.LoginActivity;
 import com.example.utube.models.Video;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private List<Video> videoList = new ArrayList<>();
     private RecyclerView recyclerView;
     private VideoAdapter videoAdapter;
-    private Button btnLogin, btnThemeSwitch;
+    private Button btnLogin, btnThemeSwitch, btnRegister;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,20 +41,20 @@ public class MainActivity extends AppCompatActivity {
 
         btnLogin = findViewById(R.id.login_button);
         btnThemeSwitch = findViewById(R.id.theme_button);
+        btnRegister = findViewById(R.id.register_button);
 
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(intent);
-            }
+        btnLogin.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
         });
 
-        btnThemeSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Implement theme switch logic
-            }
+        btnThemeSwitch.setOnClickListener(v -> {
+            // Implement theme switch logic please
+        });
+
+        btnRegister.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+            startActivity(intent);
         });
 
         loadVideoData();
@@ -110,16 +113,31 @@ public class MainActivity extends AppCompatActivity {
         }
 
         class VideoViewHolder extends RecyclerView.ViewHolder {
-            // Add views for binding video data
+            TextView title, author, views, uploadTime;
+            ImageView thumbnail, authorProfilePic;
 
             public VideoViewHolder(View itemView) {
                 super(itemView);
-                // Initialize views
+                title = itemView.findViewById(R.id.video_title);
+                author = itemView.findViewById(R.id.video_author);
+                views = itemView.findViewById(R.id.video_views);
+                uploadTime = itemView.findViewById(R.id.video_upload_time);
+                thumbnail = itemView.findViewById(R.id.video_thumbnail);
+                authorProfilePic = itemView.findViewById(R.id.author_profile_pic);
             }
 
             public void bind(Video video) {
-                // Bind video data to views
+                title.setText(video.getTitle());
+                author.setText(video.getAuthor());
+                views.setText(video.getViews());
+                uploadTime.setText(video.getUploadTime());
+                // Load thumbnail and author profile picture using an image loading library like Glide or Picasso
+                // Glide.with(thumbnail.getContext()).load(video.getThumbnailUrl()).into(thumbnail);
+                // Glide.with(authorProfilePic.getContext()).load(video.getAuthorProfilePicUrl()).into(authorProfilePic);
+                Picasso.get().load(video.getThumbnailUrl()).into(thumbnail);
+                Picasso.get().load(video.getAuthorProfilePicUrl()).into(authorProfilePic);
             }
+
         }
     }
 }

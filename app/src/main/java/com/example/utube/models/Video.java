@@ -24,6 +24,14 @@ public class Video {
         return uploadTime;
     }
 
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+
+    public String getAuthorProfilePicUrl() {
+        return authorProfilePicUrl;
+    }
+
     public Video(String title, String author, String views, String uploadTime, String thumbnailUrl, String authorProfilePicUrl) {
         this.title = title;
         this.author = author;

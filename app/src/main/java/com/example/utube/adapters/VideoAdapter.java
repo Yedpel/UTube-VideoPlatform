@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.utube.R;
 import com.example.utube.models.Video;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -65,6 +66,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             // Assuming you have a method to load images, e.g., using Glide or Picasso
             // Glide.with(thumbnail.getContext()).load(video.getThumbnailUrl()).into(thumbnail);
             // Glide.with(authorProfilePic.getContext()).load(video.getAuthorProfilePicUrl()).into(authorProfilePic);
+            // Use Picasso or Glide to load the images
+            Picasso.get().load(video.getThumbnailUrl()).into(thumbnail);
+            Picasso.get().load(video.getAuthorProfilePicUrl()).into(authorProfilePic);
         }
     }
 }

@@ -5,41 +5,48 @@
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity">
 
-    <EditText
-        android:id="@+id/search_box"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:hint="Search"
-        android:minHeight="48dp"
-        android:padding="10dp" />
-
-    <Button
-        android:id="@+id/login_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Login"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="10dp" />
-
-    <Button
-        android:id="@+id/register_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Register"
-        android:layout_below="@id/login_button"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="10dp" />
-
+    <!-- Toggle Theme Button -->
     <Button
         android:id="@+id/theme_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Toggle Theme"
-        android:layout_below="@id/register_button"
+        android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_margin="10dp" />
 
+    <!-- Register Button -->
+    <Button
+        android:id="@+id/register_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        android:layout_toLeftOf="@id/theme_button"
+        android:layout_alignParentTop="true"
+        android:layout_margin="10dp" />
+
+    <!-- Login Button -->
+    <Button
+        android:id="@+id/login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Login"
+        android:layout_toLeftOf="@id/register_button"
+        android:layout_alignParentTop="true"
+        android:layout_margin="10dp" />
+
+    <!-- Search Box -->
+    <EditText
+        android:id="@+id/search_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/login_button"
+        android:layout_margin="10dp"
+        android:hint="Search"
+        android:minHeight="48dp"
+        android:padding="10dp"/>
+
+    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"

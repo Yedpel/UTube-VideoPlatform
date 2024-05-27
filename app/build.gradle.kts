@@ -37,4 +37,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    // Picasso for image loading
+    implementation("com.squareup.picasso:picasso:2.8")
 }
