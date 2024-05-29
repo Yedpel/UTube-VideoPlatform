@@ -2,6 +2,7 @@ package com.example.utube.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -82,8 +83,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-
         loadVideoData();
     }
 
@@ -105,8 +104,9 @@ public class MainActivity extends AppCompatActivity {
                 String uploadTime = obj.getString("uploadTime");
                 String thumbnailUrl = obj.getString("thumbnailUrl");
                 String authorProfilePicUrl = obj.getString("authorProfilePicUrl");
+                String videoUrl = obj.getString("videoUrl");
 
-                Video video = new Video(title, author, views, uploadTime, thumbnailUrl, authorProfilePicUrl);
+                Video video = new Video(title, author, views, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl);
                 videoList.add(video);
             }
             videoAdapter.notifyDataSetChanged();
@@ -132,6 +132,16 @@ public class MainActivity extends AppCompatActivity {
         public void onBindViewHolder(VideoViewHolder holder, int position) {
             Video video = videoList.get(position);
             holder.bind(video);
+            holder.itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, VideoDetailActivity.class);
+                intent.putExtra("VIDEO_URL", video.getVideoUrl());
+                intent.putExtra("TITLE", video.getTitle());
+                intent.putExtra("AUTHOR", video.getAuthor());
+                intent.putExtra("VIEWS", video.getViews());
+                intent.putExtra("UPLOAD_TIME", video.getUploadTime());
+                intent.putExtra("AUTHOR_PROFILE_PIC_URL", video.getAuthorProfilePicUrl());
+                startActivity(intent);
+            });
         }
 
         @Override
@@ -158,13 +168,22 @@ public class MainActivity extends AppCompatActivity {
                 author.setText(video.getAuthor());
                 views.setText(video.getViews());
                 uploadTime.setText(video.getUploadTime());
-                // Load thumbnail and author profile picture using an image loading library like Glide or Picasso
-                // Glide.with(thumbnail.getContext()).load(video.getThumbnailUrl()).into(thumbnail);
-                // Glide.with(authorProfilePic.getContext()).load(video.getAuthorProfilePicUrl()).into(authorProfilePic);
-                Picasso.get().load(video.getThumbnailUrl()).into(thumbnail);
-                Picasso.get().load(video.getAuthorProfilePicUrl()).into(authorProfilePic);
-            }
 
+                int thumbnailResId = getResources().getIdentifier(video.getThumbnailUrl(), null, getPackageName());
+                int authorProfilePicResId = getResources().getIdentifier(video.getAuthorProfilePicUrl(), null, getPackageName());
+
+                if (thumbnailResId != 0) {
+                    thumbnail.setImageResource(thumbnailResId);
+                } else {
+                    Picasso.get().load(video.getThumbnailUrl()).into(thumbnail);
+                }
+
+                if (authorProfilePicResId != 0) {
+                    authorProfilePic.setImageResource(authorProfilePicResId);
+                } else {
+                    Picasso.get().load(video.getAuthorProfilePicUrl()).into(authorProfilePic);
+                }
+            }
         }
     }
 }

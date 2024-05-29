@@ -7,6 +7,11 @@ public class Video {
     public String uploadTime;
     String thumbnailUrl;
     String authorProfilePicUrl;
+    String videoUrl;
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
 
     public String getTitle() {
         return title;
@@ -32,12 +37,13 @@ public class Video {
         return authorProfilePicUrl;
     }
 
-    public Video(String title, String author, String views, String uploadTime, String thumbnailUrl, String authorProfilePicUrl) {
+    public Video(String title, String author, String views, String uploadTime, String thumbnailUrl, String authorProfilePicUrl, String videoUrl) {
         this.title = title;
         this.author = author;
         this.views = views;
         this.uploadTime = uploadTime;
         this.thumbnailUrl = thumbnailUrl;
         this.authorProfilePicUrl = authorProfilePicUrl;
+        this.videoUrl = videoUrl;
     }
 }

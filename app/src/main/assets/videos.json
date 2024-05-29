@@ -1,11 +1,12 @@
 [
   {
-    "thumbnailUrl": "https://example.com/video1.jpg",
+    "thumbnailUrl": "drawable/dis_1",
     "title": "Video 1",
     "author": "Author 1",
-    "authorProfilePicUrl": "https://example.com/author1.jpg",
+    "authorProfilePicUrl": "drawable/pro_1",
     "views": "1000 views",
-    "uploadTime": "1 day ago"
+    "uploadTime": "1 day ago",
+    "videoUrl": "raw/vid1"
   },
   {
     "thumbnailUrl": "https://example.com/video2.jpg",
@@ -13,7 +14,8 @@
     "author": "Author 2",
     "authorProfilePicUrl": "https://example.com/author2.jpg",
     "views": "2000 views",
-    "uploadTime": "2 days ago"
+    "uploadTime": "2 days ago",
+    "videoUrl": "https://example.com/video2.mp4"
   },
   {
     "thumbnailUrl": "https://example.com/video2.jpg",
@@ -21,7 +23,8 @@
     "author": "Author 2",
     "authorProfilePicUrl": "https://example.com/author2.jpg",
     "views": "2000 views",
-    "uploadTime": "2 days ago"
+    "uploadTime": "2 days ago",
+    "videoUrl": "https://example.com/video2.mp4"
   },
   {
     "thumbnailUrl": "https://example.com/video2.jpg",
@@ -29,7 +32,8 @@
     "author": "Author 2",
     "authorProfilePicUrl": "https://example.com/author2.jpg",
     "views": "2000 views",
-    "uploadTime": "2 days ago"
+    "uploadTime": "2 days ago",
+    "videoUrl": "https://example.com/video2.mp4"
   },
   {
     "thumbnailUrl": "https://example.com/video2.jpg",
@@ -37,7 +41,8 @@
     "author": "Author 3",
     "authorProfilePicUrl": "https://example.com/author3.jpg",
     "views": "2000 views",
-    "uploadTime": "2 days ago"
+    "uploadTime": "2 days ago",
+    "videoUrl": "https://example.com/video2.mp4"
   },
   {
     "thumbnailUrl": "https://example.com/video2.jpg",
@@ -45,7 +50,8 @@
     "author": "Author 4",
     "authorProfilePicUrl": "https://example.com/author4.jpg",
     "views": "2000 views",
-    "uploadTime": "2 days ago"
+    "uploadTime": "2 days ago",
+    "videoUrl": "https://example.com/video2.mp4"
   },
   {
     "thumbnailUrl": "https://example.com/video2.jpg",
@@ -53,7 +59,8 @@
     "author": "Author 2",
     "authorProfilePicUrl": "https://example.com/author2.jpg",
     "views": "2000 views",
-    "uploadTime": "2 days ago"
+    "uploadTime": "2 days ago",
+    "videoUrl": "https://example.com/video2.mp4"
   },
   {
     "thumbnailUrl": "https://example.com/video2.jpg",
@@ -61,7 +68,8 @@
     "author": "Author 4",
     "authorProfilePicUrl": "https://example.com/author4.jpg",
     "views": "2000 views",
-    "uploadTime": "2 days ago"
+    "uploadTime": "2 days ago",
+    "videoUrl": "https://example.com/video2.mp4"
   },
   {
     "thumbnailUrl": "https://example.com/video2.jpg",
@@ -69,7 +77,8 @@
     "author": "Author 3",
     "authorProfilePicUrl": "https://example.com/author3.jpg",
     "views": "2000 views",
-    "uploadTime": "2 days ago"
+    "uploadTime": "2 days ago",
+    "videoUrl": "https://example.com/video2.mp4"
   },
   {
     "thumbnailUrl": "https://example.com/video2.jpg",
@@ -77,7 +86,8 @@
     "author": "Author 2",
     "authorProfilePicUrl": "https://example.com/author2.jpg",
     "views": "2000 views",
-    "uploadTime": "2 days ago"
+    "uploadTime": "2 days ago",
+    "videoUrl": "https://example.com/video2.mp4"
   }
 ]
 

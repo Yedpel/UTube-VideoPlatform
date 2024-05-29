@@ -24,6 +24,13 @@
             </intent-filter>
         </activity>
 
+
+        <!-- VideoPlayerActivity Declaration -->
+        <activity android:name=".activities.VideoDetailActivity" />
+
+        <!-- VideoPlayerActivity Declaration -->
+        <activity android:name=".activities.VideoPlayerActivity" />
+
         <!-- Login activity -->
         <activity android:name=".activities.LoginActivity" />
 
