@@ -8,87 +8,123 @@
     "uploadTime": "1 day ago",
     "videoUrl": "raw/vid1"
   },
-  {
-    "thumbnailUrl": "https://example.com/video2.jpg",
-    "title": "Video 2",
-    "author": "Author 2",
-    "authorProfilePicUrl": "https://example.com/author2.jpg",
-    "views": "2000 views",
-    "uploadTime": "2 days ago",
-    "videoUrl": "https://example.com/video2.mp4"
-  },
-  {
-    "thumbnailUrl": "https://example.com/video2.jpg",
-    "title": "Video 3",
-    "author": "Author 2",
-    "authorProfilePicUrl": "https://example.com/author2.jpg",
-    "views": "2000 views",
-    "uploadTime": "2 days ago",
-    "videoUrl": "https://example.com/video2.mp4"
-  },
-  {
-    "thumbnailUrl": "https://example.com/video2.jpg",
-    "title": "Video 4",
-    "author": "Author 2",
-    "authorProfilePicUrl": "https://example.com/author2.jpg",
-    "views": "2000 views",
-    "uploadTime": "2 days ago",
-    "videoUrl": "https://example.com/video2.mp4"
-  },
-  {
-    "thumbnailUrl": "https://example.com/video2.jpg",
-    "title": "Video 5",
-    "author": "Author 3",
-    "authorProfilePicUrl": "https://example.com/author3.jpg",
-    "views": "2000 views",
-    "uploadTime": "2 days ago",
-    "videoUrl": "https://example.com/video2.mp4"
-  },
-  {
-    "thumbnailUrl": "https://example.com/video2.jpg",
-    "title": "Video 6",
-    "author": "Author 4",
-    "authorProfilePicUrl": "https://example.com/author4.jpg",
-    "views": "2000 views",
-    "uploadTime": "2 days ago",
-    "videoUrl": "https://example.com/video2.mp4"
-  },
-  {
-    "thumbnailUrl": "https://example.com/video2.jpg",
-    "title": "Video 7",
-    "author": "Author 2",
-    "authorProfilePicUrl": "https://example.com/author2.jpg",
-    "views": "2000 views",
-    "uploadTime": "2 days ago",
-    "videoUrl": "https://example.com/video2.mp4"
-  },
-  {
-    "thumbnailUrl": "https://example.com/video2.jpg",
-    "title": "Video 8",
-    "author": "Author 4",
-    "authorProfilePicUrl": "https://example.com/author4.jpg",
-    "views": "2000 views",
-    "uploadTime": "2 days ago",
-    "videoUrl": "https://example.com/video2.mp4"
-  },
-  {
-    "thumbnailUrl": "https://example.com/video2.jpg",
-    "title": "Video 9",
-    "author": "Author 3",
-    "authorProfilePicUrl": "https://example.com/author3.jpg",
-    "views": "2000 views",
-    "uploadTime": "2 days ago",
-    "videoUrl": "https://example.com/video2.mp4"
-  },
-  {
-    "thumbnailUrl": "https://example.com/video2.jpg",
-    "title": "Video 10",
-    "author": "Author 2",
-    "authorProfilePicUrl": "https://example.com/author2.jpg",
-    "views": "2000 views",
-    "uploadTime": "2 days ago",
-    "videoUrl": "https://example.com/video2.mp4"
-  }
+    {
+        "thumbnailUrl": "drawable/dis_2",
+        "title": "Video 2",
+        "author": "Author 2",
+        "authorProfilePicUrl": "drawable/pro_2",
+        "views": "2000 views",
+        "uploadTime": "2 days ago",
+        "videoUrl": "raw/vid2"
+    },
+    {
+        "thumbnailUrl": "drawable/dis_3",
+        "title": "Video 3",
+        "author": "Author 3",
+        "authorProfilePicUrl": "drawable/pro_3",
+        "views": "3000 views",
+        "uploadTime": "3 days ago",
+        "videoUrl": "raw/vid3"
+    },
+    {
+        "thumbnailUrl": "drawable/dis_4",
+        "title": "Video 4",
+        "author": "Author 4",
+        "authorProfilePicUrl": "drawable/pro_4",
+        "views": "4000 views",
+        "uploadTime": "4 days ago",
+        "videoUrl": "raw/vid4"
+    },
+    {
+        "thumbnailUrl": "drawable/dis_5",
+        "title": "Video 5",
+        "author": "Author 1",
+        "authorProfilePicUrl": "drawable/pro_1",
+        "views": "5000 views",
+        "uploadTime": "5 days ago",
+        "videoUrl": "raw/vid5"
+    },
+    {
+        "thumbnailUrl": "drawable/dis_6",
+        "title": "Video 6",
+        "author": "Author 2",
+        "authorProfilePicUrl": "drawable/pro_2",
+        "views": "6000 views",
+        "uploadTime": "6 days ago",
+        "videoUrl": "raw/vid6"
+    },
+    {
+        "thumbnailUrl": "drawable/dis_7",
+        "title": "Video 7",
+        "author": "Author 3",
+        "authorProfilePicUrl": "drawable/pro_3",
+        "views": "7000 views",
+        "uploadTime": "7 days ago",
+        "videoUrl": "raw/vid7"
+    },
+    {
+        "thumbnailUrl": "drawable/dis_8",
+        "title": "Video 8",
+        "author": "Author 3",
+        "authorProfilePicUrl": "drawable/pro_3",
+        "views": "8000 views",
+        "uploadTime": "8 days ago",
+        "videoUrl": "raw/vid8"
+    },
+    {
+        "thumbnailUrl": "drawable/dis_9",
+        "title": "Video 9",
+        "author": "Author 1",
+        "authorProfilePicUrl": "drawable/pro_1",
+        "views": "9000 views",
+        "uploadTime": "9 days ago",
+        "videoUrl": "raw/vid9"
+    },
+    {
+        "thumbnailUrl": "drawable/dis_10",
+        "title": "Video 10",
+        "author": "Author 1",
+        "authorProfilePicUrl": "drawable/pro_1",
+        "views": "10000 views",
+        "uploadTime": "10 days ago",
+        "videoUrl": "raw/vid10"
+    },
+    {
+        "thumbnailUrl": "drawable/dis_11",
+        "title": "Video 11",
+        "author": "Author 4",
+        "authorProfilePicUrl": "drawable/pro_4",
+        "views": "11000 views",
+        "uploadTime": "11 days ago",
+        "videoUrl": "raw/vid11"
+    },
+    {
+        "thumbnailUrl": "drawable/dis_12",
+        "title": "Video 12",
+        "author": "Author 4",
+        "authorProfilePicUrl": "drawable/pro_4",
+        "views": "12000 views",
+        "uploadTime": "12 days ago",
+        "videoUrl": "raw/vid12"
+    },
+    {
+        "thumbnailUrl": "drawable/dis_13",
+        "title": "Video 13",
+        "author": "Author 2",
+        "authorProfilePicUrl": "drawable/pro_2",
+        "views": "13000 views",
+        "uploadTime": "13 days ago",
+        "videoUrl": "raw/vid13"
+    },
+    {
+        "thumbnailUrl": "drawable/dis_14",
+        "title": "Video 14",
+        "author": "Author 2",
+        "authorProfilePicUrl": "drawable/pro_2",
+        "views": "14000 views",
+        "uploadTime": "14 days ago",
+        "videoUrl": "raw/vid14"
+    }
 ]
 
 
