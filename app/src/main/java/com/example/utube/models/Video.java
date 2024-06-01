@@ -8,6 +8,7 @@ public class Video {
     String thumbnailUrl;
     String authorProfilePicUrl;
     String videoUrl;
+    String category;
 
     public String getVideoUrl() {
         return videoUrl;
@@ -36,8 +37,9 @@ public class Video {
     public String getAuthorProfilePicUrl() {
         return authorProfilePicUrl;
     }
+    public String getCategory() { return category; }
 
-    public Video(String title, String author, String views, String uploadTime, String thumbnailUrl, String authorProfilePicUrl, String videoUrl) {
+    public Video(String title, String author, String views, String uploadTime, String thumbnailUrl, String authorProfilePicUrl, String videoUrl, String category) {
         this.title = title;
         this.author = author;
         this.views = views;
@@ -45,5 +47,6 @@ public class Video {
         this.thumbnailUrl = thumbnailUrl;
         this.authorProfilePicUrl = authorProfilePicUrl;
         this.videoUrl = videoUrl;
+        this.category = category;
     }
 }

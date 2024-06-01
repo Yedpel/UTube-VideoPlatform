@@ -2,19 +2,23 @@ package com.example.utube.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -52,6 +56,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        Button menuButton = findViewById(R.id.menu_button);
+        menuButton.setOnClickListener(v -> openOptionsMenu());
+
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         videoAdapter = new VideoAdapter(filteredVideoList);
@@ -88,18 +98,47 @@ public class MainActivity extends AppCompatActivity {
 
         loadVideoData();
 
+        // Filter videos based on search
         searchBox.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                filterVideos(charSequence.toString());
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterVideos(s.toString());
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {}
+            public void afterTextChanged(Editable s) {}
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_sport) {
+            filterVideosByCategory("Sport");
+            return true;
+        } else if (itemId == R.id.action_news) {
+            filterVideosByCategory("News");
+            return true;
+        } else if (itemId == R.id.action_cinema) {
+            filterVideosByCategory("Cinema");
+            return true;
+        } else if (itemId == R.id.action_gaming) {
+            filterVideosByCategory("Gaming");
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     private void loadVideoData() {
@@ -121,8 +160,9 @@ public class MainActivity extends AppCompatActivity {
                 String thumbnailUrl = obj.getString("thumbnailUrl");
                 String authorProfilePicUrl = obj.getString("authorProfilePicUrl");
                 String videoUrl = obj.getString("videoUrl");
+                String category = obj.getString("category");
 
-                Video video = new Video(title, author, views, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl);
+                Video video = new Video(title, author, views, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category);
                 videoList.add(video);
             }
             filteredVideoList.addAll(videoList);
@@ -134,14 +174,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void filterVideos(String query) {
         filteredVideoList.clear();
-        if (query.isEmpty()) {
-            filteredVideoList.addAll(videoList);
-        } else {
-            for (Video video : videoList) {
-                if (video.getTitle().toLowerCase().contains(query.toLowerCase()) ||
-                        video.getAuthor().toLowerCase().contains(query.toLowerCase())) {
-                    filteredVideoList.add(video);
-                }
+        for (Video video : videoList) {
+            if (video.getTitle().toLowerCase().contains(query.toLowerCase()) ||
+                    video.getAuthor().toLowerCase().contains(query.toLowerCase())) {
+                filteredVideoList.add(video);
+            }
+        }
+        videoAdapter.notifyDataSetChanged();
+    }
+
+    private void filterVideosByCategory(String category) {
+        filteredVideoList.clear();
+        for (Video video : videoList) {
+            if (video.getCategory().equalsIgnoreCase(category)) {
+                filteredVideoList.add(video);
             }
         }
         videoAdapter.notifyDataSetChanged();

@@ -6,7 +6,8 @@
     "authorProfilePicUrl": "drawable/pro_1",
     "views": "1000 views",
     "uploadTime": "1 day ago",
-    "videoUrl": "raw/vid1"
+    "videoUrl": "raw/vid1",
+    "category": "Sport"
   },
     {
         "thumbnailUrl": "drawable/dis_2",
@@ -15,7 +16,8 @@
         "authorProfilePicUrl": "drawable/pro_2",
         "views": "2000 views",
         "uploadTime": "2 days ago",
-        "videoUrl": "raw/vid2"
+        "videoUrl": "raw/vid2",
+      "category": "News"
     },
     {
         "thumbnailUrl": "drawable/dis_3",
@@ -24,7 +26,8 @@
         "authorProfilePicUrl": "drawable/pro_3",
         "views": "3000 views",
         "uploadTime": "3 days ago",
-        "videoUrl": "raw/vid3"
+        "videoUrl": "raw/vid3",
+      "category": "Cinema"
     },
     {
         "thumbnailUrl": "drawable/dis_4",
@@ -33,7 +36,8 @@
         "authorProfilePicUrl": "drawable/pro_4",
         "views": "4000 views",
         "uploadTime": "4 days ago",
-        "videoUrl": "raw/vid4"
+        "videoUrl": "raw/vid4",
+      "category": "Gaming"
     },
     {
         "thumbnailUrl": "drawable/dis_5",
@@ -42,7 +46,8 @@
         "authorProfilePicUrl": "drawable/pro_1",
         "views": "5000 views",
         "uploadTime": "5 days ago",
-        "videoUrl": "raw/vid5"
+        "videoUrl": "raw/vid5",
+        "category": "Sport"
     },
     {
         "thumbnailUrl": "drawable/dis_6",
@@ -51,7 +56,8 @@
         "authorProfilePicUrl": "drawable/pro_2",
         "views": "6000 views",
         "uploadTime": "6 days ago",
-        "videoUrl": "raw/vid6"
+        "videoUrl": "raw/vid6",
+        "category": "News"
     },
     {
         "thumbnailUrl": "drawable/dis_7",
@@ -60,7 +66,8 @@
         "authorProfilePicUrl": "drawable/pro_3",
         "views": "7000 views",
         "uploadTime": "7 days ago",
-        "videoUrl": "raw/vid7"
+        "videoUrl": "raw/vid7",
+        "category": "Cinema"
     },
     {
         "thumbnailUrl": "drawable/dis_8",
@@ -69,7 +76,8 @@
         "authorProfilePicUrl": "drawable/pro_3",
         "views": "8000 views",
         "uploadTime": "8 days ago",
-        "videoUrl": "raw/vid8"
+        "videoUrl": "raw/vid8",
+        "category": "Gaming"
     },
     {
         "thumbnailUrl": "drawable/dis_9",
@@ -78,7 +86,8 @@
         "authorProfilePicUrl": "drawable/pro_1",
         "views": "9000 views",
         "uploadTime": "9 days ago",
-        "videoUrl": "raw/vid9"
+        "videoUrl": "raw/vid9",
+        "category": "Sport"
     },
     {
         "thumbnailUrl": "drawable/dis_10",
@@ -87,7 +96,8 @@
         "authorProfilePicUrl": "drawable/pro_1",
         "views": "10000 views",
         "uploadTime": "10 days ago",
-        "videoUrl": "raw/vid10"
+        "videoUrl": "raw/vid10",
+        "category": "News"
     },
     {
         "thumbnailUrl": "drawable/dis_11",
@@ -96,7 +106,8 @@
         "authorProfilePicUrl": "drawable/pro_4",
         "views": "11000 views",
         "uploadTime": "11 days ago",
-        "videoUrl": "raw/vid11"
+        "videoUrl": "raw/vid11",
+        "category": "Cinema"
     },
     {
         "thumbnailUrl": "drawable/dis_12",
@@ -105,7 +116,8 @@
         "authorProfilePicUrl": "drawable/pro_4",
         "views": "12000 views",
         "uploadTime": "12 days ago",
-        "videoUrl": "raw/vid12"
+        "videoUrl": "raw/vid12",
+        "category": "Gaming"
     },
     {
         "thumbnailUrl": "drawable/dis_13",
@@ -114,7 +126,8 @@
         "authorProfilePicUrl": "drawable/pro_2",
         "views": "13000 views",
         "uploadTime": "13 days ago",
-        "videoUrl": "raw/vid13"
+        "videoUrl": "raw/vid13",
+        "category": "Sport"
     },
     {
         "thumbnailUrl": "drawable/dis_14",
@@ -123,7 +136,8 @@
         "authorProfilePicUrl": "drawable/pro_2",
         "views": "14000 views",
         "uploadTime": "14 days ago",
-        "videoUrl": "raw/vid14"
+        "videoUrl": "raw/vid14",
+        "category": "News"
     }
 ]
 

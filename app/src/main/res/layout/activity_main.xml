@@ -5,12 +5,40 @@
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity">
 
+    <!-- Toolbar with logo and menu button -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="?attr/actionBarTheme">
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/logo"
+            android:layout_gravity="start"
+            android:layout_marginStart="16dp"
+            android:contentDescription="@string/app_name" />
+
+        <Button
+            android:id="@+id/menu_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:text="..."
+            android:textSize="24sp"
+            android:layout_gravity="end"
+            android:contentDescription="@string/menu_button_description" />
+    </androidx.appcompat.widget.Toolbar>
+
     <!-- Button Container -->
     <LinearLayout
         android:id="@+id/button_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/toolbar"
         android:layout_margin="10dp"
         android:orientation="horizontal"
         android:gravity="end">
@@ -37,7 +65,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Toggle Theme" />
-
     </LinearLayout>
 
     <!-- Search Box -->
