@@ -4,10 +4,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,9 +31,11 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private List<Video> videoList = new ArrayList<>();
+    private List<Video> filteredVideoList = new ArrayList<>();
     private RecyclerView recyclerView;
     private VideoAdapter videoAdapter;
     private Button btnLogin, btnThemeSwitch, btnRegister;
+    private EditText searchBox;
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "theme_prefs";
     private static final String THEME_KEY = "current_theme";
@@ -49,12 +54,13 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        videoAdapter = new VideoAdapter(videoList);
+        videoAdapter = new VideoAdapter(filteredVideoList);
         recyclerView.setAdapter(videoAdapter);
 
         btnLogin = findViewById(R.id.login_button);
         btnThemeSwitch = findViewById(R.id.theme_button);
         btnRegister = findViewById(R.id.register_button);
+        searchBox = findViewById(R.id.search_box);
 
         btnLogin.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
@@ -67,23 +73,33 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnThemeSwitch.setText(sharedPreferences.getBoolean(THEME_KEY, false) ? "Day Mode" : "Night Mode");
-        btnThemeSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean isNightMode = sharedPreferences.getBoolean(THEME_KEY, false);
-                if (isNightMode) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                    sharedPreferences.edit().putBoolean(THEME_KEY, false).apply();
-                    btnThemeSwitch.setText("Night Mode");
-                } else {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                    sharedPreferences.edit().putBoolean(THEME_KEY, true).apply();
-                    btnThemeSwitch.setText("Day Mode");
-                }
+        btnThemeSwitch.setOnClickListener(v -> {
+            boolean isNightMode = sharedPreferences.getBoolean(THEME_KEY, false);
+            if (isNightMode) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                sharedPreferences.edit().putBoolean(THEME_KEY, false).apply();
+                btnThemeSwitch.setText("Night Mode");
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                sharedPreferences.edit().putBoolean(THEME_KEY, true).apply();
+                btnThemeSwitch.setText("Day Mode");
             }
         });
 
         loadVideoData();
+
+        searchBox.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                filterVideos(charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
     }
 
     private void loadVideoData() {
@@ -109,10 +125,26 @@ public class MainActivity extends AppCompatActivity {
                 Video video = new Video(title, author, views, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl);
                 videoList.add(video);
             }
+            filteredVideoList.addAll(videoList);
             videoAdapter.notifyDataSetChanged();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void filterVideos(String query) {
+        filteredVideoList.clear();
+        if (query.isEmpty()) {
+            filteredVideoList.addAll(videoList);
+        } else {
+            for (Video video : videoList) {
+                if (video.getTitle().toLowerCase().contains(query.toLowerCase()) ||
+                        video.getAuthor().toLowerCase().contains(query.toLowerCase())) {
+                    filteredVideoList.add(video);
+                }
+            }
+        }
+        videoAdapter.notifyDataSetChanged();
     }
 
     private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
