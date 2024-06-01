@@ -41,7 +41,7 @@
         android:layout_below="@id/toolbar"
         android:layout_margin="10dp"
         android:orientation="horizontal"
-        android:gravity="end">
+        android:gravity="center_horizontal">
 
         <!-- Login Button -->
         <Button
