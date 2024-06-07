@@ -155,15 +155,19 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject obj = jsonArray.getJSONObject(i);
                 String title = obj.getString("title");
                 String author = obj.getString("author");
-                String views = obj.getString("views");
+                int views = obj.getInt("views"); // Changed to int
                 String uploadTime = obj.getString("uploadTime");
                 String thumbnailUrl = obj.getString("thumbnailUrl");
                 String authorProfilePicUrl = obj.getString("authorProfilePicUrl");
                 String videoUrl = obj.getString("videoUrl");
                 String category = obj.getString("category");
-                int likes = obj.getInt("likes");
+                int likes = obj.getInt("likes"); // Load likes
 
-                Video video = new Video(title, author, views, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category, likes);
+                // Get the updated views count from SharedPreferences
+                int updatedViews = getUpdatedViews(title, views);
+                int updatedLikes = getUpdatedLikes(title, likes);
+
+                Video video = new Video(title, author, updatedViews, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category, updatedLikes);
                 videoList.add(video);
             }
             filteredVideoList.addAll(videoList);
@@ -171,6 +175,14 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private int getUpdatedViews(String videoId, int defaultViews) {
+        return sharedPreferences.getInt(videoId + "_views", defaultViews);
+    }
+
+    private int getUpdatedLikes(String videoId, int defaultLikes) {
+        return sharedPreferences.getInt(videoId + "_likes", defaultLikes);
     }
 
     private void filterVideos(String query) {
@@ -213,6 +225,7 @@ public class MainActivity extends AppCompatActivity {
             holder.bind(video);
             holder.itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(MainActivity.this, VideoDetailActivity.class);
+                intent.putExtra("VIDEO_ID", video.getTitle());
                 intent.putExtra("VIDEO_URL", video.getVideoUrl());
                 intent.putExtra("TITLE", video.getTitle());
                 intent.putExtra("AUTHOR", video.getAuthor());
@@ -220,7 +233,6 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("UPLOAD_TIME", video.getUploadTime());
                 intent.putExtra("AUTHOR_PROFILE_PIC_URL", video.getAuthorProfilePicUrl());
                 intent.putExtra("LIKES", video.getLikes());
-                intent.putExtra("VIDEO_ID", video.getTitle()); // Using title as a unique ID
                 startActivity(intent);
             });
         }
@@ -247,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
             public void bind(Video video) {
                 title.setText(video.getTitle());
                 author.setText(video.getAuthor());
-                views.setText(video.getViews());
+                views.setText(video.getViews() + " views");
                 uploadTime.setText(video.getUploadTime());
 
                 int thumbnailResId = getResources().getIdentifier(video.getThumbnailUrl(), null, getPackageName());
