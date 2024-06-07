@@ -80,4 +80,41 @@
         android:layout_alignParentEnd="true"
         android:text="Like" />
 
+    <!-- Comments Section -->
+    <TextView
+        android:id="@+id/comments_headline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/like_button"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:text="Comments"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/comments_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/comments_headline"
+        android:layout_alignBaseline="@id/comments_headline"
+        android:layout_marginStart="8dp"
+        android:text="(0)"
+        android:textSize="18sp" />
+
+    <Button
+        android:id="@+id/add_comment_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/comments_count"
+        android:layout_alignBaseline="@id/comments_headline"
+        android:layout_marginStart="16dp"
+        android:text="Add Comment" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/comments_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/comments_headline"
+        android:layout_marginTop="16dp"
+        android:padding="16dp" />
 </RelativeLayout>

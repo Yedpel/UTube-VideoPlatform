@@ -44,8 +44,8 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "theme_prefs";
     private static final String THEME_KEY = "current_theme";
-    private HashMap<String, Boolean> likedStateMap = new HashMap<>();
-    private HashMap<String, Integer> likesCountMap = new HashMap<>();
+    public static HashMap<String, Boolean> likedStateMap = new HashMap<>();
+    public static HashMap<String, Integer> likesCountMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,5 +1,8 @@
 package com.example.utube.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Video {
     private String id;
     private String title;
@@ -11,6 +14,7 @@ public class Video {
     private String videoUrl;
     private String category;
     private int likes;
+    private List<Comment> comments;
 
     public Video(String id, String title, String author, int views, String uploadTime, String thumbnailUrl, String authorProfilePicUrl, String videoUrl, String category, int likes) {
         this.id = id;
@@ -23,6 +27,7 @@ public class Video {
         this.videoUrl = videoUrl;
         this.category = category;
         this.likes = likes;
+        this.comments = new ArrayList<>();
     }
 
     // Getters and setters for all fields
@@ -104,5 +109,70 @@ public class Video {
 
     public void setLikes(int likes) {
         this.likes = likes;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public static class Comment {
+        private String username;
+        private String text;
+        private String uploadTime;
+        private int likes;
+        private String profilePicUrl;
+
+        public Comment(String username, String text, String uploadTime, int likes, String profilePicUrl) {
+            this.username = username;
+            this.text = text;
+            this.uploadTime = uploadTime;
+            this.likes = likes;
+            this.profilePicUrl = profilePicUrl;
+        }
+
+        // Getters and setters for all fields
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+
+        public String getUploadTime() {
+            return uploadTime;
+        }
+
+        public void setUploadTime(String uploadTime) {
+            this.uploadTime = uploadTime;
+        }
+
+        public int getLikes() {
+            return likes;
+        }
+
+        public void setLikes(int likes) {
+            this.likes = likes;
+        }
+
+        public String getProfilePicUrl() {
+            return profilePicUrl;
+        }
+
+        public void setProfilePicUrl(String profilePicUrl) {
+            this.profilePicUrl = profilePicUrl;
+        }
     }
 }
