@@ -1,5 +1,6 @@
 package com.example.utube.activities;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ public class VideoDetailActivity extends AppCompatActivity {
     private boolean isLiked = false;
     private String videoId;
     private int likes;
+    private int views;
     private static final String PREFS_NAME = "video_prefs";
 
     @Override
@@ -53,17 +55,17 @@ public class VideoDetailActivity extends AppCompatActivity {
         String videoUrl = getIntent().getStringExtra("VIDEO_URL");
         String title = getIntent().getStringExtra("TITLE");
         String author = getIntent().getStringExtra("AUTHOR");
-        int views = getIntent().getIntExtra("VIEWS", 0); // Changed to int
+        views = getIntent().getIntExtra("VIEWS", 0); // Changed to int
         String uploadTime = getIntent().getStringExtra("UPLOAD_TIME");
         String authorProfilePicUrl = getIntent().getStringExtra("AUTHOR_PROFILE_PIC_URL");
         likes = getIntent().getIntExtra("LIKES", 0); // Get likes from intent
 
         // Increment the views count
-        int updatedViews = views + 1;
-        viewsTextView.setText(updatedViews + " views");
+        views++;
+        viewsTextView.setText(views + " views");
 
         // Save the updated views count
-        saveUpdatedViews(videoId, updatedViews);
+        saveUpdatedViews(videoId, views);
 
         // Load likes from SharedPreferences
         likes = sharedPreferences.getInt(videoId + "_likes", likes);
@@ -141,5 +143,15 @@ public class VideoDetailActivity extends AppCompatActivity {
         } else {
             likeButton.setText("Like");
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("VIDEO_ID", videoId);
+        resultIntent.putExtra("VIEWS", views);
+        resultIntent.putExtra("LIKES", likes);
+        setResult(RESULT_OK, resultIntent);
+        super.onBackPressed();
     }
 }

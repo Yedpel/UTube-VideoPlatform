@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "theme_prefs";
     private static final String THEME_KEY = "current_theme";
+    private static final int VIDEO_DETAIL_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,7 +121,6 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
@@ -153,21 +153,22 @@ public class MainActivity extends AppCompatActivity {
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject obj = jsonArray.getJSONObject(i);
+                String id = obj.getString("id"); // Add this line
                 String title = obj.getString("title");
                 String author = obj.getString("author");
-                int views = obj.getInt("views"); // Changed to int
+                int views = obj.getInt("views");
                 String uploadTime = obj.getString("uploadTime");
                 String thumbnailUrl = obj.getString("thumbnailUrl");
                 String authorProfilePicUrl = obj.getString("authorProfilePicUrl");
                 String videoUrl = obj.getString("videoUrl");
                 String category = obj.getString("category");
-                int likes = obj.getInt("likes"); // Load likes
+                int likes = obj.getInt("likes");
 
                 // Get the updated views count from SharedPreferences
-                int updatedViews = getUpdatedViews(title, views);
-                int updatedLikes = getUpdatedLikes(title, likes);
+                int updatedViews = getUpdatedViews(id, views);
+                int updatedLikes = getUpdatedLikes(id, likes);
 
-                Video video = new Video(title, author, updatedViews, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category, updatedLikes);
+                Video video = new Video(id, title, author, updatedViews, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category, updatedLikes);
                 videoList.add(video);
             }
             filteredVideoList.addAll(videoList);
@@ -206,6 +207,25 @@ public class MainActivity extends AppCompatActivity {
         videoAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == VIDEO_DETAIL_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            String videoId = data.getStringExtra("VIDEO_ID");
+            int updatedViews = data.getIntExtra("VIEWS", 0);
+            int updatedLikes = data.getIntExtra("LIKES", 0);
+
+            for (Video video : videoList) {
+                if (video.getId().equals(videoId)) {
+                    video.setViews(updatedViews);
+                    video.setLikes(updatedLikes);
+                    break;
+                }
+            }
+            videoAdapter.notifyDataSetChanged();
+        }
+    }
+
     private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
         private List<Video> videoList;
 
@@ -225,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
             holder.bind(video);
             holder.itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(MainActivity.this, VideoDetailActivity.class);
-                intent.putExtra("VIDEO_ID", video.getTitle());
+                intent.putExtra("VIDEO_ID", video.getId());
                 intent.putExtra("VIDEO_URL", video.getVideoUrl());
                 intent.putExtra("TITLE", video.getTitle());
                 intent.putExtra("AUTHOR", video.getAuthor());
@@ -233,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("UPLOAD_TIME", video.getUploadTime());
                 intent.putExtra("AUTHOR_PROFILE_PIC_URL", video.getAuthorProfilePicUrl());
                 intent.putExtra("LIKES", video.getLikes());
-                startActivity(intent);
+                startActivityForResult(intent, VIDEO_DETAIL_REQUEST_CODE);
             });
         }
 
