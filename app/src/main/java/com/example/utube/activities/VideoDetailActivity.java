@@ -1,7 +1,5 @@
 package com.example.utube.activities;
 
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,11 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +23,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class VideoDetailActivity extends AppCompatActivity {
@@ -42,6 +39,9 @@ public class VideoDetailActivity extends AppCompatActivity {
     private int views;
     private List<Video.Comment> comments;
     private CommentsAdapter commentsAdapter;
+
+    // Static HashMap to keep track of comments for each video within the session
+    private static HashMap<String, List<Video.Comment>> commentsMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,7 +135,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         });
 
         // Initialize comments section
-        comments = new ArrayList<>();
+        comments = commentsMap.getOrDefault(videoId, new ArrayList<>());
         commentsAdapter = new CommentsAdapter(comments);
         commentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         commentsRecyclerView.setAdapter(commentsAdapter);
@@ -149,9 +149,13 @@ public class VideoDetailActivity extends AppCompatActivity {
                 comments.add(comment);
                 commentsAdapter.notifyDataSetChanged();
                 updateCommentsCount();
+                commentsMap.put(videoId, comments);
             });
             dialog.show(getSupportFragmentManager(), "AddCommentDialog");
         });
+
+        // Update comments count
+        updateCommentsCount();
     }
 
     private void updateLikeButton() {
@@ -203,6 +207,7 @@ public class VideoDetailActivity extends AppCompatActivity {
             TextView usernameTextView, commentTextView, uploadTimeTextView, commentLikesTextView;
             ImageView profilePicImageView;
             Button likeCommentButton, editCommentButton, deleteCommentButton;
+            private boolean isCommentLiked = false;
 
             public CommentViewHolder(View itemView) {
                 super(itemView);
@@ -230,23 +235,33 @@ public class VideoDetailActivity extends AppCompatActivity {
                 }
 
                 likeCommentButton.setOnClickListener(v -> {
-                    comment.setLikes(comment.getLikes() + 1);
+                    isCommentLiked = !isCommentLiked;
+                    if (isCommentLiked) {
+                        comment.setLikes(comment.getLikes() + 1);
+                        likeCommentButton.setText("Unlike");
+                    } else {
+                        comment.setLikes(comment.getLikes() - 1);
+                        likeCommentButton.setText("Like");
+                    }
                     commentLikesTextView.setText(comment.getLikes() + " likes");
                 });
 
                 editCommentButton.setOnClickListener(v -> {
-                    AddCommentDialog editDialog = new AddCommentDialog();
-                    editDialog.setAddCommentListener(newText -> {
-                        comment.setText(newText);
-                        commentTextView.setText(newText);
+                    AddCommentDialog dialog = new AddCommentDialog();
+                    dialog.setAddCommentListener(text -> {
+                        comment.setText(text);
+                        commentTextView.setText(text);
                     });
-                    editDialog.show(getSupportFragmentManager(), "EditCommentDialog");
+                    dialog.show(getSupportFragmentManager(), "EditCommentDialog");
                 });
 
                 deleteCommentButton.setOnClickListener(v -> {
-                    comments.remove(getAdapterPosition());
-                    notifyItemRemoved(getAdapterPosition());
-                    updateCommentsCount();
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        comments.remove(position);
+                        notifyItemRemoved(position);
+                        updateCommentsCount();
+                    }
                 });
             }
         }
