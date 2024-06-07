@@ -1,7 +1,6 @@
 package com.example.utube.activities;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,12 +22,9 @@ public class VideoDetailActivity extends AppCompatActivity {
     private TextView titleTextView, authorTextView, viewsTextView, uploadTimeTextView, likesTextView;
     private ImageView authorProfilePic;
     private Button likeButton;
-    private SharedPreferences sharedPreferences;
     private boolean isLiked = false;
     private String videoId;
-    private int likes;
-    private int views;
-    private static final String PREFS_NAME = "video_prefs";
+    private int views, likes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +39,6 @@ public class VideoDetailActivity extends AppCompatActivity {
         authorProfilePic = findViewById(R.id.author_profile_pic);
         likesTextView = findViewById(R.id.likes_count);
         likeButton = findViewById(R.id.like_button);
-
-        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 
         MediaController mediaController = new MediaController(this);
         mediaController.setAnchorView(videoView);
@@ -63,13 +57,6 @@ public class VideoDetailActivity extends AppCompatActivity {
         // Increment the views count
         views++;
         viewsTextView.setText(views + " views");
-
-        // Save the updated views count
-        saveUpdatedViews(videoId, views);
-
-        // Load likes from SharedPreferences
-        likes = sharedPreferences.getInt(videoId + "_likes", likes);
-        isLiked = sharedPreferences.getBoolean(videoId + "_liked", false);
 
         // Log the URL for debugging
         Log.d("VideoDetailActivity", "Author Profile Pic URL: " + authorProfilePicUrl);
@@ -108,7 +95,6 @@ public class VideoDetailActivity extends AppCompatActivity {
         videoView.start();
 
         // Set initial like button state
-        isLiked = sharedPreferences.getBoolean(videoId + "_liked", false);
         updateLikeButton();
 
         likeButton.setOnClickListener(v -> {
@@ -119,22 +105,8 @@ public class VideoDetailActivity extends AppCompatActivity {
                 likes--;
             }
             likesTextView.setText(likes + " likes");
-            saveUpdatedLikes(videoId, likes);
-            sharedPreferences.edit().putBoolean(videoId + "_liked", isLiked).apply();
             updateLikeButton();
         });
-    }
-
-    private void saveUpdatedViews(String videoId, int updatedViews) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(videoId + "_views", updatedViews);
-        editor.apply();
-    }
-
-    private void saveUpdatedLikes(String videoId, int updatedLikes) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(videoId + "_likes", updatedLikes);
-        editor.apply();
     }
 
     private void updateLikeButton() {

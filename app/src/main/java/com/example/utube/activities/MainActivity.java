@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "theme_prefs";
     private static final String THEME_KEY = "current_theme";
-    private static final int VIDEO_DETAIL_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
@@ -153,22 +153,18 @@ public class MainActivity extends AppCompatActivity {
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject obj = jsonArray.getJSONObject(i);
-                String id = obj.getString("id"); // Add this line
+                String id = obj.getString("id");
                 String title = obj.getString("title");
                 String author = obj.getString("author");
-                int views = obj.getInt("views");
+                int views = obj.getInt("views"); // Changed to int
                 String uploadTime = obj.getString("uploadTime");
                 String thumbnailUrl = obj.getString("thumbnailUrl");
                 String authorProfilePicUrl = obj.getString("authorProfilePicUrl");
                 String videoUrl = obj.getString("videoUrl");
                 String category = obj.getString("category");
-                int likes = obj.getInt("likes");
+                int likes = obj.getInt("likes"); // Load likes
 
-                // Get the updated views count from SharedPreferences
-                int updatedViews = getUpdatedViews(id, views);
-                int updatedLikes = getUpdatedLikes(id, likes);
-
-                Video video = new Video(id, title, author, updatedViews, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category, updatedLikes);
+                Video video = new Video(id, title, author, views, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category, likes);
                 videoList.add(video);
             }
             filteredVideoList.addAll(videoList);
@@ -176,14 +172,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private int getUpdatedViews(String videoId, int defaultViews) {
-        return sharedPreferences.getInt(videoId + "_views", defaultViews);
-    }
-
-    private int getUpdatedLikes(String videoId, int defaultLikes) {
-        return sharedPreferences.getInt(videoId + "_likes", defaultLikes);
     }
 
     private void filterVideos(String query) {
@@ -205,25 +193,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         videoAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == VIDEO_DETAIL_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            String videoId = data.getStringExtra("VIDEO_ID");
-            int updatedViews = data.getIntExtra("VIEWS", 0);
-            int updatedLikes = data.getIntExtra("LIKES", 0);
-
-            for (Video video : videoList) {
-                if (video.getId().equals(videoId)) {
-                    video.setViews(updatedViews);
-                    video.setLikes(updatedLikes);
-                    break;
-                }
-            }
-            videoAdapter.notifyDataSetChanged();
-        }
     }
 
     private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
@@ -253,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("UPLOAD_TIME", video.getUploadTime());
                 intent.putExtra("AUTHOR_PROFILE_PIC_URL", video.getAuthorProfilePicUrl());
                 intent.putExtra("LIKES", video.getLikes());
-                startActivityForResult(intent, VIDEO_DETAIL_REQUEST_CODE);
+                startActivityForResult(intent, 1);
             });
         }
 
@@ -297,6 +266,25 @@ public class MainActivity extends AppCompatActivity {
                     Picasso.get().load(video.getAuthorProfilePicUrl()).into(authorProfilePic);
                 }
             }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            String videoId = data.getStringExtra("VIDEO_ID");
+            int updatedViews = data.getIntExtra("VIEWS", 0);
+            int updatedLikes = data.getIntExtra("LIKES", 0);
+
+            for (Video video : videoList) {
+                if (video.getId().equals(videoId)) {
+                    video.setViews(updatedViews);
+                    video.setLikes(updatedLikes);
+                    break;
+                }
+            }
+            videoAdapter.notifyDataSetChanged();
         }
     }
 }
