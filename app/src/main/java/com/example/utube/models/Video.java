@@ -4,7 +4,7 @@ public class Video {
     private String id;
     private String title;
     private String author;
-    private int views; // Changed to int
+    private int views;
     private String uploadTime;
     private String thumbnailUrl;
     private String authorProfilePicUrl;

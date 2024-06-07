@@ -16,6 +16,8 @@ import com.example.utube.R;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import java.util.HashMap;
+
 public class VideoDetailActivity extends AppCompatActivity {
 
     private VideoView videoView;
@@ -24,7 +26,10 @@ public class VideoDetailActivity extends AppCompatActivity {
     private Button likeButton;
     private boolean isLiked = false;
     private String videoId;
-    private int views, likes;
+    private int likes;
+    private int views;
+    private static HashMap<String, Boolean> likedStateMap = new HashMap<>();
+    private static HashMap<String, Integer> likesCountMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,14 +54,19 @@ public class VideoDetailActivity extends AppCompatActivity {
         String videoUrl = getIntent().getStringExtra("VIDEO_URL");
         String title = getIntent().getStringExtra("TITLE");
         String author = getIntent().getStringExtra("AUTHOR");
-        views = getIntent().getIntExtra("VIEWS", 0); // Changed to int
+        views = getIntent().getIntExtra("VIEWS", 0);
         String uploadTime = getIntent().getStringExtra("UPLOAD_TIME");
         String authorProfilePicUrl = getIntent().getStringExtra("AUTHOR_PROFILE_PIC_URL");
-        likes = getIntent().getIntExtra("LIKES", 0); // Get likes from intent
+        likes = getIntent().getIntExtra("LIKES", 0);
 
         // Increment the views count
         views++;
         viewsTextView.setText(views + " views");
+
+        // Load likes state from memory
+        isLiked = likedStateMap.getOrDefault(videoId, false);
+        likes = likesCountMap.getOrDefault(videoId, likes);
+        likesTextView.setText(likes + " likes");
 
         // Log the URL for debugging
         Log.d("VideoDetailActivity", "Author Profile Pic URL: " + authorProfilePicUrl);
@@ -71,7 +81,6 @@ public class VideoDetailActivity extends AppCompatActivity {
         titleTextView.setText(title);
         authorTextView.setText(author);
         uploadTimeTextView.setText(uploadTime);
-        likesTextView.setText(likes + " likes");
 
         // Load author's profile picture with Picasso, set placeholder and error image
         int authorProfilePicResId = getResources().getIdentifier(authorProfilePicUrl, "drawable", getPackageName());
@@ -105,6 +114,8 @@ public class VideoDetailActivity extends AppCompatActivity {
                 likes--;
             }
             likesTextView.setText(likes + " likes");
+            likedStateMap.put(videoId, isLiked);
+            likesCountMap.put(videoId, likes);
             updateLikeButton();
         });
     }
@@ -119,11 +130,10 @@ public class VideoDetailActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra("VIDEO_ID", videoId);
-        resultIntent.putExtra("VIEWS", views);
-        resultIntent.putExtra("LIKES", likes);
-        setResult(RESULT_OK, resultIntent);
+        Intent intent = new Intent();
+        intent.putExtra("VIDEO_ID", videoId);
+        intent.putExtra("UPDATED_VIEWS", views);
+        setResult(RESULT_OK, intent);
         super.onBackPressed();
     }
 }

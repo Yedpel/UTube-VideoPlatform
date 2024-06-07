@@ -31,6 +31,7 @@ import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -43,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "theme_prefs";
     private static final String THEME_KEY = "current_theme";
+    private HashMap<String, Boolean> likedStateMap = new HashMap<>();
+    private HashMap<String, Integer> likesCountMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,7 +123,6 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
@@ -153,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject obj = jsonArray.getJSONObject(i);
-                String id = obj.getString("id");
+                String id = obj.getString("id"); // Add ID
                 String title = obj.getString("title");
                 String author = obj.getString("author");
                 int views = obj.getInt("views"); // Changed to int
@@ -164,7 +166,15 @@ public class MainActivity extends AppCompatActivity {
                 String category = obj.getString("category");
                 int likes = obj.getInt("likes"); // Load likes
 
-                Video video = new Video(id, title, author, views, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category, likes);
+                // Get the updated views count from SharedPreferences
+                int updatedViews = getUpdatedViews(id, views);
+                int updatedLikes = getUpdatedLikes(id, likes);
+
+                // Store the initial likes count and liked state in memory
+                likesCountMap.put(id, updatedLikes);
+                likedStateMap.put(id, sharedPreferences.getBoolean(id + "_liked", false));
+
+                Video video = new Video(id, title, author, updatedViews, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category, updatedLikes);
                 videoList.add(video);
             }
             filteredVideoList.addAll(videoList);
@@ -172,6 +182,14 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private int getUpdatedViews(String videoId, int defaultViews) {
+        return sharedPreferences.getInt(videoId + "_views", defaultViews);
+    }
+
+    private int getUpdatedLikes(String videoId, int defaultLikes) {
+        return sharedPreferences.getInt(videoId + "_likes", defaultLikes);
     }
 
     private void filterVideos(String query) {
@@ -273,18 +291,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == RESULT_OK) {
-            String videoId = data.getStringExtra("VIDEO_ID");
-            int updatedViews = data.getIntExtra("VIEWS", 0);
-            int updatedLikes = data.getIntExtra("LIKES", 0);
-
-            for (Video video : videoList) {
-                if (video.getId().equals(videoId)) {
-                    video.setViews(updatedViews);
-                    video.setLikes(updatedLikes);
-                    break;
+            if (data != null) {
+                String videoId = data.getStringExtra("VIDEO_ID");
+                int updatedViews = data.getIntExtra("UPDATED_VIEWS", 0);
+                for (Video video : videoList) {
+                    if (video.getId().equals(videoId)) {
+                        video.setViews(updatedViews);
+                        break;
+                    }
                 }
+                videoAdapter.notifyDataSetChanged();
             }
-            videoAdapter.notifyDataSetChanged();
         }
     }
 }
