@@ -9,6 +9,7 @@ public class Video {
     String authorProfilePicUrl;
     String videoUrl;
     String category;
+    int likes;
 
     public String getVideoUrl() {
         return videoUrl;
@@ -39,7 +40,11 @@ public class Video {
     }
     public String getCategory() { return category; }
 
-    public Video(String title, String author, String views, String uploadTime, String thumbnailUrl, String authorProfilePicUrl, String videoUrl, String category) {
+    public int getLikes() {return likes;}
+
+    public void setLikes(int likes) {this.likes = likes;}
+
+    public Video(String title, String author, String views, String uploadTime, String thumbnailUrl, String authorProfilePicUrl, String videoUrl, String category, int likes) {
         this.title = title;
         this.author = author;
         this.views = views;
@@ -48,5 +53,6 @@ public class Video {
         this.authorProfilePicUrl = authorProfilePicUrl;
         this.videoUrl = videoUrl;
         this.category = category;
+        this.likes = likes;
     }
 }

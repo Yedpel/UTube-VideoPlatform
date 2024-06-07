@@ -161,8 +161,9 @@ public class MainActivity extends AppCompatActivity {
                 String authorProfilePicUrl = obj.getString("authorProfilePicUrl");
                 String videoUrl = obj.getString("videoUrl");
                 String category = obj.getString("category");
+                int likes = obj.getInt("likes");
 
-                Video video = new Video(title, author, views, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category);
+                Video video = new Video(title, author, views, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category, likes);
                 videoList.add(video);
             }
             filteredVideoList.addAll(videoList);
@@ -218,6 +219,8 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("VIEWS", video.getViews());
                 intent.putExtra("UPLOAD_TIME", video.getUploadTime());
                 intent.putExtra("AUTHOR_PROFILE_PIC_URL", video.getAuthorProfilePicUrl());
+                intent.putExtra("LIKES", video.getLikes());
+                intent.putExtra("VIDEO_ID", video.getTitle()); // Using title as a unique ID
                 startActivity(intent);
             });
         }
