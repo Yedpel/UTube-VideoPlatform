@@ -39,10 +39,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements VideoDeletionListener {
     private static final int REQUEST_VIDEO_PICK = 2;
-    public static List<Video> videoList = new ArrayList<>();
-    public static List<Video> filteredVideoList = new ArrayList<>();
+    private List<Video> videoList = new ArrayList<>();
+    private List<Video> filteredVideoList = new ArrayList<>();
     private RecyclerView recyclerView;
     private VideoAdapter videoAdapter;
     private Button btnLogin, btnThemeSwitch, btnRegister, btnAddVideo;
@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     public static HashMap<String, Boolean> likedStateMap = new HashMap<>();
     public static HashMap<String, Integer> likesCountMap = new HashMap<>();
     public static HashMap<String, Video> videoMap = new HashMap<>();
-    private int videoIdCounter = 0;
+    private int videoIdCounter = 14;
     private Uri selectedVideoUri;
 
     @Override
@@ -271,6 +271,13 @@ public class MainActivity extends AppCompatActivity {
             videoAdapter.notifyDataSetChanged();
         });
         dialog.show(getSupportFragmentManager(), "AddVideoDialog");
+    }
+
+    @Override
+    public void onVideoDeleted(String videoId) {
+        videoList.removeIf(video -> video.getId().equals(videoId));
+        filteredVideoList.removeIf(video -> video.getId().equals(videoId));
+        videoAdapter.notifyDataSetChanged();
     }
 
     private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {

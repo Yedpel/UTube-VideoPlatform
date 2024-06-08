@@ -39,6 +39,7 @@ public class VideoDetailActivity extends AppCompatActivity {
     private int views;
     private List<Video.Comment> comments;
     private CommentsAdapter commentsAdapter;
+    private VideoDeletionListener videoDeletionListener;
 
     // Static HashMaps to keep track of comments and likes state for each video within the session
     private static HashMap<String, List<Video.Comment>> commentsMap = new HashMap<>();
@@ -168,9 +169,9 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         // Delete video button click listener
         deleteVideoButton.setOnClickListener(v -> {
-            MainActivity.videoList.removeIf(video -> video.getId().equals(videoId));
-            MainActivity.filteredVideoList.removeIf(video -> video.getId().equals(videoId));
-            MainActivity.videoMap.remove(videoId);
+            if (videoDeletionListener != null) {
+                videoDeletionListener.onVideoDeleted(videoId);
+            }
 
             // Return to main activity
             Intent intent = new Intent(VideoDetailActivity.this, MainActivity.class);
@@ -192,7 +193,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                 if (!text.trim().isEmpty()) {
                     String currentTime = "Just now"; // Use a proper timestamp in real app
                     idCounter++;
-                    Video.Comment comment = new Video.Comment(idCounter,"user1", text, currentTime, 0, "drawable/error_image.webp");
+                    Video.Comment comment = new Video.Comment(idCounter, "user1", text, currentTime, 0, "drawable/error_image.webp");
                     comments.add(comment);
                     commentsAdapter.notifyDataSetChanged();
                     updateCommentsCount();
