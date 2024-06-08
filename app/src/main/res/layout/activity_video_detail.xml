@@ -80,6 +80,17 @@
         android:layout_alignParentEnd="true"
         android:text="Like" />
 
+    <!-- Share Button -->
+    <Button
+        android:id="@+id/share_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/video_view"
+        android:layout_marginTop="16dp"
+        android:layout_toStartOf="@id/like_button"
+        android:layout_marginEnd="8dp"
+        android:text="Share" />
+
     <!-- Comments Section -->
     <TextView
         android:id="@+id/comments_headline"
