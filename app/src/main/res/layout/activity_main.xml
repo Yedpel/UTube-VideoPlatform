@@ -67,12 +67,22 @@
             android:text="Toggle Theme" />
     </LinearLayout>
 
+    <!-- Add Video Button -->
+    <Button
+        android:id="@+id/add_video_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Video"
+        android:layout_below="@id/button_container"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"/>
+
     <!-- Search Box -->
     <EditText
         android:id="@+id/search_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/button_container"
+        android:layout_below="@id/add_video_button"
         android:layout_margin="10dp"
         android:hint="Search"
         android:minHeight="48dp"

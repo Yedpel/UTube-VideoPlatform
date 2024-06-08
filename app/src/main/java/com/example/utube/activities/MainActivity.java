@@ -39,13 +39,15 @@ public class MainActivity extends AppCompatActivity {
     private List<Video> filteredVideoList = new ArrayList<>();
     private RecyclerView recyclerView;
     private VideoAdapter videoAdapter;
-    private Button btnLogin, btnThemeSwitch, btnRegister;
+    private Button btnLogin, btnThemeSwitch, btnRegister, btnAddVideo;
     private EditText searchBox;
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "theme_prefs";
     private static final String THEME_KEY = "current_theme";
     public static HashMap<String, Boolean> likedStateMap = new HashMap<>();
     public static HashMap<String, Integer> likesCountMap = new HashMap<>();
+    public static HashMap<String, Video> videoMap = new HashMap<>();
+    private int videoIdCounter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.login_button);
         btnThemeSwitch = findViewById(R.id.theme_button);
         btnRegister = findViewById(R.id.register_button);
+        btnAddVideo = findViewById(R.id.add_video_button);
         searchBox = findViewById(R.id.search_box);
 
         btnLogin.setOnClickListener(v -> {
@@ -113,6 +116,20 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {}
+        });
+
+        btnAddVideo.setOnClickListener(v -> {
+            AddVideoDialog dialog = new AddVideoDialog();
+            dialog.setAddVideoListener((title, author, videoUrl, thumbnailUrl, authorProfilePicUrl, category) -> {
+                videoIdCounter++;
+                String id = "video" + videoIdCounter;
+                Video newVideo = new Video(id, title, author, 0, "Just now", thumbnailUrl, authorProfilePicUrl, videoUrl, category, 0);
+                videoList.add(newVideo);
+                videoMap.put(id, newVideo);
+                filteredVideoList.add(newVideo);
+                videoAdapter.notifyDataSetChanged();
+            });
+            dialog.show(getSupportFragmentManager(), "AddVideoDialog");
         });
     }
 
@@ -176,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Video video = new Video(id, title, author, updatedViews, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category, updatedLikes);
                 videoList.add(video);
+                videoMap.put(id, video);
             }
             filteredVideoList.addAll(videoList);
             videoAdapter.notifyDataSetChanged();
