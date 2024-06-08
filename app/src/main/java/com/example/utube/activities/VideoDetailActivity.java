@@ -31,7 +31,7 @@ public class VideoDetailActivity extends AppCompatActivity {
     private VideoView videoView;
     private TextView titleTextView, authorTextView, viewsTextView, uploadTimeTextView, likesTextView, commentsCountTextView;
     private ImageView authorProfilePic;
-    private Button likeButton, addCommentButton, shareButton;
+    private Button likeButton, addCommentButton;
     private RecyclerView commentsRecyclerView;
     private boolean isLiked = false;
     private String videoId;
@@ -61,7 +61,6 @@ public class VideoDetailActivity extends AppCompatActivity {
         addCommentButton = findViewById(R.id.add_comment_button);
         commentsCountTextView = findViewById(R.id.comments_count);
         commentsRecyclerView = findViewById(R.id.comments_recycler_view);
-        shareButton = findViewById(R.id.share_button); // Initialize the share button
 
         MediaController mediaController = new MediaController(this);
         mediaController.setAnchorView(videoView);
@@ -90,7 +89,9 @@ public class VideoDetailActivity extends AppCompatActivity {
         Log.d("VideoDetailActivity", "Author Profile Pic URL: " + authorProfilePicUrl);
 
         // Set video details
-        if (videoUrl.startsWith("http")) {
+        if (videoUrl.startsWith("content://")) {
+            videoView.setVideoURI(Uri.parse(videoUrl));
+        } else if (videoUrl.startsWith("http")) {
             videoView.setVideoURI(Uri.parse(videoUrl));
         } else {
             int videoResId = getResources().getIdentifier(videoUrl, "raw", getPackageName());
@@ -102,21 +103,39 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         // Load author's profile picture with Picasso, set placeholder and error image
         int authorProfilePicResId = getResources().getIdentifier(authorProfilePicUrl, "drawable", getPackageName());
-        Picasso.get()
-                .load(authorProfilePicResId)
-                .placeholder(R.drawable.placeholder_image)  // Replace with your placeholder image
-                .error(R.drawable.error_image)  // Replace with your error image
-                .into(authorProfilePic, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        Log.d("Picasso", "Image loaded successfully");
-                    }
+        if (authorProfilePicResId != 0) {
+            Picasso.get()
+                    .load(authorProfilePicResId)
+                    .placeholder(R.drawable.placeholder_image)  // Replace with your placeholder image
+                    .error(R.drawable.error_image)  // Replace with your error image
+                    .into(authorProfilePic, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d("Picasso", "Image loaded successfully");
+                        }
 
-                    @Override
-                    public void onError(Exception e) {
-                        Log.e("Picasso", "Error loading image", e);
-                    }
-                });
+                        @Override
+                        public void onError(Exception e) {
+                            Log.e("Picasso", "Error loading image", e);
+                        }
+                    });
+        } else {
+            Picasso.get()
+                    .load(authorProfilePicUrl)
+                    .placeholder(R.drawable.placeholder_image)
+                    .error(R.drawable.error_image)
+                    .into(authorProfilePic, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d("Picasso", "Image loaded successfully");
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            Log.e("Picasso", "Error loading image", e);
+                        }
+                    });
+        }
 
         // Start video
         videoView.start();
@@ -135,14 +154,6 @@ public class VideoDetailActivity extends AppCompatActivity {
             MainActivity.likedStateMap.put(videoId, isLiked);
             MainActivity.likesCountMap.put(videoId, likes);
             updateLikeButton();
-        });
-
-        // Set share button click listener
-        shareButton.setOnClickListener(v -> {
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, videoUrl);
-            startActivity(Intent.createChooser(shareIntent, "Share video via"));
         });
 
         // Initialize comments section

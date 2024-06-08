@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -124,9 +125,7 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {}
         });
 
-        btnAddVideo.setOnClickListener(v -> {
-            openVideoPicker();
-        });
+        btnAddVideo.setOnClickListener(v -> openVideoPicker());
     }
 
     @Override
@@ -199,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
             filteredVideoList.addAll(videoList);
             videoAdapter.notifyDataSetChanged();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("MainActivity", "Error loading video data", e);
         }
     }
 
@@ -330,19 +329,26 @@ public class MainActivity extends AppCompatActivity {
                 views.setText(video.getViews() + " views");
                 uploadTime.setText(video.getUploadTime());
 
-                int thumbnailResId = getResources().getIdentifier(video.getThumbnailUrl(), null, getPackageName());
-                int authorProfilePicResId = getResources().getIdentifier(video.getAuthorProfilePicUrl(), null, getPackageName());
+                try {
+                    // Load thumbnail image
+                    int thumbnailResId = getResources().getIdentifier(video.getThumbnailUrl(), "drawable", getPackageName());
+                    if (thumbnailResId != 0) {
+                        thumbnail.setImageResource(thumbnailResId);
+                    } else {
+                        Picasso.get().load(video.getThumbnailUrl()).into(thumbnail);
+                    }
 
-                if (thumbnailResId != 0) {
-                    thumbnail.setImageResource(thumbnailResId);
-                } else {
-                    Picasso.get().load(video.getThumbnailUrl()).into(thumbnail);
-                }
-
-                if (authorProfilePicResId != 0) {
-                    authorProfilePic.setImageResource(authorProfilePicResId);
-                } else {
-                    Picasso.get().load(video.getAuthorProfilePicUrl()).into(authorProfilePic);
+                    // Load author profile picture
+                    int authorProfilePicResId = getResources().getIdentifier(video.getAuthorProfilePicUrl(), "drawable", getPackageName());
+                    if (authorProfilePicResId != 0) {
+                        authorProfilePic.setImageResource(authorProfilePicResId);
+                    } else {
+                        Picasso.get().load(video.getAuthorProfilePicUrl()).into(authorProfilePic);
+                    }
+                } catch (Exception e) {
+                    Log.e("VideoAdapter", "Error loading images", e);
+                    thumbnail.setImageResource(R.drawable.error_image);
+                    authorProfilePic.setImageResource(R.drawable.error_image);
                 }
             }
         }
