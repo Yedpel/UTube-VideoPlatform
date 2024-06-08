@@ -15,18 +15,24 @@ public class Video {
     private int likes;
 
     public static class Comment {
+        private int id;
         private String username;
         private String text;
         private String uploadTime;
         private int likes;
         private String profilePicUrl;
 
-        public Comment(String username, String text, String uploadTime, int likes, String profilePicUrl) {
+        public Comment(int id, String username, String text, String uploadTime, int likes, String profilePicUrl) {
+            this.id = id;
             this.username = username;
             this.text = text;
             this.uploadTime = uploadTime;
             this.likes = likes;
             this.profilePicUrl = profilePicUrl;
+        }
+
+        public int getId() {
+            return id;
         }
 
         public String getUsername() {

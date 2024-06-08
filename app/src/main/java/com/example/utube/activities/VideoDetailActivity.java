@@ -40,8 +40,9 @@ public class VideoDetailActivity extends AppCompatActivity {
     private List<Video.Comment> comments;
     private CommentsAdapter commentsAdapter;
 
-    // Static HashMap to keep track of comments for each video within the session
+    // Static HashMaps to keep track of comments and likes state for each video within the session
     private static HashMap<String, List<Video.Comment>> commentsMap = new HashMap<>();
+    private static HashMap<String, HashMap<String, Boolean>> likedCommentsStateMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,12 +145,14 @@ public class VideoDetailActivity extends AppCompatActivity {
         addCommentButton.setOnClickListener(v -> {
             AddCommentDialog dialog = new AddCommentDialog();
             dialog.setAddCommentListener(text -> {
-                String currentTime = "Just now"; // Use a proper timestamp in real app
-                Video.Comment comment = new Video.Comment("user1", text, currentTime, 0, "drawable/error_image.webp");
-                comments.add(comment);
-                commentsAdapter.notifyDataSetChanged();
-                updateCommentsCount();
-                commentsMap.put(videoId, comments);
+                if (!text.trim().isEmpty()) {
+                    String currentTime = "Just now"; // Use a proper timestamp in real app
+                    Video.Comment comment = new Video.Comment(likedCommentsStateMap.size(),"user1", text, currentTime, 0, "drawable/error_image.webp");
+                    comments.add(comment);
+                    commentsAdapter.notifyDataSetChanged();
+                    updateCommentsCount();
+                    commentsMap.put(videoId, comments);
+                }
             });
             dialog.show(getSupportFragmentManager(), "AddCommentDialog");
         });
@@ -234,23 +237,34 @@ public class VideoDetailActivity extends AppCompatActivity {
                     Picasso.get().load(comment.getProfilePicUrl()).into(profilePicImageView);
                 }
 
+                // Load comment like state
+                isCommentLiked = likedCommentsStateMap
+                        .getOrDefault(videoId, new HashMap<>())
+                        .getOrDefault(comment.getText(), false);
+
+                updateLikeCommentButton();
+
                 likeCommentButton.setOnClickListener(v -> {
                     isCommentLiked = !isCommentLiked;
                     if (isCommentLiked) {
                         comment.setLikes(comment.getLikes() + 1);
-                        likeCommentButton.setText("Unlike");
                     } else {
                         comment.setLikes(comment.getLikes() - 1);
-                        likeCommentButton.setText("Like");
                     }
                     commentLikesTextView.setText(comment.getLikes() + " likes");
+                    likedCommentsStateMap
+                            .computeIfAbsent(videoId, k -> new HashMap<>())
+                            .put(comment.getText(), isCommentLiked);
+                    updateLikeCommentButton();
                 });
 
                 editCommentButton.setOnClickListener(v -> {
                     AddCommentDialog dialog = new AddCommentDialog();
                     dialog.setAddCommentListener(text -> {
-                        comment.setText(text);
-                        commentTextView.setText(text);
+                        if (!text.trim().isEmpty()) {
+                            comment.setText(text);
+                            commentTextView.setText(text);
+                        }
                     });
                     dialog.show(getSupportFragmentManager(), "EditCommentDialog");
                 });
@@ -263,6 +277,14 @@ public class VideoDetailActivity extends AppCompatActivity {
                         updateCommentsCount();
                     }
                 });
+            }
+
+            private void updateLikeCommentButton() {
+                if (isCommentLiked) {
+                    likeCommentButton.setText("Unlike");
+                } else {
+                    likeCommentButton.setText("Like");
+                }
             }
         }
     }
