@@ -41,7 +41,6 @@ public class VideoDetailActivity extends AppCompatActivity {
     private CommentsAdapter commentsAdapter;
     private VideoDeletionListener videoDeletionListener;
 
-    // Static HashMaps to keep track of comments and likes state for each video within the session
     private static HashMap<String, List<Video.Comment>> commentsMap = new HashMap<>();
     private static HashMap<String, HashMap<String, Boolean>> likedCommentsStateMap = new HashMap<>();
     private int idCounter = 0;
@@ -50,6 +49,8 @@ public class VideoDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_detail);
+
+        videoDeletionListener = (VideoDeletionListener) getParent();
 
         videoView = findViewById(R.id.video_view);
         titleTextView = findViewById(R.id.video_title);
@@ -62,8 +63,8 @@ public class VideoDetailActivity extends AppCompatActivity {
         addCommentButton = findViewById(R.id.add_comment_button);
         commentsCountTextView = findViewById(R.id.comments_count);
         commentsRecyclerView = findViewById(R.id.comments_recycler_view);
-        shareButton = findViewById(R.id.share_button); // Initialize the share button
-        deleteVideoButton = findViewById(R.id.delete_video_button); // Initialize the delete video button
+        shareButton = findViewById(R.id.share_button);
+        deleteVideoButton = findViewById(R.id.delete_video_button);
 
         MediaController mediaController = new MediaController(this);
         mediaController.setAnchorView(videoView);
@@ -109,8 +110,8 @@ public class VideoDetailActivity extends AppCompatActivity {
         if (authorProfilePicResId != 0) {
             Picasso.get()
                     .load(authorProfilePicResId)
-                    .placeholder(R.drawable.placeholder_image)  // Replace with your placeholder image
-                    .error(R.drawable.error_image)  // Replace with your error image
+                    .placeholder(R.drawable.placeholder_image)
+                    .error(R.drawable.error_image)
                     .into(authorProfilePic, new Callback() {
                         @Override
                         public void onSuccess() {
@@ -191,7 +192,7 @@ public class VideoDetailActivity extends AppCompatActivity {
             AddCommentDialog dialog = new AddCommentDialog();
             dialog.setAddCommentListener(text -> {
                 if (!text.trim().isEmpty()) {
-                    String currentTime = "Just now"; // Use a proper timestamp in real app
+                    String currentTime = "Just now";
                     idCounter++;
                     Video.Comment comment = new Video.Comment(idCounter, "user1", text, currentTime, 0, "drawable/error_image.webp");
                     comments.add(comment);
@@ -283,7 +284,6 @@ public class VideoDetailActivity extends AppCompatActivity {
                     Picasso.get().load(comment.getProfilePicUrl()).into(profilePicImageView);
                 }
 
-                // Load comment like state
                 isCommentLiked = likedCommentsStateMap
                         .getOrDefault(videoId, new HashMap<>())
                         .getOrDefault(comment.getText(), false);
