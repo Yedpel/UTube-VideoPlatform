@@ -31,7 +31,7 @@ public class VideoDetailActivity extends AppCompatActivity {
     private VideoView videoView;
     private TextView titleTextView, authorTextView, viewsTextView, uploadTimeTextView, likesTextView, commentsCountTextView;
     private ImageView authorProfilePic;
-    private Button likeButton, addCommentButton, shareButton;
+    private Button likeButton, addCommentButton, shareButton, deleteVideoButton;
     private RecyclerView commentsRecyclerView;
     private boolean isLiked = false;
     private String videoId;
@@ -62,6 +62,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         commentsCountTextView = findViewById(R.id.comments_count);
         commentsRecyclerView = findViewById(R.id.comments_recycler_view);
         shareButton = findViewById(R.id.share_button); // Initialize the share button
+        deleteVideoButton = findViewById(R.id.delete_video_button); // Initialize the delete video button
 
         MediaController mediaController = new MediaController(this);
         mediaController.setAnchorView(videoView);
@@ -163,6 +164,19 @@ public class VideoDetailActivity extends AppCompatActivity {
             shareIntent.setType("text/plain");
             shareIntent.putExtra(Intent.EXTRA_TEXT, videoUrl);
             startActivity(Intent.createChooser(shareIntent, "Share video via"));
+        });
+
+        // Delete video button click listener
+        deleteVideoButton.setOnClickListener(v -> {
+            MainActivity.videoList.removeIf(video -> video.getId().equals(videoId));
+            MainActivity.filteredVideoList.removeIf(video -> video.getId().equals(videoId));
+            MainActivity.videoMap.remove(videoId);
+
+            // Return to main activity
+            Intent intent = new Intent(VideoDetailActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
         });
 
         // Initialize comments section

@@ -41,8 +41,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_VIDEO_PICK = 2;
-    private List<Video> videoList = new ArrayList<>();
-    private List<Video> filteredVideoList = new ArrayList<>();
+    public static List<Video> videoList = new ArrayList<>();
+    public static List<Video> filteredVideoList = new ArrayList<>();
     private RecyclerView recyclerView;
     private VideoAdapter videoAdapter;
     private Button btnLogin, btnThemeSwitch, btnRegister, btnAddVideo;
@@ -260,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
             String author = "defUser";
             String uploadTime = "Just now";
             String thumbnailUrl = "drawable/error_image.webp";
-            String authorProfilePicUrl = "drawable/placeholder_image.webp";
+            String authorProfilePicUrl = "drawable/error_image.webp";
             int views = 0;
             int likes = 0;
 
