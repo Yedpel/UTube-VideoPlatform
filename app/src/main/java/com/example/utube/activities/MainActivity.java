@@ -2,7 +2,9 @@ package com.example.utube.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -15,7 +17,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
@@ -35,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    private static final int REQUEST_VIDEO_PICK = 2;
     private List<Video> videoList = new ArrayList<>();
     private List<Video> filteredVideoList = new ArrayList<>();
     private RecyclerView recyclerView;
@@ -48,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     public static HashMap<String, Integer> likesCountMap = new HashMap<>();
     public static HashMap<String, Video> videoMap = new HashMap<>();
     private int videoIdCounter = 0;
+    private Uri selectedVideoUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,17 +125,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnAddVideo.setOnClickListener(v -> {
-            AddVideoDialog dialog = new AddVideoDialog();
-            dialog.setAddVideoListener((title, author, videoUrl, thumbnailUrl, authorProfilePicUrl, category) -> {
-                videoIdCounter++;
-                String id = "video" + videoIdCounter;
-                Video newVideo = new Video(id, title, author, 0, "Just now", thumbnailUrl, authorProfilePicUrl, videoUrl, category, 0);
-                videoList.add(newVideo);
-                videoMap.put(id, newVideo);
-                filteredVideoList.add(newVideo);
-                videoAdapter.notifyDataSetChanged();
-            });
-            dialog.show(getSupportFragmentManager(), "AddVideoDialog");
+            openVideoPicker();
         });
     }
 
@@ -158,6 +154,11 @@ public class MainActivity extends AppCompatActivity {
         } else {
             return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void openVideoPicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, REQUEST_VIDEO_PICK);
     }
 
     private void loadVideoData() {
@@ -231,6 +232,48 @@ public class MainActivity extends AppCompatActivity {
         videoAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_VIDEO_PICK && resultCode == RESULT_OK && data != null) {
+            selectedVideoUri = data.getData();
+            showAddVideoDialog();
+        } else if (requestCode == 1 && resultCode == RESULT_OK) {
+            if (data != null) {
+                String videoId = data.getStringExtra("VIDEO_ID");
+                int updatedViews = data.getIntExtra("UPDATED_VIEWS", 0);
+                for (Video video : videoList) {
+                    if (video.getId().equals(videoId)) {
+                        video.setViews(updatedViews);
+                        break;
+                    }
+                }
+                videoAdapter.notifyDataSetChanged();
+            }
+        }
+    }
+
+    private void showAddVideoDialog() {
+        AddVideoDialog dialog = new AddVideoDialog();
+        dialog.setAddVideoListener((title, category) -> {
+            videoIdCounter++;
+            String id = "new_" + videoIdCounter;
+            String author = "defUser";
+            String uploadTime = "Just now";
+            String thumbnailUrl = "drawable/error_image.webp";
+            String authorProfilePicUrl = "drawable/placeholder_image.webp";
+            int views = 0;
+            int likes = 0;
+
+            Video video = new Video(id, title, author, views, uploadTime, thumbnailUrl, authorProfilePicUrl, selectedVideoUri.toString(), category, likes);
+            videoList.add(video);
+            filteredVideoList.add(video);
+            videoMap.put(id, video);
+            videoAdapter.notifyDataSetChanged();
+        });
+        dialog.show(getSupportFragmentManager(), "AddVideoDialog");
+    }
+
     private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
         private List<Video> videoList;
 
@@ -301,24 +344,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Picasso.get().load(video.getAuthorProfilePicUrl()).into(authorProfilePic);
                 }
-            }
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-            if (data != null) {
-                String videoId = data.getStringExtra("VIDEO_ID");
-                int updatedViews = data.getIntExtra("UPDATED_VIEWS", 0);
-                for (Video video : videoList) {
-                    if (video.getId().equals(videoId)) {
-                        video.setViews(updatedViews);
-                        break;
-                    }
-                }
-                videoAdapter.notifyDataSetChanged();
             }
         }
     }

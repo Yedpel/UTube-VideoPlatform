@@ -13,38 +13,6 @@
         android:minHeight="48dp" />
 
     <EditText
-        android:id="@+id/video_author_edit_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Author"
-        android:minHeight="48dp"
-        android:layout_marginTop="8dp" />
-
-    <EditText
-        android:id="@+id/video_url_edit_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Video URL"
-        android:minHeight="48dp"
-        android:layout_marginTop="8dp" />
-
-    <EditText
-        android:id="@+id/thumbnail_url_edit_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Thumbnail URL"
-        android:minHeight="48dp"
-        android:layout_marginTop="8dp" />
-
-    <EditText
-        android:id="@+id/author_profile_pic_url_edit_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Author Profile Picture URL"
-        android:minHeight="48dp"
-        android:layout_marginTop="8dp" />
-
-    <EditText
         android:id="@+id/category_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
