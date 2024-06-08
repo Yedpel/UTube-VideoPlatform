@@ -43,6 +43,7 @@ public class VideoDetailActivity extends AppCompatActivity {
     // Static HashMaps to keep track of comments and likes state for each video within the session
     private static HashMap<String, List<Video.Comment>> commentsMap = new HashMap<>();
     private static HashMap<String, HashMap<String, Boolean>> likedCommentsStateMap = new HashMap<>();
+    private int idCounter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,7 +148,8 @@ public class VideoDetailActivity extends AppCompatActivity {
             dialog.setAddCommentListener(text -> {
                 if (!text.trim().isEmpty()) {
                     String currentTime = "Just now"; // Use a proper timestamp in real app
-                    Video.Comment comment = new Video.Comment(likedCommentsStateMap.size(),"user1", text, currentTime, 0, "drawable/error_image.webp");
+                    idCounter++;
+                    Video.Comment comment = new Video.Comment(idCounter,"user1", text, currentTime, 0, "drawable/error_image.webp");
                     comments.add(comment);
                     commentsAdapter.notifyDataSetChanged();
                     updateCommentsCount();
