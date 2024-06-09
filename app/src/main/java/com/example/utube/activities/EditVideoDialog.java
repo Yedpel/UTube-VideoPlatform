@@ -1,6 +1,7 @@
 package com.example.utube.activities;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
@@ -28,6 +30,7 @@ public class EditVideoDialog extends DialogFragment {
     private Button changeVideoButton, saveChangesButton;
     private Uri newVideoUri;
     private String videoId;
+    private OnDismissListener onDismissListener;
 
     public static EditVideoDialog newInstance(String videoId) {
         EditVideoDialog dialog = new EditVideoDialog();
@@ -100,5 +103,21 @@ public class EditVideoDialog extends DialogFragment {
             VideoManager.getInstance().updateVideo(video);
             dismiss();
         }
+    }
+
+    public void setOnDismissListener(OnDismissListener listener) {
+        this.onDismissListener = listener;
+    }
+
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+        if (onDismissListener != null) {
+            onDismissListener.onDismiss(dialog);
+        }
+    }
+
+    public interface OnDismissListener {
+        void onDismiss(DialogInterface dialog);
     }
 }
