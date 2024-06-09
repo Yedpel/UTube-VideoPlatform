@@ -153,8 +153,11 @@ public class VideoDetailActivity extends AppCompatActivity {
             dialog.setAddCommentListener(text -> {
                 if (!text.trim().isEmpty()) {
                     String currentTime = "Just now"; // Use a proper timestamp in real app
-                    idCounter++;
-                    Video.Comment comment = new Video.Comment(idCounter, "user1", text, currentTime, 0, "drawable/error_image.webp");
+                  //  idCounter++;
+                  //  Video.Comment comment = new Video.Comment(idCounter, "user1", text, currentTime, 0, "drawable/error_image.webp");
+                    //create unique id for each comment by random number
+                    int random = (int)(Math.random()*1000000);
+                    Video.Comment comment = new Video.Comment(random, "user1", text, currentTime, 0, "drawable/error_image.webp");
                     comments.add(comment);
                     commentsAdapter.notifyDataSetChanged();
                     updateCommentsCount();
