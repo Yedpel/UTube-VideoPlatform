@@ -39,4 +39,6 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     // Picasso for image loading
     implementation("com.squareup.picasso:picasso:2.8")
+    implementation ("com.google.android.exoplayer:exoplayer:2.16.0")
+
 }

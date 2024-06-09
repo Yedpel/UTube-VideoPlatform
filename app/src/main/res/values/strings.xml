@@ -11,4 +11,6 @@
         <item>Cinema</item>
         <item>Gaming</item>
     </string-array>
+    <string name="pause">Pause</string>
+    <string name="fullscreen">Fullscreen</string>
 </resources>
