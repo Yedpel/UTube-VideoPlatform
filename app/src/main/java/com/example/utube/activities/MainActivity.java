@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         searchBox = findViewById(R.id.search_box);
 
         btnLogin.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
         });
 

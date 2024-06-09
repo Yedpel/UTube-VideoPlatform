@@ -9,13 +9,14 @@
 
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.UTUBE">
-<!--        android:theme="@style/AppTheme">-->
+        <!--        android:theme="@style/AppTheme">-->
 
         <!-- Main activity -->
         <activity android:name=".activities.MainActivity"
@@ -30,8 +31,6 @@
         <!-- VideoPlayerActivity Declaration -->
         <activity android:name=".activities.VideoDetailActivity" />
 
-        <!-- VideoPlayerActivity Declaration -->
-        <activity android:name=".activities.VideoPlayerActivity" />
 
         <!-- Login activity -->
         <activity android:name=".activities.LoginActivity" />
@@ -39,11 +38,7 @@
         <!-- Registration activity -->
         <activity android:name=".activities.RegisterActivity" />
 
-        <!-- Movie activity -->
-        <activity android:name=".activities.MovieActivity" />
 
-        <!-- Add movie activity -->
-        <activity android:name=".activities.AddMovieActivity" />
 
     </application>
 
