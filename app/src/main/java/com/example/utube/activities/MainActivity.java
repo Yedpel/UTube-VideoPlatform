@@ -35,31 +35,19 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-public class MainActivity extends AppCompatActivity implements VideoDeletionListener {
+public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_VIDEO_PICK = 2;
-    private static final String PREFS_NAME = "theme_prefs";
-    private static final String THEME_KEY = "current_theme";
-    private static final String DELETED_VIDEOS_KEY = "deleted_videos";
-    private List<Video> videoList = new ArrayList<>();
-    private List<Video> filteredVideoList = new ArrayList<>();
-    private List<Video> initialVideoList = new ArrayList<>();
     private RecyclerView recyclerView;
     private VideoAdapter videoAdapter;
     private Button btnLogin, btnThemeSwitch, btnRegister, btnAddVideo;
     private EditText searchBox;
     private SharedPreferences sharedPreferences;
-    static HashMap<String, Boolean> likedStateMap = new HashMap<>();
-    static HashMap<String, Integer> likesCountMap = new HashMap<>();
-    private static HashMap<String, Video> videoMap = new HashMap<>();
+    private static final String PREFS_NAME = "theme_prefs";
+    private static final String THEME_KEY = "current_theme";
     private int videoIdCounter = 14;
     private Uri selectedVideoUri;
-    private Set<String> deletedVideoIds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements VideoDeletionList
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        videoAdapter = new VideoAdapter(filteredVideoList);
+        videoAdapter = new VideoAdapter(VideoManager.getInstance().getFilteredVideoList());
         recyclerView.setAdapter(videoAdapter);
 
         btnLogin = findViewById(R.id.login_button);
@@ -114,11 +102,7 @@ public class MainActivity extends AppCompatActivity implements VideoDeletionList
             }
         });
 
-        // Load deleted video IDs from SharedPreferences
-        deletedVideoIds = sharedPreferences.getStringSet(DELETED_VIDEOS_KEY, new HashSet<>());
-
-        loadInitialVideoData();
-        reloadVideoList();
+        loadVideoData();
 
         // Filter videos based on search
         searchBox.addTextChangedListener(new TextWatcher() {
@@ -169,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements VideoDeletionList
         startActivityForResult(intent, REQUEST_VIDEO_PICK);
     }
 
-    private void loadInitialVideoData() {
+    private void loadVideoData() {
         try {
             InputStream inputStream = getAssets().open("videos.json");
             int size = inputStream.available();
@@ -181,41 +165,32 @@ public class MainActivity extends AppCompatActivity implements VideoDeletionList
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject obj = jsonArray.getJSONObject(i);
-                String id = obj.getString("id");
+                String id = obj.getString("id"); // Add ID
                 String title = obj.getString("title");
                 String author = obj.getString("author");
-                int views = obj.getInt("views");
+                int views = obj.getInt("views"); // Changed to int
                 String uploadTime = obj.getString("uploadTime");
                 String thumbnailUrl = obj.getString("thumbnailUrl");
                 String authorProfilePicUrl = obj.getString("authorProfilePicUrl");
                 String videoUrl = obj.getString("videoUrl");
                 String category = obj.getString("category");
-                int likes = obj.getInt("likes");
+                int likes = obj.getInt("likes"); // Load likes
 
-                Video video = new Video(id, title, author, views, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category, likes);
-                initialVideoList.add(video);
+                // Get the updated views count from SharedPreferences
+                int updatedViews = getUpdatedViews(id, views);
+                int updatedLikes = getUpdatedLikes(id, likes);
+
+                // Store the initial likes count and liked state in memory
+                VideoManager.getInstance().getLikesCountMap().put(id, updatedLikes);
+                VideoManager.getInstance().getLikedStateMap().put(id, sharedPreferences.getBoolean(id + "_liked", false));
+
+                Video video = new Video(id, title, author, updatedViews, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category, updatedLikes);
+                VideoManager.getInstance().addVideo(video);
             }
+            videoAdapter.notifyDataSetChanged();
         } catch (Exception e) {
             Log.e("MainActivity", "Error loading video data", e);
         }
-    }
-
-    private void reloadVideoList() {
-        videoList.clear();
-        filteredVideoList.clear();
-        for (Video video : initialVideoList) {
-            if (!deletedVideoIds.contains(video.getId())) {
-                int updatedViews = getUpdatedViews(video.getId(), video.getViews());
-                int updatedLikes = getUpdatedLikes(video.getId(), video.getLikes());
-                likedStateMap.put(video.getId(), sharedPreferences.getBoolean(video.getId() + "_liked", false));
-                video.setViews(updatedViews);
-                video.setLikes(updatedLikes);
-                videoList.add(video);
-                videoMap.put(video.getId(), video);
-            }
-        }
-        filteredVideoList.addAll(videoList);
-        videoAdapter.notifyDataSetChanged();
     }
 
     private int getUpdatedViews(String videoId, int defaultViews) {
@@ -227,8 +202,9 @@ public class MainActivity extends AppCompatActivity implements VideoDeletionList
     }
 
     private void filterVideos(String query) {
+        List<Video> filteredVideoList = VideoManager.getInstance().getFilteredVideoList();
         filteredVideoList.clear();
-        for (Video video : videoList) {
+        for (Video video : VideoManager.getInstance().getVideoList()) {
             if (video.getTitle().toLowerCase().contains(query.toLowerCase()) ||
                     video.getAuthor().toLowerCase().contains(query.toLowerCase())) {
                 filteredVideoList.add(video);
@@ -238,8 +214,9 @@ public class MainActivity extends AppCompatActivity implements VideoDeletionList
     }
 
     private void filterVideosByCategory(String category) {
+        List<Video> filteredVideoList = VideoManager.getInstance().getFilteredVideoList();
         filteredVideoList.clear();
-        for (Video video : videoList) {
+        for (Video video : VideoManager.getInstance().getVideoList()) {
             if (video.getCategory().equalsIgnoreCase(category)) {
                 filteredVideoList.add(video);
             }
@@ -257,13 +234,11 @@ public class MainActivity extends AppCompatActivity implements VideoDeletionList
             if (data != null) {
                 String videoId = data.getStringExtra("VIDEO_ID");
                 int updatedViews = data.getIntExtra("UPDATED_VIEWS", 0);
-                for (Video video : videoList) {
-                    if (video.getId().equals(videoId)) {
-                        video.setViews(updatedViews);
-                        break;
-                    }
+                Video video = VideoManager.getInstance().getVideoMap().get(videoId);
+                if (video != null) {
+                    video.setViews(updatedViews);
+                    videoAdapter.notifyDataSetChanged();
                 }
-                videoAdapter.notifyDataSetChanged();
             }
         }
     }
@@ -281,19 +256,10 @@ public class MainActivity extends AppCompatActivity implements VideoDeletionList
             int likes = 0;
 
             Video video = new Video(id, title, author, views, uploadTime, thumbnailUrl, authorProfilePicUrl, selectedVideoUri.toString(), category, likes);
-            videoList.add(video);
-            filteredVideoList.add(video);
-            videoMap.put(id, video);
+            VideoManager.getInstance().addVideo(video);
             videoAdapter.notifyDataSetChanged();
         });
         dialog.show(getSupportFragmentManager(), "AddVideoDialog");
-    }
-
-    @Override
-    public void onVideoDeleted(String videoId) {
-        deletedVideoIds.add(videoId);
-        sharedPreferences.edit().putStringSet(DELETED_VIDEOS_KEY, deletedVideoIds).apply();
-        reloadVideoList();
     }
 
     private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {

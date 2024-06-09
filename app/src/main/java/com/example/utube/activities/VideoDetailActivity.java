@@ -31,7 +31,7 @@ public class VideoDetailActivity extends AppCompatActivity {
     private VideoView videoView;
     private TextView titleTextView, authorTextView, viewsTextView, uploadTimeTextView, likesTextView, commentsCountTextView;
     private ImageView authorProfilePic;
-    private Button likeButton, addCommentButton, shareButton, deleteVideoButton;
+    private Button likeButton, addCommentButton, shareButton, deleteVideoButton, editVideoButton;
     private RecyclerView commentsRecyclerView;
     private boolean isLiked = false;
     private String videoId;
@@ -39,8 +39,9 @@ public class VideoDetailActivity extends AppCompatActivity {
     private int views;
     private List<Video.Comment> comments;
     private CommentsAdapter commentsAdapter;
-    private VideoDeletionListener videoDeletionListener;
+    private Uri newVideoUri;
 
+    // Static HashMaps to keep track of comments and likes state for each video within the session
     private static HashMap<String, List<Video.Comment>> commentsMap = new HashMap<>();
     private static HashMap<String, HashMap<String, Boolean>> likedCommentsStateMap = new HashMap<>();
     private int idCounter = 0;
@@ -49,8 +50,6 @@ public class VideoDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_detail);
-
-        videoDeletionListener = (VideoDeletionListener) getParent();
 
         videoView = findViewById(R.id.video_view);
         titleTextView = findViewById(R.id.video_title);
@@ -63,8 +62,9 @@ public class VideoDetailActivity extends AppCompatActivity {
         addCommentButton = findViewById(R.id.add_comment_button);
         commentsCountTextView = findViewById(R.id.comments_count);
         commentsRecyclerView = findViewById(R.id.comments_recycler_view);
-        shareButton = findViewById(R.id.share_button);
-        deleteVideoButton = findViewById(R.id.delete_video_button);
+        shareButton = findViewById(R.id.share_button); // Initialize the share button
+        deleteVideoButton = findViewById(R.id.delete_video_button); // Initialize the delete video button
+        editVideoButton = findViewById(R.id.edit_video_button); // Initialize the edit video button
 
         MediaController mediaController = new MediaController(this);
         mediaController.setAnchorView(videoView);
@@ -85,8 +85,8 @@ public class VideoDetailActivity extends AppCompatActivity {
         viewsTextView.setText(views + " views");
 
         // Load likes state from memory
-        isLiked = MainActivity.likedStateMap.getOrDefault(videoId, false);
-        likes = MainActivity.likesCountMap.getOrDefault(videoId, likes);
+        isLiked = VideoManager.getInstance().getLikedStateMap().getOrDefault(videoId, false);
+        likes = VideoManager.getInstance().getLikesCountMap().getOrDefault(videoId, likes);
         likesTextView.setText(likes + " likes");
 
         // Log the URL for debugging
@@ -110,8 +110,8 @@ public class VideoDetailActivity extends AppCompatActivity {
         if (authorProfilePicResId != 0) {
             Picasso.get()
                     .load(authorProfilePicResId)
-                    .placeholder(R.drawable.placeholder_image)
-                    .error(R.drawable.error_image)
+                    .placeholder(R.drawable.placeholder_image)  // Replace with your placeholder image
+                    .error(R.drawable.error_image)  // Replace with your error image
                     .into(authorProfilePic, new Callback() {
                         @Override
                         public void onSuccess() {
@@ -155,8 +155,8 @@ public class VideoDetailActivity extends AppCompatActivity {
                 likes--;
             }
             likesTextView.setText(likes + " likes");
-            MainActivity.likedStateMap.put(videoId, isLiked);
-            MainActivity.likesCountMap.put(videoId, likes);
+            VideoManager.getInstance().getLikedStateMap().put(videoId, isLiked);
+            VideoManager.getInstance().getLikesCountMap().put(videoId, likes);
             updateLikeButton();
         });
 
@@ -170,15 +170,17 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         // Delete video button click listener
         deleteVideoButton.setOnClickListener(v -> {
-            if (videoDeletionListener != null) {
-                videoDeletionListener.onVideoDeleted(videoId);
-            }
-
-            // Return to main activity
+            VideoManager.getInstance().removeVideo(videoId);
             Intent intent = new Intent(VideoDetailActivity.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             finish();
+        });
+
+        // Edit video button click listener
+        editVideoButton.setOnClickListener(v -> {
+            EditVideoDialog dialog = EditVideoDialog.newInstance(videoId);
+            dialog.show(getSupportFragmentManager(), "EditVideoDialog");
         });
 
         // Initialize comments section
@@ -192,7 +194,7 @@ public class VideoDetailActivity extends AppCompatActivity {
             AddCommentDialog dialog = new AddCommentDialog();
             dialog.setAddCommentListener(text -> {
                 if (!text.trim().isEmpty()) {
-                    String currentTime = "Just now";
+                    String currentTime = "Just now"; // Use a proper timestamp in real app
                     idCounter++;
                     Video.Comment comment = new Video.Comment(idCounter, "user1", text, currentTime, 0, "drawable/error_image.webp");
                     comments.add(comment);
@@ -284,6 +286,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                     Picasso.get().load(comment.getProfilePicUrl()).into(profilePicImageView);
                 }
 
+                // Load comment like state
                 isCommentLiked = likedCommentsStateMap
                         .getOrDefault(videoId, new HashMap<>())
                         .getOrDefault(comment.getText(), false);
