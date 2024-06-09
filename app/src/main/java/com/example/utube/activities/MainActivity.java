@@ -8,17 +8,11 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.utube.R;
 import com.example.utube.models.Video;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -69,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        videoAdapter = new VideoAdapter(VideoManager.getInstance().getFilteredVideoList());
+        videoAdapter = new VideoAdapter(VideoManager.getInstance().getFilteredVideoList(), this);
         recyclerView.setAdapter(videoAdapter);
 
         btnLogin = findViewById(R.id.login_button);
@@ -260,86 +253,5 @@ public class MainActivity extends AppCompatActivity {
             videoAdapter.notifyDataSetChanged();
         });
         dialog.show(getSupportFragmentManager(), "AddVideoDialog");
-    }
-
-    private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
-        private List<Video> videoList;
-
-        public VideoAdapter(List<Video> videoList) {
-            this.videoList = videoList;
-        }
-
-        @Override
-        public VideoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_video, parent, false);
-            return new VideoViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(VideoViewHolder holder, int position) {
-            Video video = videoList.get(position);
-            holder.bind(video);
-            holder.itemView.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, VideoDetailActivity.class);
-                intent.putExtra("VIDEO_ID", video.getId());
-                intent.putExtra("VIDEO_URL", video.getVideoUrl());
-                intent.putExtra("TITLE", video.getTitle());
-                intent.putExtra("AUTHOR", video.getAuthor());
-                intent.putExtra("VIEWS", video.getViews());
-                intent.putExtra("UPLOAD_TIME", video.getUploadTime());
-                intent.putExtra("AUTHOR_PROFILE_PIC_URL", video.getAuthorProfilePicUrl());
-                intent.putExtra("LIKES", video.getLikes());
-                startActivityForResult(intent, 1);
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return videoList.size();
-        }
-
-        class VideoViewHolder extends RecyclerView.ViewHolder {
-            TextView title, author, views, uploadTime;
-            ImageView thumbnail, authorProfilePic;
-
-            public VideoViewHolder(View itemView) {
-                super(itemView);
-                title = itemView.findViewById(R.id.video_title);
-                author = itemView.findViewById(R.id.video_author);
-                views = itemView.findViewById(R.id.video_views);
-                uploadTime = itemView.findViewById(R.id.video_upload_time);
-                thumbnail = itemView.findViewById(R.id.video_thumbnail);
-                authorProfilePic = itemView.findViewById(R.id.author_profile_pic);
-            }
-
-            public void bind(Video video) {
-                title.setText(video.getTitle());
-                author.setText(video.getAuthor());
-                views.setText(video.getViews() + " views");
-                uploadTime.setText(video.getUploadTime());
-
-                try {
-                    // Load thumbnail image
-                    int thumbnailResId = getResources().getIdentifier(video.getThumbnailUrl(), "drawable", getPackageName());
-                    if (thumbnailResId != 0) {
-                        thumbnail.setImageResource(thumbnailResId);
-                    } else {
-                        Picasso.get().load(video.getThumbnailUrl()).into(thumbnail);
-                    }
-
-                    // Load author profile picture
-                    int authorProfilePicResId = getResources().getIdentifier(video.getAuthorProfilePicUrl(), "drawable", getPackageName());
-                    if (authorProfilePicResId != 0) {
-                        authorProfilePic.setImageResource(authorProfilePicResId);
-                    } else {
-                        Picasso.get().load(video.getAuthorProfilePicUrl()).into(authorProfilePic);
-                    }
-                } catch (Exception e) {
-                    Log.e("VideoAdapter", "Error loading images", e);
-                    thumbnail.setImageResource(R.drawable.error_image);
-                    authorProfilePic.setImageResource(R.drawable.error_image);
-                }
-            }
-        }
     }
 }
