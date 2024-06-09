@@ -166,22 +166,20 @@ public class MainActivity extends AppCompatActivity {
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject obj = jsonArray.getJSONObject(i);
-                String id = obj.getString("id"); // Add ID
+                String id = obj.getString("id");
                 String title = obj.getString("title");
                 String author = obj.getString("author");
-                int views = obj.getInt("views"); // Changed to int
+                int views = obj.getInt("views");
                 String uploadTime = obj.getString("uploadTime");
                 String thumbnailUrl = obj.getString("thumbnailUrl");
                 String authorProfilePicUrl = obj.getString("authorProfilePicUrl");
                 String videoUrl = obj.getString("videoUrl");
                 String category = obj.getString("category");
-                int likes = obj.getInt("likes"); // Load likes
+                int likes = obj.getInt("likes");
 
-                // Get the updated views count from SharedPreferences
                 int updatedViews = getUpdatedViews(id, views);
                 int updatedLikes = getUpdatedLikes(id, likes);
 
-                // Store the initial likes count and liked state in memory
                 VideoManager.getInstance().getLikesCountMap().put(id, updatedLikes);
                 VideoManager.getInstance().getLikedStateMap().put(id, sharedPreferences.getBoolean(id + "_liked", false));
 
@@ -246,17 +244,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void showAddVideoDialog() {
         AddVideoDialog dialog = new AddVideoDialog();
-        dialog.setAddVideoListener((title, category) -> {
+        dialog.setAddVideoListener((title, category, previewImageUrl) -> {
             videoIdCounter++;
             String id = "new_" + videoIdCounter;
             String author = "defUser";
             String uploadTime = "Just now";
-            String thumbnailUrl = "drawable/error_image.webp";
-            String authorProfilePicUrl = "drawable/error_image.webp";
             int views = 0;
             int likes = 0;
 
-            Video video = new Video(id, title, author, views, uploadTime, thumbnailUrl, authorProfilePicUrl, selectedVideoUri.toString(), category, likes);
+            Video video = new Video(id, title, author, views, uploadTime, previewImageUrl, "drawable/error_image.webp", selectedVideoUri.toString(), category, likes);
             VideoManager.getInstance().addVideo(video);
             videoAdapter.notifyDataSetChanged();
         });

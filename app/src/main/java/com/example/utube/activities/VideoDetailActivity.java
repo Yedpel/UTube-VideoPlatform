@@ -38,7 +38,6 @@ public class VideoDetailActivity extends AppCompatActivity {
     private int views;
     private List<Video.Comment> comments;
     private CommentsAdapter commentsAdapter;
-    private Uri newVideoUri;
 
     // Static HashMaps to keep track of comments and likes state for each video within the session
     private static HashMap<String, List<Video.Comment>> commentsMap = new HashMap<>();
@@ -163,6 +162,14 @@ public class VideoDetailActivity extends AppCompatActivity {
                 }
             });
             dialog.show(getSupportFragmentManager(), "AddCommentDialog");
+        });
+
+        // Share button click listener
+        findViewById(R.id.share_button).setOnClickListener(v -> {
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, videoUrl);
+            startActivity(Intent.createChooser(shareIntent, "Share video via"));
         });
 
         // Update comments count

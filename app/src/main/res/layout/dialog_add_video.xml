@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- dialog_add_video.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,8 +9,9 @@
         android:id="@+id/video_title_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Video Title"
-        android:minHeight="48dp" />
+        android:hint="Title"
+        android:minHeight="48dp"
+        android:textSize="16sp" />
 
     <Spinner
         android:id="@+id/category_spinner"
@@ -20,8 +21,22 @@
         android:minHeight="48dp" />
 
     <Button
-        android:id="@+id/add_video_button"
+        android:id="@+id/select_preview_image_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Select Preview Image" />
+
+    <ImageView
+        android:id="@+id/preview_image_view"
         android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="16dp"
+        android:scaleType="centerCrop" />
+
+    <Button
+        android:id="@+id/add_video_button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Add Video" />
