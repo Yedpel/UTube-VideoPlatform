@@ -21,9 +21,10 @@
             android:id="@+id/last_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:hint="Last Name"
-            android:padding="10dp"
-            android:layout_marginTop="10dp" />
+            android:minHeight="48dp"
+            android:padding="10dp" />
 
         <EditText
             android:id="@+id/dob"
@@ -72,6 +73,23 @@
             android:inputType="textPassword"
             android:minHeight="48dp"
             android:padding="10dp" />
+
+        <ImageView
+            android:id="@+id/profile_pic"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
+            android:contentDescription="Profile Picture"
+            android:src="@drawable/ic_profile_placeholder" />
+
+        <Button
+            android:id="@+id/select_profile_pic_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Profile Picture"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp" />
 
         <Button
             android:id="@+id/register_button"
