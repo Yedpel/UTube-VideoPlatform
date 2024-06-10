@@ -1,33 +1,15 @@
 package com.example.utube.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
 
-public class Video {
+public class Video implements Parcelable {
     private String id;
-    private String title;
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public void setUploadTime(String uploadTime) {
-        this.uploadTime = uploadTime;
-    }
-
-    public void setThumbnailUrl(String thumbnailUrl) {
-        this.thumbnailUrl = thumbnailUrl;
-    }
-
-    public void setAuthorProfilePicUrl(String authorProfilePicUrl) {
-        this.authorProfilePicUrl = authorProfilePicUrl;
     }
 
     public void setVideoUrl(String videoUrl) {
@@ -38,6 +20,7 @@ public class Video {
         this.category = category;
     }
 
+    private String title;
     private String author;
     private int views;
     private String uploadTime;
@@ -158,4 +141,49 @@ public class Video {
     public void setLikes(int likes) {
         this.likes = likes;
     }
+
+    // Parcelable implementation
+    protected Video(Parcel in) {
+        id = in.readString();
+        title = in.readString();
+        author = in.readString();
+        views = in.readInt();
+        uploadTime = in.readString();
+        thumbnailUrl = in.readString();
+        authorProfilePicUrl = in.readString();
+        videoUrl = in.readString();
+        category = in.readString();
+        likes = in.readInt();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(title);
+        dest.writeString(author);
+        dest.writeInt(views);
+        dest.writeString(uploadTime);
+        dest.writeString(thumbnailUrl);
+        dest.writeString(authorProfilePicUrl);
+        dest.writeString(videoUrl);
+        dest.writeString(category);
+        dest.writeInt(likes);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<Video> CREATOR = new Creator<Video>() {
+        @Override
+        public Video createFromParcel(Parcel in) {
+            return new Video(in);
+        }
+
+        @Override
+        public Video[] newArray(int size) {
+            return new Video[size];
+        }
+    };
 }

@@ -1,134 +1,152 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 
-    <ImageView
-        android:id="@+id/author_profile_pic"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="16dp"
-        android:contentDescription="Author Profile Picture" />
-
-    <TextView
-        android:id="@+id/video_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/author_profile_pic"
-        android:layout_alignTop="@id/author_profile_pic"
-        android:layout_marginStart="8dp"
-        android:text="Video Title"
-        android:textSize="20sp" />
-
-    <TextView
-        android:id="@+id/video_author"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/author_profile_pic"
-        android:layout_below="@id/video_title"
-        android:layout_marginStart="8dp"
-        android:text="Author"
-        android:textSize="16sp" />
-
-    <TextView
-        android:id="@+id/video_views"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/author_profile_pic"
-        android:layout_marginTop="8dp"
-        android:layout_centerHorizontal="true"
-        android:text="Views"
-        android:textSize="16sp" />
-
-    <TextView
-        android:id="@+id/video_upload_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/video_views"
-        android:layout_centerHorizontal="true"
-        android:text="Upload Time"
-        android:textSize="16sp"
-        android:layout_marginTop="8dp" />
-
-    <VideoView
-        android:id="@+id/video_view"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_below="@id/video_upload_time"
-        android:layout_marginTop="16dp"
-        android:layout_centerInParent="true" />
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:gravity="center_horizontal">
 
-    <TextView
-        android:id="@+id/likes_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/video_view"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="16dp"
-        android:text="Likes: 0"
-        android:textSize="16sp" />
+            <ImageView
+                android:id="@+id/author_profile_pic"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:contentDescription="Author Profile Picture"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp" />
 
-    <Button
-        android:id="@+id/like_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/video_view"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_alignParentEnd="true"
-        android:text="Like" />
+            <TextView
+                android:id="@+id/video_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Video Title"
+                android:textSize="20sp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_gravity="center_horizontal" />
 
-    <!-- Share Button -->
-    <Button
-        android:id="@+id/share_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/video_view"
-        android:layout_marginTop="16dp"
-        android:layout_toStartOf="@id/like_button"
-        android:layout_marginEnd="8dp"
-        android:text="Share" />
+            <TextView
+                android:id="@+id/video_author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Author"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
+                android:layout_gravity="center_horizontal" />
 
-    <!-- Comments Section -->
-    <TextView
-        android:id="@+id/comments_headline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/like_button"
-        android:layout_marginTop="16dp"
-        android:text="Comments"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center">
 
-    <TextView
-        android:id="@+id/comments_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/comments_headline"
-        android:layout_alignBaseline="@id/comments_headline"
-        android:layout_marginStart="8dp"
-        android:text="(0)"
-        android:textSize="16sp" />
+                <TextView
+                    android:id="@+id/video_views"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Views"
+                    android:textSize="16sp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp" />
 
-    <Button
-        android:id="@+id/add_comment_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/comments_headline"
-        android:layout_marginTop="8dp"
-        android:layout_alignParentEnd="true"
-        android:text="Add Comment" />
+                <TextView
+                    android:id="@+id/video_upload_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Upload Time"
+                    android:textSize="16sp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp" />
+            </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/comments_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/add_comment_button"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp" />
+            <VideoView
+                android:id="@+id/video_view"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="16dp" />
 
-</RelativeLayout>
+            <TextView
+                android:id="@+id/likes_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Likes: 0"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:layout_gravity="center_horizontal" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
+                android:gravity="center_horizontal">
+
+                <Button
+                    android:id="@+id/like_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Like"
+                    android:layout_marginEnd="8dp" />
+
+                <Button
+                    android:id="@+id/share_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Share" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:id="@+id/comments_headline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Comments:"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/comments_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="(0)"
+                    android:textSize="16sp"
+                    android:layout_marginStart="4dp" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/add_comment_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Comment"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:layout_gravity="center_horizontal" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/comments_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp" />
+
+        </LinearLayout>
+    </ScrollView>
+</HorizontalScrollView>

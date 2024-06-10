@@ -56,10 +56,10 @@
 
     <Button
         android:id="@+id/menu_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="65dp"
+        android:layout_height="48dp"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="10dp"
-        android:text="..."
-        android:contentDescription="@string/menu_button_description" />
+        android:layout_marginEnd="5dp"
+        android:contentDescription="@string/menu_button_description"
+        android:text="..." />
 </RelativeLayout>

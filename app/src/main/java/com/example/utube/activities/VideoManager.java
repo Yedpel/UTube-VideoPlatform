@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class VideoManager {
-    private static VideoManager instance;
+    private static  VideoManager instance = new VideoManager();
     private List<Video> videoList = new ArrayList<>();
     private List<Video> filteredVideoList = new ArrayList<>();
     private Map<String, Video> videoMap = new HashMap<>();
@@ -67,4 +67,19 @@ public class VideoManager {
             filteredVideoList.set(index, video);
         }
     }
+
+
+    public void setVideoList(List<Video> videos) {
+        videoList.clear();
+        filteredVideoList.clear();
+        videoMap.clear();
+        videoList.addAll(videos);
+        filteredVideoList.addAll(videos);
+        for (Video video : videos) {
+            videoMap.put(video.getId(), video);
+        }
+    }
+
+
+
 }

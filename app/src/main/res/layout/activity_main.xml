@@ -1,100 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     tools:context=".activities.MainActivity">
 
-    <!-- Toolbar with logo and menu button -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:theme="?attr/actionBarTheme">
-
-        <ImageView
-            android:id="@+id/logo"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:src="@drawable/logo"
-            android:layout_gravity="start"
-            android:layout_marginStart="16dp"
-            android:contentDescription="@string/app_name" />
-
-        <Button
-            android:id="@+id/menu_button"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:text="..."
-            android:textSize="24sp"
-            android:layout_gravity="end"
-            android:contentDescription="@string/menu_button_description" />
-    </androidx.appcompat.widget.Toolbar>
-
-    <!-- Button Container -->
     <LinearLayout
-        android:id="@+id/button_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/toolbar"
-        android:layout_margin="10dp"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal">
+        android:orientation="vertical">
 
-        <!-- Login Button -->
+        <!-- Toolbar with logo and menu button -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:theme="?attr/actionBarTheme">
+
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/logo"
+                android:layout_gravity="start"
+                android:layout_marginStart="16dp"
+                android:contentDescription="@string/app_name" />
+
+            <Button
+                android:id="@+id/menu_button"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:text="..."
+                android:textSize="24sp"
+                android:layout_gravity="end"
+                android:contentDescription="@string/menu_button_description" />
+        </androidx.appcompat.widget.Toolbar>
+
+        <!-- Button Container -->
+        <LinearLayout
+            android:id="@+id/button_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+
+            <!-- Login Button -->
+            <Button
+                android:id="@+id/login_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Login"
+                android:layout_marginEnd="10dp" />
+
+            <!-- Register Button -->
+            <Button
+                android:id="@+id/register_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Register"
+                android:layout_marginEnd="10dp" />
+
+            <!-- Toggle Theme Button -->
+            <Button
+                android:id="@+id/theme_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Toggle Theme" />
+        </LinearLayout>
+
+        <!-- Add Video Button -->
         <Button
-            android:id="@+id/login_button"
+            android:id="@+id/add_video_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Login"
-            android:layout_marginEnd="10dp" />
+            android:text="Add Video"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"/>
 
-        <!-- Register Button -->
-        <Button
-            android:id="@+id/register_button"
-            android:layout_width="wrap_content"
+        <!-- Search Box -->
+        <EditText
+            android:id="@+id/search_box"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Register"
-            android:layout_marginEnd="10dp" />
+            android:layout_margin="10dp"
+            android:hint="Search"
+            android:minHeight="48dp"
+            android:padding="10dp"/>
 
-        <!-- Toggle Theme Button -->
-        <Button
-            android:id="@+id/theme_button"
-            android:layout_width="wrap_content"
+        <!-- RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Toggle Theme" />
+            android:layout_margin="10dp"
+            android:padding="10dp" />
+
     </LinearLayout>
-
-    <!-- Add Video Button -->
-    <Button
-        android:id="@+id/add_video_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add Video"
-        android:layout_below="@id/button_container"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"/>
-
-    <!-- Search Box -->
-    <EditText
-        android:id="@+id/search_box"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/add_video_button"
-        android:layout_margin="10dp"
-        android:hint="Search"
-        android:minHeight="48dp"
-        android:padding="10dp"/>
-
-    <!-- RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/search_box"
-        android:layout_margin="10dp"
-        android:padding="10dp" />
-
-</RelativeLayout>
+</ScrollView>

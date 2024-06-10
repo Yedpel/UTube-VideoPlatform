@@ -36,6 +36,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         searchBox = findViewById(R.id.search_box);
 
         btnLogin.setOnClickListener(v -> {
-             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
         });
 
@@ -120,6 +121,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnAddVideo.setOnClickListener(v -> openVideoPicker());
+
+        if (savedInstanceState != null) {
+            // Restore the video list
+            ArrayList<Video> videoList = savedInstanceState.getParcelableArrayList("video_list");
+            if (videoList != null) {
+                VideoManager.getInstance().setVideoList(videoList);
+            }
+
+            // Restore the RecyclerView state
+            recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("recycler_state"));
+        }
     }
 
     @Override
@@ -257,6 +269,15 @@ public class MainActivity extends AppCompatActivity {
             videoAdapter.notifyDataSetChanged();
         });
         dialog.show(getSupportFragmentManager(), "AddVideoDialog");
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // Save the video list
+        outState.putParcelableArrayList("video_list", new ArrayList<>(VideoManager.getInstance().getVideoList()));
+        // Save the RecyclerView state
+        outState.putParcelable("recycler_state", recyclerView.getLayoutManager().onSaveInstanceState());
     }
 
     private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {

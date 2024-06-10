@@ -11,16 +11,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Username"
+        android:minHeight="48dp"
         android:padding="10dp" />
 
     <EditText
         android:id="@+id/password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:hint="Password"
         android:inputType="textPassword"
-        android:padding="10dp"
-        android:layout_marginTop="10dp" />
+        android:minHeight="48dp"
+        android:padding="10dp" />
 
     <Button
         android:id="@+id/login_button"
