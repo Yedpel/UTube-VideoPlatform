@@ -10,6 +10,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.utube.R;
+import com.example.utube.models.Users;
+import com.example.utube.models.Users.User;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -52,8 +54,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private boolean validateLogin(String username, String password) {
-        // Replace with actual validation logic
-       // return username.equals("user") && password.equals("password");
-        return true;
+        User user = Users.getInstance().getUser(username);
+        return user != null && user.getPassword().equals(password);
     }
 }
