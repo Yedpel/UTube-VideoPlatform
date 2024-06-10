@@ -104,7 +104,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        loadVideoData();
+        if (savedInstanceState != null) {
+            // Restore the video list
+            ArrayList<Video> videoList = savedInstanceState.getParcelableArrayList("video_list");
+            if (videoList != null) {
+                VideoManager.getInstance().setVideoList(videoList);
+            }
+
+            // Restore the RecyclerView state
+            recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("recycler_state"));
+        } else {
+            // Load video data only if it's not already loaded
+            if (VideoManager.getInstance().getVideoList().isEmpty()) {
+                loadVideoData();
+            }
+        }
 
         // Filter videos based on search
         searchBox.addTextChangedListener(new TextWatcher() {
@@ -121,17 +135,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnAddVideo.setOnClickListener(v -> openVideoPicker());
-
-        if (savedInstanceState != null) {
-            // Restore the video list
-            ArrayList<Video> videoList = savedInstanceState.getParcelableArrayList("video_list");
-            if (videoList != null) {
-                VideoManager.getInstance().setVideoList(videoList);
-            }
-
-            // Restore the RecyclerView state
-            recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("recycler_state"));
-        }
     }
 
     @Override
