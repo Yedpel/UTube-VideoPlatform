@@ -40,6 +40,9 @@ import org.json.JSONObject;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import com.example.utube.activities.LoginPromptDialog; //try2
+
+
 
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_VIDEO_PICK = 2;
@@ -147,7 +150,14 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {}
         });
 
-        btnAddVideo.setOnClickListener(v -> openVideoPicker());
+      //  btnAddVideo.setOnClickListener(v -> openVideoPicker());
+        btnAddVideo.setOnClickListener(v -> {
+            if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) { //try2
+                openVideoPicker(); //try2
+            } else { //try2
+                showLoginPromptDialog(); //try2
+            } //try2
+        });
     }
 
 
@@ -344,6 +354,13 @@ public class MainActivity extends AppCompatActivity {
         // Save the RecyclerView state
         outState.putParcelable("recycler_state", recyclerView.getLayoutManager().onSaveInstanceState());
     }
+
+
+    private void showLoginPromptDialog() { //try2
+        LoginPromptDialog dialog = new LoginPromptDialog(); //try2
+        dialog.show(getSupportFragmentManager(), "LoginPromptDialog"); //try2
+    } //try2
+
 
     private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
         private List<Video> videoList;
