@@ -37,6 +37,8 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -138,6 +140,13 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<Video> videoList = savedInstanceState.getParcelableArrayList("video_list");
             if (videoList != null) {
                 VideoManager.getInstance().setVideoList(videoList);
+                // Restore video URIs from SharedPreferences
+                for (Video video : videoList) {
+                    String videoUrl = sharedPreferences.getString(video.getId() + "_videoUrl", null);
+                    if (videoUrl != null) {
+                        video.setVideoUrl(videoUrl);
+                    }
+                }//try20
             }
 
             // Restore the RecyclerView state
@@ -315,7 +324,29 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_VIDEO_PICK && resultCode == RESULT_OK && data != null) {
             selectedVideoUri = data.getData();
-            showAddVideoDialog();
+            try {
+                // Copy the video to internal storage
+                InputStream inputStream = getContentResolver().openInputStream(selectedVideoUri);
+                File videoFile = new File(getFilesDir(), "video_" + System.currentTimeMillis() + ".mp4");
+                FileOutputStream outputStream = new FileOutputStream(videoFile);
+
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+
+                inputStream.close();
+                outputStream.close();
+
+                // Save the file path instead of URI
+                String videoFilePath = videoFile.getAbsolutePath();
+                showAddVideoDialog(videoFilePath);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Failed to save video", Toast.LENGTH_SHORT).show();
+            }
         } else if (requestCode == 1 && resultCode == RESULT_OK) {
             if (data != null) {
                 String videoId = data.getStringExtra("VIDEO_ID");
@@ -329,23 +360,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showAddVideoDialog() {
+    // Modify showAddVideoDialog to accept file path
+    private void showAddVideoDialog(String videoFilePath) {
         AddVideoDialog dialog = new AddVideoDialog();
         dialog.setAddVideoListener((title, category, previewImageUrl) -> {
-           // videoIdCounter++;
-          //  String id = "new_" + videoIdCounter;
-            //make unique id
             String id = "new_" + System.currentTimeMillis();
             String author = loggedInUser != null ? loggedInUser : "guest";
             String uploadTime = "Just now";
             int views = 0;
             int likes = 0;
 
-            // Ensure the selectedVideoUri is properly converted to a string and stored
-            String videoUrl = selectedVideoUri != null ? selectedVideoUri.toString() : "";
-
-            Video video = new Video(id, title, author, views, uploadTime, previewImageUrl, "drawable/error_image.webp", videoUrl, category, likes);
+            Video video = new Video(id, title, author, views, uploadTime, previewImageUrl, "drawable/error_image.webp", videoFilePath, category, likes);
             VideoManager.getInstance().addVideo(video);
+            sharedPreferences.edit().putString(id + "_videoPath", videoFilePath).apply(); // Save video path in SharedPreferences //try22
             videoAdapter.notifyDataSetChanged();
         });
         dialog.show(getSupportFragmentManager(), "AddVideoDialog");
@@ -361,6 +388,9 @@ public class MainActivity extends AppCompatActivity {
         outState.putParcelableArrayList("video_list", new ArrayList<>(VideoManager.getInstance().getVideoList()));
         // Save the RecyclerView state
         outState.putParcelable("recycler_state", recyclerView.getLayoutManager().onSaveInstanceState());
+        for (Video video : VideoManager.getInstance().getVideoList()) {
+            sharedPreferences.edit().putString(video.getId() + "_videoUrl", video.getVideoUrl()).apply(); // Save video URL
+        }//try21
     }
 
 

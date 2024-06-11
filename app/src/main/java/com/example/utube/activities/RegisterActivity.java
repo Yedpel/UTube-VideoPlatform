@@ -115,33 +115,35 @@ public class RegisterActivity extends AppCompatActivity {
         String username = usernameEditText.getText().toString();
         String password = passwordEditText.getText().toString();
         String confirmPassword = confirmPasswordEditText.getText().toString();
+//
+//        //if email address is ilegal mark it red and return false
+//        if (!email.contains("@") || !email.contains(".")) {
+//            emailEditText.setError("Invalid email address");
+//            return false;
+//        }
+//        //if password and confirm password are not the same mark them red and return false
+//        if (!password.equals(confirmPassword)) {
+//            passwordEditText.setError("Passwords do not match");
+//            confirmPasswordEditText.setError("Passwords do not match");
+//            return false;
+//        }
+//
+//        // Check if the username already exists //try8
+//        if (Users.getInstance().getUser(username) != null) { //try8
+//            usernameEditText.setError("Username already taken"); //try8
+//            return false; //try8
+//        } //try8
+//
+//        //check that dob is valid
+//        if (dobEditText.getText().toString().isEmpty()) {
+//            dobEditText.setError("Please select a date");
+//            return false;
+//        }
+//        //check that all fields are filled except profile pic
+//        return !firstName.isEmpty() && !lastName.isEmpty() && !email.isEmpty()
+//                && !username.isEmpty() && password.equals(confirmPassword) ;
 
-        //if email address is ilegal mark it red and return false
-        if (!email.contains("@") || !email.contains(".")) {
-            emailEditText.setError("Invalid email address");
-            return false;
-        }
-        //if password and confirm password are not the same mark them red and return false
-        if (!password.equals(confirmPassword)) {
-            passwordEditText.setError("Passwords do not match");
-            confirmPasswordEditText.setError("Passwords do not match");
-            return false;
-        }
-
-        // Check if the username already exists //try8
-        if (Users.getInstance().getUser(username) != null) { //try8
-            usernameEditText.setError("Username already taken"); //try8
-            return false; //try8
-        } //try8
-
-        //check that dob is valid
-        if (dobEditText.getText().toString().isEmpty()) {
-            dobEditText.setError("Please select a date");
-            return false;
-        }
-        //check that all fields are filled except profile pic
-        return !firstName.isEmpty() && !lastName.isEmpty() && !email.isEmpty()
-                && !username.isEmpty() && password.equals(confirmPassword) ;
+        return true;
 
     }
 }
