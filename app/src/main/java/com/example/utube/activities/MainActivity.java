@@ -389,19 +389,23 @@ public class MainActivity extends AppCompatActivity {
                 inflater.inflate(R.menu.video_item_menu, popupMenu.getMenu());
                 popupMenu.setOnMenuItemClickListener(item -> {
                     if (item.getItemId() == R.id.edit_video) {
-                        EditVideoDialog dialog = EditVideoDialog.newInstance(video.getId());
-                        dialog.setOnDismissListener(dialogInterface -> videoAdapter.notifyDataSetChanged());
-                        dialog.show(((AppCompatActivity) holder.itemView.getContext()).getSupportFragmentManager(), "EditVideoDialog");
-                        return true;
+                        if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) { //try4
+                            EditVideoDialog dialog = EditVideoDialog.newInstance(video.getId()); //try4
+                            dialog.setOnDismissListener(dialogInterface -> videoAdapter.notifyDataSetChanged()); //try4
+                            dialog.show(((AppCompatActivity) holder.itemView.getContext()).getSupportFragmentManager(), "EditVideoDialog"); //try4
+                        } else { //try4
+                            showLoginPromptDialog(); //try4
+                        } //try4
+                        return true; //try4
                     } else if (item.getItemId() == R.id.delete_video) {
-                        if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) { //try3
+                        if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) {
                             VideoManager.getInstance().removeVideo(video.getId());
                             notifyDataSetChanged();
-                        } else { //try3
-                            showLoginPromptDialog(); //try3
-                        } //try3
-                        return true; //try3
-                    } //try3
+                        } else {
+                            showLoginPromptDialog();
+                        }
+                        return true;
+                    }
                     return false;
                 });
                 popupMenu.show();
