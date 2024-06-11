@@ -1,9 +1,11 @@
 package com.example.utube.activities;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,6 +17,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.utube.R;
 import com.example.utube.models.Users;
+
+import java.util.Calendar;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -68,6 +72,26 @@ public class RegisterActivity extends AppCompatActivity {
                 Toast.makeText(RegisterActivity.this, "Invalid Registration Details", Toast.LENGTH_SHORT).show();
             }
         });
+
+        //try9
+        dobEditText.setOnClickListener(v -> { //try9
+            Calendar calendar = Calendar.getInstance(); //try9
+            int year = calendar.get(Calendar.YEAR); //try9
+            int month = calendar.get(Calendar.MONTH); //try9
+            int day = calendar.get(Calendar.DAY_OF_MONTH); //try9
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog( //try9
+                    RegisterActivity.this, //try9
+                    (view, year1, monthOfYear, dayOfMonth) -> dobEditText.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year1), //try9
+                    year, month, day); //try9
+
+            datePickerDialog.show(); //try9
+        }); //try9
+
+        // Inside onCreate method
+        dobEditText.setInputType(InputType.TYPE_NULL); // Prevents keyboard from popping up //try10
+        dobEditText.setFocusable(false); // Prevents focus on the EditText //try10
+
     }
 
     private void openImagePicker() {
@@ -87,14 +111,37 @@ public class RegisterActivity extends AppCompatActivity {
     private boolean validateRegistration() {
         String firstName = firstNameEditText.getText().toString();
         String lastName = lastNameEditText.getText().toString();
-        String dob = dobEditText.getText().toString();
         String email = emailEditText.getText().toString();
         String username = usernameEditText.getText().toString();
         String password = passwordEditText.getText().toString();
         String confirmPassword = confirmPasswordEditText.getText().toString();
 
-        return true;
-//        return !firstName.isEmpty() && !lastName.isEmpty() && !dob.isEmpty() && !email.isEmpty()
-//                && !username.isEmpty() && password.equals(confirmPassword) && password.length() >= 8;
+        //if email address is ilegal mark it red and return false
+        if (!email.contains("@") || !email.contains(".")) {
+            emailEditText.setError("Invalid email address");
+            return false;
+        }
+        //if password and confirm password are not the same mark them red and return false
+        if (!password.equals(confirmPassword)) {
+            passwordEditText.setError("Passwords do not match");
+            confirmPasswordEditText.setError("Passwords do not match");
+            return false;
+        }
+
+        // Check if the username already exists //try8
+        if (Users.getInstance().getUser(username) != null) { //try8
+            usernameEditText.setError("Username already taken"); //try8
+            return false; //try8
+        } //try8
+
+        //check that dob is valid
+        if (dobEditText.getText().toString().isEmpty()) {
+            dobEditText.setError("Please select a date");
+            return false;
+        }
+        //check that all fields are filled except profile pic
+        return !firstName.isEmpty() && !lastName.isEmpty() && !email.isEmpty()
+                && !username.isEmpty() && password.equals(confirmPassword) ;
+
     }
 }
