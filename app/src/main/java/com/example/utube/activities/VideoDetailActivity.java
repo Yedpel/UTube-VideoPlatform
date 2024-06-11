@@ -153,21 +153,25 @@ public class VideoDetailActivity extends AppCompatActivity {
         commentsRecyclerView.setAdapter(commentsAdapter);
 
         // Add comment button click listener
-        findViewById(R.id.add_comment_button).setOnClickListener(v -> {
-            AddCommentDialog dialog = new AddCommentDialog();
-            dialog.setAddCommentListener(text -> {
-                if (!text.trim().isEmpty()) {
-                    String currentTime = "Just now"; // Use a proper timestamp in real app
-                    int random = (int)(Math.random()*1000000);
-                    Video.Comment comment = new Video.Comment(random, "user1", text, currentTime, 0, "drawable/error_image.webp");
-                    comments.add(comment);
-                    commentsAdapter.notifyDataSetChanged();
-                    updateCommentsCount();
-                    commentsMap.put(videoId, comments);
-                }
-            });
-            dialog.show(getSupportFragmentManager(), "AddCommentDialog");
-        });
+        findViewById(R.id.add_comment_button).setOnClickListener(v -> { //try6
+            if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) { //try6
+                AddCommentDialog dialog = new AddCommentDialog(); //try6
+                dialog.setAddCommentListener(text -> { //try6
+                    if (!text.trim().isEmpty()) { //try6
+                        String currentTime = "Just now"; // Use a proper timestamp in real app //try6
+                        int random = (int)(Math.random() * 1000000); //try6
+                        Video.Comment comment = new Video.Comment(random, "user1", text, currentTime, 0, "drawable/error_image.webp"); //try6
+                        comments.add(comment); //try6
+                        commentsAdapter.notifyDataSetChanged(); //try6
+                        updateCommentsCount(); //try6
+                        commentsMap.put(videoId, comments); //try6
+                    } //try6
+                }); //try6
+                dialog.show(getSupportFragmentManager(), "AddCommentDialog"); //try6
+            } else { //try6
+                showLoginPromptDialog(); //try6
+            } //try6
+        }); //try6
 
         // Share button click listener
         findViewById(R.id.share_button).setOnClickListener(v -> {
@@ -283,39 +287,51 @@ public class VideoDetailActivity extends AppCompatActivity {
 
                 updateLikeCommentButton();
 
-                likeCommentButton.setOnClickListener(v -> {
-                    isCommentLiked = !isCommentLiked;
-                    if (isCommentLiked) {
-                        comment.setLikes(comment.getLikes() + 1);
-                    } else {
-                        comment.setLikes(comment.getLikes() - 1);
-                    }
-                    commentLikesTextView.setText(comment.getLikes() + " likes");
-                    likedCommentsStateMap
-                            .computeIfAbsent(videoId, k -> new HashMap<>())
-                            .put(comment.getText(), isCommentLiked);
-                    updateLikeCommentButton();
-                });
+                likeCommentButton.setOnClickListener(v -> { //try7
+                    if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) { //try7
+                        isCommentLiked = !isCommentLiked; //try7
+                        if (isCommentLiked) { //try7
+                            comment.setLikes(comment.getLikes() + 1); //try7
+                        } else { //try7
+                            comment.setLikes(comment.getLikes() - 1); //try7
+                        } //try7
+                        commentLikesTextView.setText(comment.getLikes() + " likes"); //try7
+                        likedCommentsStateMap //try7
+                                .computeIfAbsent(videoId, k -> new HashMap<>()) //try7
+                                .put(comment.getText(), isCommentLiked); //try7
+                        updateLikeCommentButton(); //try7
+                    } else { //try7
+                        showLoginPromptDialog(); //try7
+                    } //try7
+                }); //try7
 
-                editCommentButton.setOnClickListener(v -> {
-                    AddCommentDialog dialog = new AddCommentDialog();
-                    dialog.setAddCommentListener(text -> {
-                        if (!text.trim().isEmpty()) {
-                            comment.setText(text);
-                            commentTextView.setText(text);
-                        }
-                    });
-                    dialog.show(getSupportFragmentManager(), "EditCommentDialog");
-                });
+                editCommentButton.setOnClickListener(v -> { //try7
+                    if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) { //try7
+                        AddCommentDialog dialog = new AddCommentDialog(); //try7
+                        dialog.setAddCommentListener(text -> { //try7
+                            if (!text.trim().isEmpty()) { //try7
+                                comment.setText(text); //try7
+                                commentTextView.setText(text); //try7
+                            } //try7
+                        }); //try7
+                        dialog.show(getSupportFragmentManager(), "EditCommentDialog"); //try7
+                    } else { //try7
+                        showLoginPromptDialog(); //try7
+                    } //try7
+                }); //try7
 
-                deleteCommentButton.setOnClickListener(v -> {
-                    int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION) {
-                        comments.remove(position);
-                        notifyItemRemoved(position);
-                        updateCommentsCount();
-                    }
-                });
+                deleteCommentButton.setOnClickListener(v -> { //try7
+                    if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) { //try7
+                        int position = getAdapterPosition(); //try7
+                        if (position != RecyclerView.NO_POSITION) { //try7
+                            comments.remove(position); //try7
+                            notifyItemRemoved(position); //try7
+                            updateCommentsCount(); //try7
+                        } //try7
+                    } else { //try7
+                        showLoginPromptDialog(); //try7
+                    } //try7
+                }); //try7
             }
 
             private void updateLikeCommentButton() {
@@ -326,5 +342,6 @@ public class VideoDetailActivity extends AppCompatActivity {
                 }
             }
         }
+
     }
 }
