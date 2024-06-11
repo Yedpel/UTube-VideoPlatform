@@ -314,8 +314,10 @@ public class MainActivity extends AppCompatActivity {
     private void showAddVideoDialog() {
         AddVideoDialog dialog = new AddVideoDialog();
         dialog.setAddVideoListener((title, category, previewImageUrl) -> {
-            videoIdCounter++;
-            String id = "new_" + videoIdCounter;
+           // videoIdCounter++;
+          //  String id = "new_" + videoIdCounter;
+            //make unique id
+            String id = "new_" + System.currentTimeMillis();
             String author = loggedInUser != null ? loggedInUser : "guest";
             String uploadTime = "Just now";
             int views = 0;
