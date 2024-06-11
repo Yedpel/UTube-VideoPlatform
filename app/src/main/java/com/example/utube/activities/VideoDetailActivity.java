@@ -91,10 +91,13 @@ public class VideoDetailActivity extends AppCompatActivity {
             videoView.setVideoURI(Uri.parse(videoUrl));
         } else if (videoUrl.startsWith("http")) {
             videoView.setVideoURI(Uri.parse(videoUrl));
+        } else if (videoUrl.startsWith("android.resource://")) {
+            videoView.setVideoURI(Uri.parse(videoUrl));
         } else {
             int videoResId = getResources().getIdentifier(videoUrl, "raw", getPackageName());
             videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + videoResId));
         }
+
         titleTextView.setText(title);
         authorTextView.setText(author);
         uploadTimeTextView.setText(uploadTime);

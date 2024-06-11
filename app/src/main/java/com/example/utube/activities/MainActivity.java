@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +30,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.utube.R;
+import com.example.utube.models.Users;
 import com.example.utube.models.Video;
 import com.squareup.picasso.Picasso;
 
@@ -43,17 +45,23 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_VIDEO_PICK = 2;
     private RecyclerView recyclerView;
     private VideoAdapter videoAdapter;
-    private Button btnLogin, btnThemeSwitch, btnRegister, btnAddVideo;
+    private Button btnLogin, btnThemeSwitch, btnRegister, btnAddVideo, btnLogout;
     private EditText searchBox;
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "theme_prefs";
     private static final String THEME_KEY = "current_theme";
+    private static final String LOGGED_IN_KEY = "logged_in";
+    private static final String LOGGED_IN_USER = "logged_in_user";
     private int videoIdCounter = 14;
     private Uri selectedVideoUri;
+    private String loggedInUser;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean isLoggedIn = sharedPreferences.getBoolean(LOGGED_IN_KEY, false);
+        loggedInUser = sharedPreferences.getString(LOGGED_IN_USER, null);
         if (sharedPreferences.getBoolean(THEME_KEY, false)) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         } else {
@@ -79,16 +87,8 @@ public class MainActivity extends AppCompatActivity {
         btnRegister = findViewById(R.id.register_button);
         btnAddVideo = findViewById(R.id.add_video_button);
         searchBox = findViewById(R.id.search_box);
-
-        btnLogin.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
-        });
-
-        btnRegister.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-            startActivity(intent);
-        });
+        btnLogout = new Button(this);
+        btnLogout.setText("Logout");
 
         btnThemeSwitch.setText(sharedPreferences.getBoolean(THEME_KEY, false) ? "Day Mode" : "Night Mode");
         btnThemeSwitch.setOnClickListener(v -> {
@@ -104,6 +104,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Initialize intent
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("USERNAME")) {
+            loggedInUser = intent.getStringExtra("USERNAME");
+            sharedPreferences.edit().putBoolean(LOGGED_IN_KEY, true).putString(LOGGED_IN_USER, loggedInUser).apply();
+            updateUIForLoggedInUser(loggedInUser);
+        } else if (isLoggedIn) {
+            updateUIForLoggedInUser(loggedInUser);
+        } else {
+            updateUIForGuest();
+        }
+
         if (savedInstanceState != null) {
             // Restore the video list
             ArrayList<Video> videoList = savedInstanceState.getParcelableArrayList("video_list");
@@ -113,28 +125,63 @@ public class MainActivity extends AppCompatActivity {
 
             // Restore the RecyclerView state
             recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("recycler_state"));
-        } else {
-            // Load video data only if it's not already loaded
-            if (VideoManager.getInstance().getVideoList().isEmpty()) {
-                loadVideoData();
-            }
+        } else if (VideoManager.getInstance().getVideoList().isEmpty()) {
+            loadVideoData();
         }
 
         // Filter videos based on search
         searchBox.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 filterVideos(s.toString());
             }
-
             @Override
             public void afterTextChanged(Editable s) {}
         });
 
         btnAddVideo.setOnClickListener(v -> openVideoPicker());
+    }
+
+
+
+    private void updateUIForLoggedInUser(String username) {
+        btnLogin.setVisibility(View.GONE);
+        btnRegister.setVisibility(View.GONE);
+
+        LinearLayout buttonContainer = findViewById(R.id.button_container);
+        buttonContainer.addView(btnLogout);
+
+        btnLogout.setOnClickListener(v -> {
+            sharedPreferences.edit().putBoolean(LOGGED_IN_KEY, false).remove(LOGGED_IN_USER).apply();
+            Toast.makeText(MainActivity.this, "Logged out", Toast.LENGTH_SHORT).show();
+            reloadMainActivity();
+        });
+    }
+
+    private void updateUIForGuest() {
+        btnLogin.setVisibility(View.VISIBLE);
+        btnRegister.setVisibility(View.VISIBLE);
+
+        btnLogin.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+        });
+
+        btnRegister.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+            startActivity(intent);
+        });
+
+        LinearLayout buttonContainer = findViewById(R.id.button_container);
+        buttonContainer.removeView(btnLogout);
+    }
+
+    private void reloadMainActivity() {
+        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     @Override
@@ -262,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.setAddVideoListener((title, category, previewImageUrl) -> {
             videoIdCounter++;
             String id = "new_" + videoIdCounter;
-            String author = "defUser";
+            String author = loggedInUser != null ? loggedInUser : "guest";
             String uploadTime = "Just now";
             int views = 0;
             int likes = 0;
@@ -273,6 +320,7 @@ public class MainActivity extends AppCompatActivity {
         });
         dialog.show(getSupportFragmentManager(), "AddVideoDialog");
     }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
