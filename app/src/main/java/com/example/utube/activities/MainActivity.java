@@ -93,6 +93,13 @@ public class MainActivity extends AppCompatActivity {
         searchBox = findViewById(R.id.search_box);
         btnLogout = new Button(this);
         btnLogout.setText("Logout");
+        btnLogout.setBackgroundResource(R.drawable.button_background); // Apply custom background // try11
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams( // try11
+                LinearLayout.LayoutParams.WRAP_CONTENT, // try11
+                LinearLayout.LayoutParams.WRAP_CONTENT); // try11
+        params.setMargins(0, 0, 10, 0); // set marginEnd to 10dp as the other buttons // try11
+        btnLogout.setLayoutParams(params); // try11
+
 
         btnThemeSwitch.setText(sharedPreferences.getBoolean(THEME_KEY, false) ? "Day Mode" : "Night Mode");
         btnThemeSwitch.setOnClickListener(v -> {
