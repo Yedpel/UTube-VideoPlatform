@@ -92,7 +92,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         // Set video details
         // Log and handle video file path or URL
         if (videoUrl != null && !videoUrl.isEmpty()) {
-            Toast.makeText(this, "the video url isn't null", Toast.LENGTH_SHORT).show(); //try22
+          //  Toast.makeText(this, "the video url isn't null", Toast.LENGTH_SHORT).show(); //try22
             if (videoUrl.startsWith("content://") || videoUrl.startsWith("file://")) {
                 try {
                     // Verify the URI is accessible by querying it
@@ -155,24 +155,9 @@ public class VideoDetailActivity extends AppCompatActivity {
         uploadTimeTextView.setText(uploadTime);
 
         // Load author's profile picture with Picasso, set placeholder and error image
-        int authorProfilePicResId = getResources().getIdentifier(authorProfilePicUrl, "drawable", getPackageName());
-        if (authorProfilePicResId != 0) {
-            Picasso.get()
-                    .load(authorProfilePicResId)
-                    .placeholder(R.drawable.placeholder_image)  // Replace with your placeholder image
-                    .error(R.drawable.error_image)  // Replace with your error image
-                    .into(authorProfilePic, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            Log.d("Picasso", "Image loaded successfully");
-                        }
+         authorProfilePicUrl = getIntent().getStringExtra("AUTHOR_PROFILE_PIC_URL"); // Make sure this is correctly passed in the intent
 
-                        @Override
-                        public void onError(Exception e) {
-                            Log.e("Picasso", "Error loading image", e);
-                        }
-                    });
-        } else {
+        if (authorProfilePicUrl.startsWith("http")) { // Check if URL is a network URL //try23
             Picasso.get()
                     .load(authorProfilePicUrl)
                     .placeholder(R.drawable.placeholder_image)
@@ -188,7 +173,30 @@ public class VideoDetailActivity extends AppCompatActivity {
                             Log.e("Picasso", "Error loading image", e);
                         }
                     });
+        } else { // Otherwise, use the existing logic for resources
+            int authorProfilePicResId = getResources().getIdentifier(authorProfilePicUrl, "drawable", getPackageName());
+            if (authorProfilePicResId != 0) {
+                authorProfilePic.setImageResource(authorProfilePicResId);
+            } else {
+                Picasso.get()
+                        .load(authorProfilePicUrl)
+                        .placeholder(R.drawable.placeholder_image)
+                        .error(R.drawable.error_image)
+                        .into(authorProfilePic, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                Log.d("Picasso", "Image loaded successfully");
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                Log.e("Picasso", "Error loading image", e);
+                            }
+                        });
+            }
         }
+
+
 
         // Set initial like button state
         updateLikeButton();

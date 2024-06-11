@@ -361,6 +361,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Modify showAddVideoDialog to accept file path
+    // In showAddVideoDialog method, after creating a new Video instance
     private void showAddVideoDialog(String videoFilePath) {
         AddVideoDialog dialog = new AddVideoDialog();
         dialog.setAddVideoListener((title, category, previewImageUrl) -> {
@@ -370,12 +371,23 @@ public class MainActivity extends AppCompatActivity {
             int views = 0;
             int likes = 0;
 
-            Video video = new Video(id, title, author, views, uploadTime, previewImageUrl, "drawable/error_image.webp", videoFilePath, category, likes);
+            // Get the user's profile picture URL //try23
+            String authorProfilePicUrl = sharedPreferences.getString("userProfilePicUrl", "drawable/default_profile_pic"); // Replace with your default
+
+            Video video = new Video(id, title, author, views, uploadTime, previewImageUrl, authorProfilePicUrl, videoFilePath, category, likes);
             VideoManager.getInstance().addVideo(video);
             sharedPreferences.edit().putString(id + "_videoPath", videoFilePath).apply(); // Save video path in SharedPreferences //try22
             videoAdapter.notifyDataSetChanged();
         });
         dialog.show(getSupportFragmentManager(), "AddVideoDialog");
+    }
+
+
+    // Implement the method to get the user profile picture URL //try23
+    private String getUserProfilePicUrl() {
+        // This is a placeholder, replace with actual logic to get the user's profile picture URL
+        // For example, you might retrieve it from SharedPreferences or a UserManager class
+        return sharedPreferences.getString("userProfilePicUrl", "default_profile_pic_url"); // Replace "default_profile_pic_url" with your default
     }
 
 
@@ -499,11 +511,16 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     // Load author profile picture
-                    int authorProfilePicResId = getResources().getIdentifier(video.getAuthorProfilePicUrl(), "drawable", getPackageName());
-                    if (authorProfilePicResId != 0) {
-                        authorProfilePic.setImageResource(authorProfilePicResId);
-                    } else {
-                        Picasso.get().load(video.getAuthorProfilePicUrl()).into(authorProfilePic);
+                    String authorProfilePicUrl = video.getAuthorProfilePicUrl();
+                    if (authorProfilePicUrl.startsWith("http")) { //try23
+                        Picasso.get().load(authorProfilePicUrl).into(authorProfilePic); //try23
+                    } else { // Otherwise, use the existing logic for resources
+                        int authorProfilePicResId = getResources().getIdentifier(authorProfilePicUrl, "drawable", getPackageName());
+                        if (authorProfilePicResId != 0) {
+                            authorProfilePic.setImageResource(authorProfilePicResId);
+                        } else {
+                            Picasso.get().load(authorProfilePicUrl).into(authorProfilePic);
+                        }
                     }
                 } catch (Exception e) {
                     Log.e("VideoAdapter", "Error loading images", e);
@@ -512,5 +529,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+
+
     }
 }
