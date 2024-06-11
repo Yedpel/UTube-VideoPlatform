@@ -82,8 +82,9 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        videoAdapter = new VideoAdapter(VideoManager.getInstance().getFilteredVideoList());
-        recyclerView.setAdapter(videoAdapter);
+        videoAdapter = new VideoAdapter(VideoManager.getInstance().getFilteredVideoList(), sharedPreferences); //try3
+        recyclerView.setAdapter(videoAdapter); //try3
+
 
         btnLogin = findViewById(R.id.login_button);
         btnThemeSwitch = findViewById(R.id.theme_button);
@@ -364,11 +365,13 @@ public class MainActivity extends AppCompatActivity {
 
     private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
         private List<Video> videoList;
+        private SharedPreferences sharedPreferences; //try3
 
-        public VideoAdapter(List<Video> videoList) {
-            this.videoList = videoList;
-        }
 
+        public VideoAdapter(List<Video> videoList, SharedPreferences sharedPreferences) { //try3
+            this.videoList = videoList; //try3
+            this.sharedPreferences = sharedPreferences; //try3
+        } //try3
         @Override
         public VideoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_video, parent, false);
@@ -391,10 +394,14 @@ public class MainActivity extends AppCompatActivity {
                         dialog.show(((AppCompatActivity) holder.itemView.getContext()).getSupportFragmentManager(), "EditVideoDialog");
                         return true;
                     } else if (item.getItemId() == R.id.delete_video) {
-                        VideoManager.getInstance().removeVideo(video.getId());
-                        notifyDataSetChanged();
-                        return true;
-                    }
+                        if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) { //try3
+                            VideoManager.getInstance().removeVideo(video.getId());
+                            notifyDataSetChanged();
+                        } else { //try3
+                            showLoginPromptDialog(); //try3
+                        } //try3
+                        return true; //try3
+                    } //try3
                     return false;
                 });
                 popupMenu.show();
