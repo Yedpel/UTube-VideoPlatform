@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private String loggedInUser;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -87,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
         videoAdapter = new VideoAdapter(VideoManager.getInstance().getFilteredVideoList(), sharedPreferences); //try3
         recyclerView.setAdapter(videoAdapter); //try3
 
-
         btnLogin = findViewById(R.id.login_button);
         btnThemeSwitch = findViewById(R.id.theme_button);
         btnRegister = findViewById(R.id.register_button);
@@ -102,20 +102,8 @@ public class MainActivity extends AppCompatActivity {
         params.setMargins(0, 0, 10, 0); // set marginEnd to 10dp as the other buttons // try11
         btnLogout.setLayoutParams(params); // try11
 
-
-        btnThemeSwitch.setText(sharedPreferences.getBoolean(THEME_KEY, false) ? "Day Mode" : "Night Mode");
-        btnThemeSwitch.setOnClickListener(v -> {
-            boolean isNightMode = sharedPreferences.getBoolean(THEME_KEY, false);
-            if (isNightMode) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                sharedPreferences.edit().putBoolean(THEME_KEY, false).apply();
-                btnThemeSwitch.setText("Night Mode");
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                sharedPreferences.edit().putBoolean(THEME_KEY, true).apply();
-                btnThemeSwitch.setText("Day Mode");
-            }
-        });
+        btnThemeSwitch.setText(sharedPreferences.getBoolean(THEME_KEY, false) ? "Night Mode" : "Day Mode"); //try30
+        btnThemeSwitch.setOnClickListener(v -> switchTheme()); //try30
 
         // Initialize intent
         Intent intent = getIntent();
@@ -133,7 +121,6 @@ public class MainActivity extends AppCompatActivity {
         } else { //try1
             updateUIForGuest(); //try1
         }
-
 
         if (savedInstanceState != null) {
             // Restore the video list
@@ -155,6 +142,9 @@ public class MainActivity extends AppCompatActivity {
             loadVideoData();
         }
 
+        // Restore user-added videos
+        restoreUserAddedVideos(); //try30
+
         // Filter videos based on search
         searchBox.addTextChangedListener(new TextWatcher() {
             @Override
@@ -167,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {}
         });
 
-      //  btnAddVideo.setOnClickListener(v -> openVideoPicker());
+        //  btnAddVideo.setOnClickListener(v -> openVideoPicker());
         btnAddVideo.setOnClickListener(v -> {
             if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) { //try2
                 openVideoPicker(); //try2
@@ -175,6 +165,103 @@ public class MainActivity extends AppCompatActivity {
                 showLoginPromptDialog(); //try2
             } //try2
         });
+    }
+
+
+    // Save user-added videos to SharedPreferences
+    private void saveUserAddedVideos() { //try30
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        List<Video> videoList = VideoManager.getInstance().getVideoList();
+        JSONArray jsonArray = new JSONArray();
+        for (Video video : videoList) {
+            if (video.getId().startsWith("new_")) {
+                try {
+                    JSONObject videoJson = new JSONObject();
+                    videoJson.put("id", video.getId());
+                    videoJson.put("title", video.getTitle());
+                    videoJson.put("author", video.getAuthor());
+                    videoJson.put("views", video.getViews());
+                    videoJson.put("uploadTime", video.getUploadTime());
+                    videoJson.put("thumbnailUrl", video.getThumbnailUrl());
+                    videoJson.put("authorProfilePicUrl", video.getAuthorProfilePicUrl());
+                    videoJson.put("videoUrl", video.getVideoUrl());
+                    videoJson.put("category", video.getCategory());
+                    videoJson.put("likes", video.getLikes());
+                    jsonArray.put(videoJson);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        editor.putString("user_added_videos", jsonArray.toString());
+        editor.apply();
+    }
+
+    // Restore user-added videos from SharedPreferences
+    private void restoreUserAddedVideos() { //try30
+        String userAddedVideosJson = sharedPreferences.getString("user_added_videos", null);
+        if (userAddedVideosJson != null) {
+            try {
+                JSONArray jsonArray = new JSONArray(userAddedVideosJson);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject videoJson = jsonArray.getJSONObject(i);
+                    String id = videoJson.getString("id");
+                    String title = videoJson.getString("title");
+                    String author = videoJson.getString("author");
+                    int views = videoJson.getInt("views");
+                    String uploadTime = videoJson.getString("uploadTime");
+                    String thumbnailUrl = videoJson.getString("thumbnailUrl");
+                    String authorProfilePicUrl = videoJson.getString("authorProfilePicUrl");
+                    String videoUrl = videoJson.getString("videoUrl");
+                    String category = videoJson.getString("category");
+                    int likes = videoJson.getInt("likes");
+
+                    Video video = new Video(id, title, author, views, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category, likes);
+                    VideoManager.getInstance().addVideo(video);
+                }
+                videoAdapter.notifyDataSetChanged();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            // Restore the video list
+            ArrayList<Video> videoList = savedInstanceState.getParcelableArrayList("video_list");
+            if (videoList != null) {
+                VideoManager.getInstance().setVideoList(videoList);
+                // Restore video URIs from SharedPreferences
+                for (Video video : videoList) {
+                    String videoUrl = sharedPreferences.getString(video.getId() + "_videoUrl", null);
+                    if (videoUrl != null) {
+                        video.setVideoUrl(videoUrl);
+                    }
+                } //try30
+            }
+
+            // Restore the RecyclerView state
+            recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("recycler_state"));
+        }
+    }
+
+    private void switchTheme() { //try30
+        boolean isNightMode = sharedPreferences.getBoolean(THEME_KEY, false);
+        if (isNightMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            sharedPreferences.edit().putBoolean(THEME_KEY, false).apply();
+            btnThemeSwitch.setText("Night Mode");
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            sharedPreferences.edit().putBoolean(THEME_KEY, true).apply();
+            btnThemeSwitch.setText("Day Mode");
+        }
+        // Restart activity to apply theme change and preserve videos
+        recreate(); //try30
     }
 
 
@@ -400,9 +487,14 @@ public class MainActivity extends AppCompatActivity {
         outState.putParcelableArrayList("video_list", new ArrayList<>(VideoManager.getInstance().getVideoList()));
         // Save the RecyclerView state
         outState.putParcelable("recycler_state", recyclerView.getLayoutManager().onSaveInstanceState());
+
+        // Save video URLs individually
         for (Video video : VideoManager.getInstance().getVideoList()) {
             sharedPreferences.edit().putString(video.getId() + "_videoUrl", video.getVideoUrl()).apply(); // Save video URL
-        }//try21
+        } //try21
+
+        // Save user-added videos to SharedPreferences
+        saveUserAddedVideos(); //try30
     }
 
 
