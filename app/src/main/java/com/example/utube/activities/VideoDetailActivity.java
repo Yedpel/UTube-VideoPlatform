@@ -181,21 +181,26 @@ public class VideoDetailActivity extends AppCompatActivity {
         updateCommentsCount();
     }
 
-    private void updateLikeButton() {
-        findViewById(R.id.like_button).setOnClickListener(v -> {
-            isLiked = !isLiked;
-            if (isLiked) {
-                likes++;
-            } else {
-                likes--;
-            }
-            likesTextView.setText(likes + " likes");
-            VideoManager.getInstance().getLikedStateMap().put(videoId, isLiked);
-            VideoManager.getInstance().getLikesCountMap().put(videoId, likes);
-            ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like");
-        });
-        ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like");
-    }
+    private void updateLikeButton() { //try5
+        findViewById(R.id.like_button).setOnClickListener(v -> { //try5
+            if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) { //try5
+                isLiked = !isLiked; //try5
+                if (isLiked) { //try5
+                    likes++; //try5
+                } else { //try5
+                    likes--; //try5
+                } //try5
+                likesTextView.setText(likes + " likes"); //try5
+                VideoManager.getInstance().getLikedStateMap().put(videoId, isLiked); //try5
+                VideoManager.getInstance().getLikesCountMap().put(videoId, likes); //try5
+                ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like"); //try5
+            } else { //try5
+                showLoginPromptDialog(); //try5
+            } //try5
+        }); //try5
+        ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like"); //try5
+    } //try5
+
 
     private void updateCommentsCount() {
         commentsCountTextView.setText("(" + comments.size() + ")");
@@ -209,6 +214,12 @@ public class VideoDetailActivity extends AppCompatActivity {
         setResult(RESULT_OK, intent);
         super.onBackPressed();
     }
+
+    private void showLoginPromptDialog() { //try5
+        LoginPromptDialog dialog = new LoginPromptDialog(); //try5
+        dialog.show(getSupportFragmentManager(), "LoginPromptDialog"); //try5
+    } //try5
+
 
     private class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentViewHolder> {
         private List<Video.Comment> commentList;
