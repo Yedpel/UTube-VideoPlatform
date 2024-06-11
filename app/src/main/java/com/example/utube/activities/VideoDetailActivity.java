@@ -84,19 +84,24 @@ public class VideoDetailActivity extends AppCompatActivity {
         likesTextView.setText(likes + " likes");
 
         // Log the URL for debugging
-        Log.d("VideoDetailActivity", "Author Profile Pic URL: " + authorProfilePicUrl);
+        Log.d("VideoDetailActivity", "Video URL: " + videoUrl);
 
         // Set video details
-        if (videoUrl.startsWith("content://")) {
-            videoView.setVideoURI(Uri.parse(videoUrl));
-        } else if (videoUrl.startsWith("http")) {
-            videoView.setVideoURI(Uri.parse(videoUrl));
-        } else if (videoUrl.startsWith("android.resource://")) {
-            videoView.setVideoURI(Uri.parse(videoUrl));
-        } else {
-            int videoResId = getResources().getIdentifier(videoUrl, "raw", getPackageName());
-            videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + videoResId));
-        }
+        if (videoUrl != null && !videoUrl.isEmpty()) { //try1
+            if (videoUrl.startsWith("content://") || videoUrl.startsWith("file://")) { //try1
+                videoView.setVideoURI(Uri.parse(videoUrl)); //try1
+            } else if (videoUrl.startsWith("http")) { //try1
+                videoView.setVideoURI(Uri.parse(videoUrl)); //try1
+            } else { //try1
+                int videoResId = getResources().getIdentifier(videoUrl, "raw", getPackageName()); //try1
+                videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + videoResId)); //try1
+            } //try1
+            videoView.start(); //try1
+        } else { //try1
+            Log.e("VideoDetailActivity", "Error: videoUrl is null or empty"); //try1
+            // Handle the case where the video URL is invalid //try1
+        } //try1
+
 
         titleTextView.setText(title);
         authorTextView.setText(author);
@@ -138,9 +143,6 @@ public class VideoDetailActivity extends AppCompatActivity {
                     });
         }
 
-        // Start video
-        videoView.start();
-
         // Set initial like button state
         updateLikeButton();
 
@@ -156,9 +158,6 @@ public class VideoDetailActivity extends AppCompatActivity {
             dialog.setAddCommentListener(text -> {
                 if (!text.trim().isEmpty()) {
                     String currentTime = "Just now"; // Use a proper timestamp in real app
-                  //  idCounter++;
-                  //  Video.Comment comment = new Video.Comment(idCounter, "user1", text, currentTime, 0, "drawable/error_image.webp");
-                    //create unique id for each comment by random number
                     int random = (int)(Math.random()*1000000);
                     Video.Comment comment = new Video.Comment(random, "user1", text, currentTime, 0, "drawable/error_image.webp");
                     comments.add(comment);

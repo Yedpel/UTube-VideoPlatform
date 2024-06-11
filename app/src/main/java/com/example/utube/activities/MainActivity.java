@@ -106,15 +106,21 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize intent
         Intent intent = getIntent();
-        if (intent != null && intent.hasExtra("USERNAME")) {
-            loggedInUser = intent.getStringExtra("USERNAME");
-            sharedPreferences.edit().putBoolean(LOGGED_IN_KEY, true).putString(LOGGED_IN_USER, loggedInUser).apply();
-            updateUIForLoggedInUser(loggedInUser);
-        } else if (isLoggedIn) {
-            updateUIForLoggedInUser(loggedInUser);
-        } else {
-            updateUIForGuest();
+        if (intent != null && intent.hasExtra("USERNAME")) { //try1
+            loggedInUser = intent.getStringExtra("USERNAME"); //try1
+            sharedPreferences.edit().putBoolean(LOGGED_IN_KEY, true).putString(LOGGED_IN_USER, loggedInUser).apply(); //try1
+            updateUIForLoggedInUser(loggedInUser); //try1
+        } else if (isLoggedIn) { //try1
+            if (savedInstanceState == null) { //try1
+                sharedPreferences.edit().remove(LOGGED_IN_KEY).remove(LOGGED_IN_USER).apply(); //try1
+                updateUIForGuest(); //try1
+            } else { //try1
+                updateUIForLoggedInUser(loggedInUser); //try1
+            } //try1
+        } else { //try1
+            updateUIForGuest(); //try1
         }
+
 
         if (savedInstanceState != null) {
             // Restore the video list
@@ -254,6 +260,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     private int getUpdatedViews(String videoId, int defaultViews) {
         return sharedPreferences.getInt(videoId + "_views", defaultViews);
     }
@@ -314,12 +321,17 @@ public class MainActivity extends AppCompatActivity {
             int views = 0;
             int likes = 0;
 
-            Video video = new Video(id, title, author, views, uploadTime, previewImageUrl, "drawable/error_image.webp", selectedVideoUri.toString(), category, likes);
+            // Ensure the selectedVideoUri is properly converted to a string and stored
+            String videoUrl = selectedVideoUri != null ? selectedVideoUri.toString() : "";
+
+            Video video = new Video(id, title, author, views, uploadTime, previewImageUrl, "drawable/error_image.webp", videoUrl, category, likes);
             VideoManager.getInstance().addVideo(video);
             videoAdapter.notifyDataSetChanged();
         });
         dialog.show(getSupportFragmentManager(), "AddVideoDialog");
     }
+
+
 
 
     @Override
