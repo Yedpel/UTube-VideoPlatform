@@ -61,17 +61,19 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         boolean isLoggedIn = sharedPreferences.getBoolean(LOGGED_IN_KEY, false);
         loggedInUser = sharedPreferences.getString(LOGGED_IN_USER, null);
-        if (isNightMode) { //try40
+
+        // Set the theme based on the current session variable
+        if (isNightMode) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -81,8 +83,8 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        videoAdapter = new VideoAdapter(VideoManager.getInstance().getFilteredVideoList(), sharedPreferences); //try3
-        recyclerView.setAdapter(videoAdapter); //try3
+        videoAdapter = new VideoAdapter(VideoManager.getInstance().getFilteredVideoList(), sharedPreferences);
+        recyclerView.setAdapter(videoAdapter);
 
         btnLogin = findViewById(R.id.login_button);
         btnThemeSwitch = findViewById(R.id.theme_button);
@@ -91,31 +93,31 @@ public class MainActivity extends AppCompatActivity {
         searchBox = findViewById(R.id.search_box);
         btnLogout = new Button(this);
         btnLogout.setText("Logout");
-        btnLogout.setBackgroundResource(R.drawable.button_background); // Apply custom background // try11
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams( // try11
-                LinearLayout.LayoutParams.WRAP_CONTENT, // try11
-                LinearLayout.LayoutParams.WRAP_CONTENT); // try11
-        params.setMargins(0, 0, 10, 0); // set marginEnd to 10dp as the other buttons // try11
-        btnLogout.setLayoutParams(params); // try11
+        btnLogout.setBackgroundResource(R.drawable.button_background);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(0, 0, 10, 0);
+        btnLogout.setLayoutParams(params);
 
-        btnThemeSwitch.setText(isNightMode ? "Day Mode" : "Night Mode"); //try40
-        btnThemeSwitch.setOnClickListener(v -> switchTheme()); //try40
+        btnThemeSwitch.setText(isNightMode ? "Day Mode" : "Night Mode");
+        btnThemeSwitch.setOnClickListener(v -> switchTheme());
 
         // Initialize intent
         Intent intent = getIntent();
-        if (intent != null && intent.hasExtra("USERNAME")) { //try1
-            loggedInUser = intent.getStringExtra("USERNAME"); //try1
-            sharedPreferences.edit().putBoolean(LOGGED_IN_KEY, true).putString(LOGGED_IN_USER, loggedInUser).apply(); //try1
-            updateUIForLoggedInUser(loggedInUser); //try1
-        } else if (isLoggedIn) { //try1
-            if (savedInstanceState == null) { //try1
-                sharedPreferences.edit().remove(LOGGED_IN_KEY).remove(LOGGED_IN_USER).apply(); //try1
-                updateUIForGuest(); //try1
-            } else { //try1
-                updateUIForLoggedInUser(loggedInUser); //try1
-            } //try1
-        } else { //try1
-            updateUIForGuest(); //try1
+        if (intent != null && intent.hasExtra("USERNAME")) {
+            loggedInUser = intent.getStringExtra("USERNAME");
+            sharedPreferences.edit().putBoolean(LOGGED_IN_KEY, true).putString(LOGGED_IN_USER, loggedInUser).apply();
+            updateUIForLoggedInUser(loggedInUser);
+        } else if (isLoggedIn) {
+            if (savedInstanceState == null) {
+                sharedPreferences.edit().remove(LOGGED_IN_KEY).remove(LOGGED_IN_USER).apply();
+                updateUIForGuest();
+            } else {
+                updateUIForLoggedInUser(loggedInUser);
+            }
+        } else {
+            updateUIForGuest();
         }
 
         if (savedInstanceState != null) {
@@ -124,7 +126,6 @@ public class MainActivity extends AppCompatActivity {
             if (videoList != null) {
                 VideoManager.getInstance().setVideoList(videoList);
             }
-
             // Restore the RecyclerView state
             recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("recycler_state"));
         } else if (VideoManager.getInstance().getVideoList().isEmpty()) {
@@ -132,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Restore video URIs from SharedPreferences
-        restoreUserAddedVideos(); //try40
+        restoreUserAddedVideos();
 
         // Filter videos based on search
         searchBox.addTextChangedListener(new TextWatcher() {
@@ -147,31 +148,22 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnAddVideo.setOnClickListener(v -> {
-            if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) { //try2
-                openVideoPicker(); //try2
-            } else { //try2
-                showLoginPromptDialog(); //try2
-            } //try2
+            if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) {
+                openVideoPicker();
+            } else {
+                showLoginPromptDialog();
+            }
         });
     }
 
-    private void switchTheme() { //try40
-        isNightMode = !isNightMode; //try40
-        AppCompatDelegate.setDefaultNightMode(isNightMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO); //try40
-        btnThemeSwitch.setText(isNightMode ? "Day Mode" : "Night Mode"); //try40
-        recreate(); //try40
+    private void switchTheme() {
+        isNightMode = !isNightMode;
+        AppCompatDelegate.setDefaultNightMode(isNightMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+        btnThemeSwitch.setText(isNightMode ? "Day Mode" : "Night Mode");
+        recreate();
     }
 
-    private void saveUserAddedVideos() { //try40
-        List<Video> videoList = VideoManager.getInstance().getVideoList();
-        for (Video video : videoList) {
-            if (video.getId().startsWith("new_")) {
-                sharedPreferences.edit().putString(video.getId() + "_videoUrl", video.getVideoUrl()).apply();
-            }
-        }
-    }
-
-    private void restoreUserAddedVideos() { //try40
+    private void restoreUserAddedVideos() {
         List<Video> videoList = VideoManager.getInstance().getVideoList();
         for (Video video : videoList) {
             if (video.getId().startsWith("new_")) {
@@ -190,6 +182,11 @@ public class MainActivity extends AppCompatActivity {
         outState.putParcelableArrayList("video_list", new ArrayList<>(VideoManager.getInstance().getVideoList()));
         // Save the RecyclerView state
         outState.putParcelable("recycler_state", recyclerView.getLayoutManager().onSaveInstanceState());
+        // Save video URLs individually
+        for (Video video : VideoManager.getInstance().getVideoList()) {
+            sharedPreferences.edit().putString(video.getId() + "_videoUrl", video.getVideoUrl()).apply(); // Save video URL
+        } //try21
+
     }
 
     private void showAddVideoDialog(String videoFilePath) {
@@ -201,16 +198,17 @@ public class MainActivity extends AppCompatActivity {
             int views = 0;
             int likes = 0;
 
-            // Get the user's profile picture URL //try23
-            String authorProfilePicUrl = sharedPreferences.getString("userProfilePicUrl", "drawable/default_profile_pic"); // Replace with your default
+            // Get the user's profile picture URL
+            String authorProfilePicUrl = sharedPreferences.getString("userProfilePicUrl", "drawable/default_profile_pic");
 
             Video video = new Video(id, title, author, views, uploadTime, previewImageUrl, authorProfilePicUrl, videoFilePath, category, likes);
             VideoManager.getInstance().addVideo(video);
-            sharedPreferences.edit().putString(id + "_videoPath", videoFilePath).apply(); // Save video path in SharedPreferences //try22
+            sharedPreferences.edit().putString(id + "_videoUrl", videoFilePath).apply(); // Save video path in SharedPreferences
             videoAdapter.notifyDataSetChanged();
         });
         dialog.show(getSupportFragmentManager(), "AddVideoDialog");
     }
+
 
     private void updateUIForLoggedInUser(String username) {
         btnLogin.setVisibility(View.GONE);
