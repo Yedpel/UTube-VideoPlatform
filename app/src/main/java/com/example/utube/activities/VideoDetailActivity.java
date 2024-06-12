@@ -1,5 +1,8 @@
 package com.example.utube.activities;
 
+import android.content.pm.ActivityInfo;
+import android.view.WindowManager;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,6 +34,8 @@ import java.util.List;
 
 public class VideoDetailActivity extends AppCompatActivity {
 
+    private boolean isFullScreen = false;
+    private Button btnFullScreen;
     private VideoView videoView;
     private TextView titleTextView, authorTextView, viewsTextView, uploadTimeTextView, likesTextView, commentsCountTextView;
     private ImageView authorProfilePic;
@@ -61,6 +66,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         likesTextView = findViewById(R.id.likes_count);
         commentsCountTextView = findViewById(R.id.comments_count);
         commentsRecyclerView = findViewById(R.id.comments_recycler_view);
+        btnFullScreen = findViewById(R.id.btn_full_screen);
 
         // Initialize media controller
         MediaController mediaController = new MediaController(this);
@@ -92,7 +98,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         // Set video details
         // Log and handle video file path or URL
         if (videoUrl != null && !videoUrl.isEmpty()) {
-          //  Toast.makeText(this, "the video url isn't null", Toast.LENGTH_SHORT).show(); //try22
+            //  Toast.makeText(this, "the video url isn't null", Toast.LENGTH_SHORT).show(); //try22
             if (videoUrl.startsWith("content://") || videoUrl.startsWith("file://")) {
                 try {
                     // Verify the URI is accessible by querying it
@@ -147,15 +153,12 @@ public class VideoDetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Can't play this video", Toast.LENGTH_SHORT).show();
         }
 
-
-
-
         titleTextView.setText(title);
         authorTextView.setText(author);
         uploadTimeTextView.setText(uploadTime);
 
         // Load author's profile picture with Picasso, set placeholder and error image
-         authorProfilePicUrl = getIntent().getStringExtra("AUTHOR_PROFILE_PIC_URL"); // Make sure this is correctly passed in the intent
+        authorProfilePicUrl = getIntent().getStringExtra("AUTHOR_PROFILE_PIC_URL"); // Make sure this is correctly passed in the intent
 
         if (authorProfilePicUrl.startsWith("http")) { // Check if URL is a network URL //try23
             Picasso.get()
@@ -195,8 +198,6 @@ public class VideoDetailActivity extends AppCompatActivity {
                         });
             }
         }
-
-
 
         // Set initial like button state
         updateLikeButton();
@@ -238,6 +239,77 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         // Update comments count
         updateCommentsCount();
+
+        btnFullScreen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isFullScreen) {
+                    exitFullScreen();
+                } else {
+                    enterFullScreen();
+                }
+            }
+        });
+    }
+
+    private void enterFullScreen() {
+        isFullScreen = true;
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+        btnFullScreen.setText("Exit Full Screen");
+
+        // Set VideoView to full screen
+        ViewGroup.LayoutParams layoutParams = videoView.getLayoutParams();
+        layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+        videoView.setLayoutParams(layoutParams);
+
+        // Hide other UI elements
+        titleTextView.setVisibility(View.GONE);
+        authorTextView.setVisibility(View.GONE);
+        viewsTextView.setVisibility(View.GONE);
+        uploadTimeTextView.setVisibility(View.GONE);
+        authorProfilePic.setVisibility(View.GONE);
+        likesTextView.setVisibility(View.GONE);
+        commentsCountTextView.setVisibility(View.GONE);
+        commentsRecyclerView.setVisibility(View.GONE);
+        findViewById(R.id.add_comment_button).setVisibility(View.GONE);
+        findViewById(R.id.share_button).setVisibility(View.GONE);
+        findViewById(R.id.like_button).setVisibility(View.GONE);
+        findViewById(R.id.comments_headline).setVisibility(View.GONE);
+    }
+
+    private void exitFullScreen() {
+        isFullScreen = false;
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().show();
+        }
+        btnFullScreen.setText("Full Screen");
+
+        // Reset VideoView layout parameters
+        ViewGroup.LayoutParams params = videoView.getLayoutParams();
+        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+        videoView.setLayoutParams(params);
+
+        // Show other UI elements
+        titleTextView.setVisibility(View.VISIBLE);
+        authorTextView.setVisibility(View.VISIBLE);
+        viewsTextView.setVisibility(View.VISIBLE);
+        uploadTimeTextView.setVisibility(View.VISIBLE);
+        authorProfilePic.setVisibility(View.VISIBLE);
+        likesTextView.setVisibility(View.VISIBLE);
+        commentsCountTextView.setVisibility(View.VISIBLE);
+        commentsRecyclerView.setVisibility(View.VISIBLE);
+        findViewById(R.id.add_comment_button).setVisibility(View.VISIBLE);
+        findViewById(R.id.share_button).setVisibility(View.VISIBLE);
+        findViewById(R.id.like_button).setVisibility(View.VISIBLE);
+        findViewById(R.id.comments_headline).setVisibility(View.VISIBLE);
     }
 
     private void updateLikeButton() { //try5

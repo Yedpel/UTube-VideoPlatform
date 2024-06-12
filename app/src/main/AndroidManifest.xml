@@ -30,8 +30,11 @@
 
 
         <!-- VideoPlayerActivity Declaration -->
-        <activity android:name=".activities.VideoDetailActivity" />
-
+        <activity
+            android:name=".activities.VideoDetailActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait" >
+        </activity>
 
         <!-- Login activity -->
         <activity android:name=".activities.LoginActivity" />
