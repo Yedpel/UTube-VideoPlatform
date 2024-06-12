@@ -44,8 +44,6 @@ import java.util.ArrayList;
 import java.util.List;
 import com.example.utube.activities.LoginPromptDialog; //try2
 
-
-
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_VIDEO_PICK = 2;
     private RecyclerView recyclerView;
@@ -54,20 +52,19 @@ public class MainActivity extends AppCompatActivity {
     private EditText searchBox;
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "theme_prefs";
-    private static final String THEME_KEY = "current_theme";
     private static final String LOGGED_IN_KEY = "logged_in";
     private static final String LOGGED_IN_USER = "logged_in_user";
+    private static boolean isNightMode = false; // Static variable for theme mode //try40
     private int videoIdCounter = 14;
     private Uri selectedVideoUri;
     private String loggedInUser;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         boolean isLoggedIn = sharedPreferences.getBoolean(LOGGED_IN_KEY, false);
         loggedInUser = sharedPreferences.getString(LOGGED_IN_USER, null);
-        if (sharedPreferences.getBoolean(THEME_KEY, false)) {
+        if (isNightMode) { //try40
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
@@ -87,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
         videoAdapter = new VideoAdapter(VideoManager.getInstance().getFilteredVideoList(), sharedPreferences); //try3
         recyclerView.setAdapter(videoAdapter); //try3
 
-
         btnLogin = findViewById(R.id.login_button);
         btnThemeSwitch = findViewById(R.id.theme_button);
         btnRegister = findViewById(R.id.register_button);
@@ -102,20 +98,8 @@ public class MainActivity extends AppCompatActivity {
         params.setMargins(0, 0, 10, 0); // set marginEnd to 10dp as the other buttons // try11
         btnLogout.setLayoutParams(params); // try11
 
-
-        btnThemeSwitch.setText(sharedPreferences.getBoolean(THEME_KEY, false) ? "Day Mode" : "Night Mode");
-        btnThemeSwitch.setOnClickListener(v -> {
-            boolean isNightMode = sharedPreferences.getBoolean(THEME_KEY, false);
-            if (isNightMode) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                sharedPreferences.edit().putBoolean(THEME_KEY, false).apply();
-                btnThemeSwitch.setText("Night Mode");
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                sharedPreferences.edit().putBoolean(THEME_KEY, true).apply();
-                btnThemeSwitch.setText("Day Mode");
-            }
-        });
+        btnThemeSwitch.setText(isNightMode ? "Day Mode" : "Night Mode"); //try40
+        btnThemeSwitch.setOnClickListener(v -> switchTheme()); //try40
 
         // Initialize intent
         Intent intent = getIntent();
@@ -134,19 +118,11 @@ public class MainActivity extends AppCompatActivity {
             updateUIForGuest(); //try1
         }
 
-
         if (savedInstanceState != null) {
             // Restore the video list
             ArrayList<Video> videoList = savedInstanceState.getParcelableArrayList("video_list");
             if (videoList != null) {
                 VideoManager.getInstance().setVideoList(videoList);
-                // Restore video URIs from SharedPreferences
-                for (Video video : videoList) {
-                    String videoUrl = sharedPreferences.getString(video.getId() + "_videoUrl", null);
-                    if (videoUrl != null) {
-                        video.setVideoUrl(videoUrl);
-                    }
-                }//try20
             }
 
             // Restore the RecyclerView state
@@ -154,6 +130,9 @@ public class MainActivity extends AppCompatActivity {
         } else if (VideoManager.getInstance().getVideoList().isEmpty()) {
             loadVideoData();
         }
+
+        // Restore video URIs from SharedPreferences
+        restoreUserAddedVideos(); //try40
 
         // Filter videos based on search
         searchBox.addTextChangedListener(new TextWatcher() {
@@ -167,7 +146,6 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {}
         });
 
-        //  btnAddVideo.setOnClickListener(v -> openVideoPicker());
         btnAddVideo.setOnClickListener(v -> {
             if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) { //try2
                 openVideoPicker(); //try2
@@ -177,7 +155,62 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void switchTheme() { //try40
+        isNightMode = !isNightMode; //try40
+        AppCompatDelegate.setDefaultNightMode(isNightMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO); //try40
+        btnThemeSwitch.setText(isNightMode ? "Day Mode" : "Night Mode"); //try40
+        recreate(); //try40
+    }
 
+    private void saveUserAddedVideos() { //try40
+        List<Video> videoList = VideoManager.getInstance().getVideoList();
+        for (Video video : videoList) {
+            if (video.getId().startsWith("new_")) {
+                sharedPreferences.edit().putString(video.getId() + "_videoUrl", video.getVideoUrl()).apply();
+            }
+        }
+    }
+
+    private void restoreUserAddedVideos() { //try40
+        List<Video> videoList = VideoManager.getInstance().getVideoList();
+        for (Video video : videoList) {
+            if (video.getId().startsWith("new_")) {
+                String videoUrl = sharedPreferences.getString(video.getId() + "_videoUrl", null);
+                if (videoUrl != null) {
+                    video.setVideoUrl(videoUrl);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // Save the video list
+        outState.putParcelableArrayList("video_list", new ArrayList<>(VideoManager.getInstance().getVideoList()));
+        // Save the RecyclerView state
+        outState.putParcelable("recycler_state", recyclerView.getLayoutManager().onSaveInstanceState());
+    }
+
+    private void showAddVideoDialog(String videoFilePath) {
+        AddVideoDialog dialog = new AddVideoDialog();
+        dialog.setAddVideoListener((title, category, previewImageUrl) -> {
+            String id = "new_" + System.currentTimeMillis();
+            String author = loggedInUser != null ? loggedInUser : "guest";
+            String uploadTime = "Just now";
+            int views = 0;
+            int likes = 0;
+
+            // Get the user's profile picture URL //try23
+            String authorProfilePicUrl = sharedPreferences.getString("userProfilePicUrl", "drawable/default_profile_pic"); // Replace with your default
+
+            Video video = new Video(id, title, author, views, uploadTime, previewImageUrl, authorProfilePicUrl, videoFilePath, category, likes);
+            VideoManager.getInstance().addVideo(video);
+            sharedPreferences.edit().putString(id + "_videoPath", videoFilePath).apply(); // Save video path in SharedPreferences //try22
+            videoAdapter.notifyDataSetChanged();
+        });
+        dialog.show(getSupportFragmentManager(), "AddVideoDialog");
+    }
 
     private void updateUIForLoggedInUser(String username) {
         btnLogin.setVisibility(View.GONE);
@@ -287,7 +320,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     private int getUpdatedViews(String videoId, int defaultViews) {
         return sharedPreferences.getInt(videoId + "_views", defaultViews);
     }
@@ -360,67 +392,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Modify showAddVideoDialog to accept file path
-    // In showAddVideoDialog method, after creating a new Video instance
-    private void showAddVideoDialog(String videoFilePath) {
-        AddVideoDialog dialog = new AddVideoDialog();
-        dialog.setAddVideoListener((title, category, previewImageUrl) -> {
-            String id = "new_" + System.currentTimeMillis();
-            String author = loggedInUser != null ? loggedInUser : "guest";
-            String uploadTime = "Just now";
-            int views = 0;
-            int likes = 0;
-
-            // Get the user's profile picture URL //try23
-            String authorProfilePicUrl = sharedPreferences.getString("userProfilePicUrl", "drawable/default_profile_pic"); // Replace with your default
-
-            Video video = new Video(id, title, author, views, uploadTime, previewImageUrl, authorProfilePicUrl, videoFilePath, category, likes);
-            VideoManager.getInstance().addVideo(video);
-            sharedPreferences.edit().putString(id + "_videoPath", videoFilePath).apply(); // Save video path in SharedPreferences //try22
-            videoAdapter.notifyDataSetChanged();
-        });
-        dialog.show(getSupportFragmentManager(), "AddVideoDialog");
-    }
-
-
-    // Implement the method to get the user profile picture URL //try23
-    private String getUserProfilePicUrl() {
-        // This is a placeholder, replace with actual logic to get the user's profile picture URL
-        // For example, you might retrieve it from SharedPreferences or a UserManager class
-        return sharedPreferences.getString("userProfilePicUrl", "default_profile_pic_url"); // Replace "default_profile_pic_url" with your default
-    }
-
-
-
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        // Save the video list
-        outState.putParcelableArrayList("video_list", new ArrayList<>(VideoManager.getInstance().getVideoList()));
-        // Save the RecyclerView state
-        outState.putParcelable("recycler_state", recyclerView.getLayoutManager().onSaveInstanceState());
-        for (Video video : VideoManager.getInstance().getVideoList()) {
-            sharedPreferences.edit().putString(video.getId() + "_videoUrl", video.getVideoUrl()).apply(); // Save video URL
-        }//try21
-    }
-
-
     private void showLoginPromptDialog() { //try2
         LoginPromptDialog dialog = new LoginPromptDialog(); //try2
         dialog.show(getSupportFragmentManager(), "LoginPromptDialog"); //try2
     } //try2
 
-
     private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
         private List<Video> videoList;
         private SharedPreferences sharedPreferences; //try3
-
 
         public VideoAdapter(List<Video> videoList, SharedPreferences sharedPreferences) { //try3
             this.videoList = videoList; //try3
             this.sharedPreferences = sharedPreferences; //try3
         } //try3
+
         @Override
         public VideoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_video, parent, false);
@@ -529,7 +514,5 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-
-
     }
 }
