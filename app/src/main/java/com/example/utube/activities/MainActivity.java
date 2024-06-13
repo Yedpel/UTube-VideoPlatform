@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
     private int videoIdCounter = 14;
     private Uri selectedVideoUri;
     private String loggedInUser;
+    private static boolean isFirstThemeApplication = true; // Add this line at the top of MainActivity class
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,9 +70,17 @@ public class MainActivity extends AppCompatActivity {
 
         // Manually set the theme based on isNightMode //try90
         //applyTheme();
+//        if (isFirstThemeApplication) {
+//            applyTheme(); // Apply the theme only if it's not the first application
+//       isFirstThemeApplication = false; // Set isFirstThemeApplication to false after the first theme application
+//        }
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        isNightMode = sharedPreferences.getBoolean("isNightMode", false); // Ensure this is retrieved before setting the theme
+        applyTheme();  // Apply theme immediately after super.onCreate()
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -146,10 +156,14 @@ public class MainActivity extends AppCompatActivity {
                 showLoginPromptDialog(); //try90
             } //try90
         });
+
+        isFirstThemeApplication = false; // Set isFirstThemeApplication to false after the first theme application
     }
 
     private void applyTheme() {
-        setTheme(isNightMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light);
+       // if (!isFirstThemeApplication) {
+            setTheme(isNightMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light);
+        //}
     }
 
 
