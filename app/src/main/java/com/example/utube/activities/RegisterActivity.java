@@ -124,34 +124,60 @@ public class RegisterActivity extends AppCompatActivity {
         String username = usernameEditText.getText().toString();
         String password = passwordEditText.getText().toString();
         String confirmPassword = confirmPasswordEditText.getText().toString();
-//
-//        //if email address is ilegal mark it red and return false
-//        if (!email.contains("@") || !email.contains(".")) {
-//            emailEditText.setError("Invalid email address");
-//            return false;
-//        }
-//        //if password and confirm password are not the same mark them red and return false
-//        if (!password.equals(confirmPassword)) {
-//            passwordEditText.setError("Passwords do not match");
-//            confirmPasswordEditText.setError("Passwords do not match");
-//            return false;
-//        }
-//
-//        // Check if the username already exists //try8
-//        if (Users.getInstance().getUser(username) != null) { //try8
-//            usernameEditText.setError("Username already taken"); //try8
-//            return false; //try8
-//        } //try8
-//
-//        //check that dob is valid
-//        if (dobEditText.getText().toString().isEmpty()) {
-//            dobEditText.setError("Please select a date");
-//            return false;
-//        }
+
+        //if email address is ilegal mark it red and return false
+        if (!email.contains("@") || !email.contains(".")) {
+            emailEditText.setError("Invalid email address");
+            return false;
+        }
+        //if password and confirm password are not the same mark them red and return false
+        if (!password.equals(confirmPassword)) {
+            passwordEditText.setError("Passwords do not match");
+            confirmPasswordEditText.setError("Passwords do not match");
+            return false;
+        }
+
+        // Check if the username already exists //try8
+        if (Users.getInstance().getUser(username) != null) { //try8
+            usernameEditText.setError("Username already taken"); //try8
+            return false; //try8
+        } //try8
+
+
+
 //        //check that all fields are filled except profile pic
 //        return !firstName.isEmpty() && !lastName.isEmpty() && !email.isEmpty()
 //                && !username.isEmpty() && password.equals(confirmPassword) ;
 
+//check that all fields are filled except profile pic and what not mark in red
+        if (firstName.isEmpty()) {
+            firstNameEditText.setError("First name is required");
+            return false;
+        }
+        if (lastName.isEmpty()) {
+            lastNameEditText.setError("Last name is required");
+            return false;
+        }
+        if (email.isEmpty()) {
+            emailEditText.setError("email is required");
+            return false;
+        }
+        if (dobEditText.getText().toString().isEmpty()) {
+            dobEditText.setError("Date of birth is required");
+            return false;
+        }
+        if (username.isEmpty()) {
+            usernameEditText.setError("username is required");
+            return false;
+        }
+        if (password.isEmpty()) {
+            passwordEditText.setError("password is required");
+            return false;
+        }
+        if (confirmPassword.isEmpty()) {
+            confirmPasswordEditText.setError("confirm password is required");
+            return false;
+        }
         return true;
 
     }
