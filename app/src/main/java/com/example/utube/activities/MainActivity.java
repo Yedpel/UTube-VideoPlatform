@@ -1,4 +1,3 @@
-// MainActivity.java
 
 package com.example.utube.activities;
 
@@ -78,9 +77,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        isNightMode = sharedPreferences.getBoolean("isNightMode", false); // Ensure this is retrieved before setting the theme
-        applyTheme();  // Apply theme immediately after super.onCreate()
+// boop       sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+//        isNightMode = sharedPreferences.getBoolean("isNightMode", false); // Ensure this is retrieved before setting the theme
+//        applyTheme();  // Apply theme immediately after super.onCreate()
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -156,6 +155,10 @@ public class MainActivity extends AppCompatActivity {
                 showLoginPromptDialog(); //try90
             } //try90
         });
+        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        isNightMode = sharedPreferences.getBoolean("isNightMode", false); // Ensure this is retrieved before setting the theme
+        applyTheme();  // Apply theme immediately after super.onCreate()
+
 
         isFirstThemeApplication = false; // Set isFirstThemeApplication to false after the first theme application
     }
@@ -163,11 +166,44 @@ public class MainActivity extends AppCompatActivity {
     private void applyTheme() {
        // if (!isFirstThemeApplication) {
             setTheme(isNightMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light);
+        updateUIWithTheme(); // Refresh UI elements manually after theme change
         //}
     }
 
+    private void updateUIWithTheme() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        Button menuButton = findViewById(R.id.menu_button);
+        LinearLayout mainLayout = findViewById(R.id.main_layout);
 
-    private void switchTheme() {
+        // Determine colors based on the current theme
+        int backgroundColor = isNightMode ? getResources().getColor(R.color.my_dark_background) : getResources().getColor(R.color.my_light_background);
+        int primaryColor = isNightMode ? getResources().getColor(R.color.my_dark_primary) : getResources().getColor(R.color.my_light_primary);
+        int textColor = isNightMode ? getResources().getColor(R.color.my_dark_on_primary) : getResources().getColor(R.color.my_light_on_primary);
+
+        // Apply colors to UI elements
+        toolbar.setBackgroundColor(primaryColor);
+        menuButton.setTextColor(textColor);
+        mainLayout.setBackgroundColor(backgroundColor); // Set background color of the main layout
+
+        // Update colors of all buttons
+        btnLogin.setTextColor(textColor);
+        btnRegister.setTextColor(textColor);
+        btnThemeSwitch.setTextColor(textColor);
+        btnAddVideo.setTextColor(textColor);
+        btnLogout.setTextColor(textColor);
+
+        // Refresh RecyclerView to apply theme colors to its items
+        if (videoAdapter != null) {
+            videoAdapter.notifyDataSetChanged(); // Notify changes to refresh views
+        }
+
+        // Redraw the main layout to ensure all changes are visible
+        mainLayout.invalidate();
+    }
+
+
+
+        private void switchTheme() {
         isNightMode = !isNightMode;
         sharedPreferences.edit().putBoolean("isNightMode", isNightMode).apply(); // Save theme preference
         applyTheme(); // Apply the new theme
