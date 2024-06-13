@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnLogin, btnThemeSwitch, btnRegister, btnAddVideo, btnLogout;
     private EditText searchBox;
     private SharedPreferences sharedPreferences;
-    private static final String PREFS_NAME = "theme_prefs";
+    public static final String PREFS_NAME = "theme_prefs";
     private static final String LOGGED_IN_KEY = "logged_in";
     private static final String LOGGED_IN_USER = "logged_in_user";
     private static boolean isNightMode = false; // Static variable for theme mode //try90
@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         loggedInUser = sharedPreferences.getString(LOGGED_IN_USER, null);
 
         // Manually set the theme based on isNightMode //try90
-      //  setTheme(isNightMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light); //try90
+        //applyTheme();
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -148,14 +148,18 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void switchTheme() { //try90
-        isNightMode = !isNightMode; //try90
-        setTheme(isNightMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light); //try90
-        btnThemeSwitch.setText(isNightMode ? "Day Mode" : "Night Mode"); //try90
-        saveUserAddedVideos(); //try90
-        reinitializeAdapter(); //try90
-        restoreUserAddedVideos(); //try90
+    private void applyTheme() {
+        setTheme(isNightMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light);
     }
+
+
+    private void switchTheme() {
+        isNightMode = !isNightMode;
+        sharedPreferences.edit().putBoolean("isNightMode", isNightMode).apply(); // Save theme preference
+        applyTheme(); // Apply the new theme
+        recreate(); // Restart activity to apply the new theme
+    }
+
 
     private void saveUserAddedVideos() { //try90
         List<Video> videoList = VideoManager.getInstance().getVideoList();
