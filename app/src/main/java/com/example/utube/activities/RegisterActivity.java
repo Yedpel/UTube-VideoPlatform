@@ -95,7 +95,7 @@ public class RegisterActivity extends AppCompatActivity {
                     year, month, day); //try9
 
             datePickerDialog.show(); //try9
-        }); //try9
+        });
 
         // Inside onCreate method
         dobEditText.setInputType(InputType.TYPE_NULL); // Prevents keyboard from popping up //try10
