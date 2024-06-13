@@ -562,38 +562,34 @@ public class MainActivity extends AppCompatActivity {
                 authorProfilePic = itemView.findViewById(R.id.author_profile_pic);
                 menuButton = itemView.findViewById(R.id.menu_button);
             }
-
             public void bind(Video video) {
                 title.setText(video.getTitle());
                 author.setText(video.getAuthor());
                 views.setText(video.getViews() + " views");
                 uploadTime.setText(video.getUploadTime());
 
-                try {
-                    int thumbnailResId = getResources().getIdentifier(video.getThumbnailUrl(), "drawable", getPackageName());
-                    if (thumbnailResId != 0) {
-                        thumbnail.setImageResource(thumbnailResId);
-                    } else {
-                        Picasso.get().load(video.getThumbnailUrl()).into(thumbnail);
-                    }
+                loadImageView(thumbnail, video.getThumbnailUrl());
+                loadImageView(authorProfilePic, video.getAuthorProfilePicUrl());
+            }
 
-                    String authorProfilePicUrl = video.getAuthorProfilePicUrl();
-                    if (authorProfilePicUrl.startsWith("http")) { //try90
-                        Picasso.get().load(authorProfilePicUrl).into(authorProfilePic); //try90
+            private void loadImageView(ImageView imageView, String imageUrl) {
+                if (imageUrl.startsWith("drawable/")) {
+                    // Handle drawable resources
+                    int imageResId = getResources().getIdentifier(imageUrl, null, getPackageName());
+                    if (imageResId != 0) {
+                        imageView.setImageResource(imageResId);
                     } else {
-                        int authorProfilePicResId = getResources().getIdentifier(authorProfilePicUrl, "drawable", getPackageName());
-                        if (authorProfilePicResId != 0) {
-                            authorProfilePic.setImageResource(authorProfilePicResId);
-                        } else {
-                            Picasso.get().load(authorProfilePicUrl).into(authorProfilePic);
-                        }
+                        imageView.setImageResource(R.drawable.policy); // Fallback to error image if resource not found
                     }
-                } catch (Exception e) {
-                    Log.e("VideoAdapter", "Error loading images", e);
-                    thumbnail.setImageResource(R.drawable.error_image);
-                    authorProfilePic.setImageResource(R.drawable.error_image);
+                } else if (imageUrl!=null){
+                    // Handle remote images or local file URIs
+                    Picasso.get().load(imageUrl).error(R.drawable.policy).into(imageView);
+                } else {
+                    // Fallback for unexpected image URL formats
+                    imageView.setImageResource(R.drawable.policy);
                 }
             }
+
         }
     }
 }

@@ -100,32 +100,36 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             menuButton = itemView.findViewById(R.id.menu_button);
         }
 
+
+
+
         public void bind(Video video) {
             title.setText(video.getTitle());
             author.setText(video.getAuthor());
             views.setText(video.getViews() + " views");
             uploadTime.setText(video.getUploadTime());
 
-            try {
-                // Load thumbnail image
-                int thumbnailResId = itemView.getContext().getResources().getIdentifier(video.getThumbnailUrl(), "drawable", itemView.getContext().getPackageName());
-                if (thumbnailResId != 0) {
-                    thumbnail.setImageResource(thumbnailResId);
-                } else {
-                    Picasso.get().load(video.getThumbnailUrl()).into(thumbnail);
-                }
+            loadImageView(thumbnail, video.getThumbnailUrl());
+            loadImageView(authorProfilePic, video.getAuthorProfilePicUrl());
+        }
 
-                // Load author profile picture
-                int authorProfilePicResId = itemView.getContext().getResources().getIdentifier(video.getAuthorProfilePicUrl(), "drawable", itemView.getContext().getPackageName());
-                if (authorProfilePicResId != 0) {
-                    authorProfilePic.setImageResource(authorProfilePicResId);
+        private void loadImageView(ImageView imageView, String imageUrl) {
+            if (imageUrl != null && imageUrl.startsWith("drawable/")) {
+                // Handle drawable resources
+                int imageResId = itemView.getContext().getResources().getIdentifier(imageUrl, null, itemView.getContext().getPackageName());
+                if (imageResId != 0) {
+                    imageView.setImageResource(imageResId);
                 } else {
-                    Picasso.get().load(video.getAuthorProfilePicUrl()).into(authorProfilePic);
+                    imageView.setImageResource(R.drawable.policy); // Fallback to error image if resource not found
                 }
-            } catch (Exception e) {
-                thumbnail.setImageResource(R.drawable.error_image);
-                authorProfilePic.setImageResource(R.drawable.error_image);
+            } else if (imageUrl != null) {
+                // Handle remote images or local file URIs
+                Picasso.get().load(imageUrl).error(R.drawable.policy).into(imageView);
+            } else {
+                // Fallback for unexpected image URL formats or null imageUrl
+                imageView.setImageResource(R.drawable.policy);
             }
         }
+
     }
 }

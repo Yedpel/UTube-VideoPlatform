@@ -169,11 +169,13 @@ public class VideoDetailActivity extends AppCompatActivity {
         // Load author's profile picture with Picasso, set placeholder and error image
         authorProfilePicUrl = getIntent().getStringExtra("AUTHOR_PROFILE_PIC_URL"); // Make sure this is correctly passed in the intent
 
-        if (authorProfilePicUrl.startsWith("http")) { // Check if URL is a network URL //try23
+        // Attempt to load the image from a URL first if it's not null
+        if (authorProfilePicUrl != null && !authorProfilePicUrl.startsWith("drawable/")) {
+            // URL is not a drawable resource, attempt to load it with Picasso
             Picasso.get()
                     .load(authorProfilePicUrl)
-                    .placeholder(R.drawable.placeholder_image)
-                    .error(R.drawable.error_image)
+                    .placeholder(R.drawable.policy) // Use a placeholder image while loading
+                    .error(R.drawable.policy) // Fallback to error image if loading fails
                     .into(authorProfilePic, new Callback() {
                         @Override
                         public void onSuccess() {
@@ -183,30 +185,20 @@ public class VideoDetailActivity extends AppCompatActivity {
                         @Override
                         public void onError(Exception e) {
                             Log.e("Picasso", "Error loading image", e);
+                            authorProfilePic.setImageResource(R.drawable.policy); // Set error image directly in case of failure
                         }
                     });
-        } else { // Otherwise, use the existing logic for resources
+        } else {
+            // Handle drawable resources or null URLs
             int authorProfilePicResId = getResources().getIdentifier(authorProfilePicUrl, "drawable", getPackageName());
             if (authorProfilePicResId != 0) {
                 authorProfilePic.setImageResource(authorProfilePicResId);
             } else {
-                Picasso.get()
-                        .load(authorProfilePicUrl)
-                        .placeholder(R.drawable.placeholder_image)
-                        .error(R.drawable.error_image)
-                        .into(authorProfilePic, new Callback() {
-                            @Override
-                            public void onSuccess() {
-                                Log.d("Picasso", "Image loaded successfully");
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                                Log.e("Picasso", "Error loading image", e);
-                            }
-                        });
+                // If resource ID is not found or URL is null, set to default error image
+                authorProfilePic.setImageResource(R.drawable.policy);
             }
         }
+
 
         // Set initial like button state
         updateLikeButton();
