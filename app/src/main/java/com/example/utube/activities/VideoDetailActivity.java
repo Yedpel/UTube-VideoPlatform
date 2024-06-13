@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.utube.R;
+import com.example.utube.models.Users;
 import com.example.utube.models.Video;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -210,6 +211,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         commentsRecyclerView.setAdapter(commentsAdapter);
 
         // Add comment button click listener
+        String finalAuthorProfilePicUrl = authorProfilePicUrl;
         findViewById(R.id.add_comment_button).setOnClickListener(v -> { //try6
             if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) { //try6
                 AddCommentDialog dialog = new AddCommentDialog(); //try6
@@ -217,7 +219,8 @@ public class VideoDetailActivity extends AppCompatActivity {
                     if (!text.trim().isEmpty()) { //try6
                         String currentTime = "Just now"; // Use a proper timestamp in real app //try6
                         int random = (int)(Math.random() * 1000000); //try6
-                        Video.Comment comment = new Video.Comment(random, "user1", text, currentTime, 0, "drawable/error_image.webp"); //try6
+                      //  String authorProfilePicUrl = Users.getInstance().getUser(loggedInUser).getProfilePic();
+                        Video.Comment comment = new Video.Comment(random, "user1", text, currentTime, 0, finalAuthorProfilePicUrl); //try6
                         comments.add(comment); //try6
                         commentsAdapter.notifyDataSetChanged(); //try6
                         updateCommentsCount(); //try6
@@ -403,12 +406,15 @@ public class VideoDetailActivity extends AppCompatActivity {
                 uploadTimeTextView.setText(comment.getUploadTime());
                 commentLikesTextView.setText(comment.getLikes() + " likes");
 
-                int profilePicResId = getResources().getIdentifier(comment.getProfilePicUrl(), "drawable", getPackageName());
-                if (profilePicResId != 0) {
-                    profilePicImageView.setImageResource(profilePicResId);
-                } else {
-                    Picasso.get().load(comment.getProfilePicUrl()).into(profilePicImageView);
-                }
+//                int profilePicResId = getResources().getIdentifier(comment.getProfilePicUrl(), "drawable", getPackageName());
+//                if (profilePicResId != 0) {
+//                    profilePicImageView.setImageResource(profilePicResId);
+//                } else {
+//                    Picasso.get().load(comment.getProfilePicUrl()).into(profilePicImageView);
+//                }
+
+                // Use the generalized loadImageView method
+                loadImageView(profilePicImageView, comment.getProfilePicUrl());
 
                 // Load comment like state
                 isCommentLiked = likedCommentsStateMap
@@ -462,6 +468,26 @@ public class VideoDetailActivity extends AppCompatActivity {
                         showLoginPromptDialog(); //try7
                     } //try7
                 }); //try7
+            }
+
+            private void loadImageView(ImageView imageView, String imageUrl) {
+                if (imageUrl != null && imageUrl.startsWith("drawable/")) {
+                    // Handle drawable resources
+                    int imageResId = getResources().getIdentifier(imageUrl, null, getPackageName());
+                    if (imageResId != 0) {
+                        imageView.setImageResource(imageResId);
+                    } else {
+                        imageView.setImageResource(R.drawable.policy); // Fallback to policy image if resource not found
+                    }
+                } else if (imageUrl != null) {
+                    // Handle remote images or local file URIs
+                    Picasso.get().load(imageUrl)
+                            .error(R.drawable.policy) // Use a policy image as the error fallback
+                            .into(imageView);
+                } else {
+                    // Fallback for null or unexpected image URL formats
+                    imageView.setImageResource(R.drawable.policy);
+                }
             }
 
             private void updateLikeCommentButton() {
