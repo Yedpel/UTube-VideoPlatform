@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <!-- Base application theme -->
@@ -16,24 +15,24 @@
     </style>
 
     <!-- Light theme -->
-    <style name="AppTheme.Light" parent="Theme.AppCompat.Light">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textColorPrimary">@color/colorPrimaryText</item>
-        <item name="android:textColorSecondary">@color/colorSecondaryText</item>
-        <item name="android:windowBackground">@color/windowBackground</item>
+    <style name="AppTheme_Light" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/my_light_primary</item>
+        <item name="colorPrimaryDark">@color/my_light_primary_variant</item>
+        <item name="colorAccent">@color/my_light_secondary</item>
+        <item name="android:textColorPrimary">@color/my_light_on_background</item>
+        <item name="android:textColorSecondary">@color/my_light_on_background</item>
+        <item name="android:windowBackground">@color/my_light_background</item>
         <item name="android:buttonStyle">@style/Widget.AppCompat.Button</item>
     </style>
 
     <!-- Dark theme -->
-    <style name="AppTheme.Dark" parent="Theme.AppCompat">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textColorPrimary">@color/colorPrimaryTextDark</item>
-        <item name="android:textColorSecondary">@color/colorSecondaryTextDark</item>
-        <item name="android:windowBackground">@color/windowBackgroundDark</item>
+    <style name="AppTheme_Dark" parent="Theme.AppCompat.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/my_dark_primary</item>
+        <item name="colorPrimaryDark">@color/my_dark_primary_variant</item>
+        <item name="colorAccent">@color/my_dark_secondary</item>
+        <item name="android:textColorPrimary">@color/my_dark_on_background</item>
+        <item name="android:textColorSecondary">@color/my_dark_on_background</item>
+        <item name="android:windowBackground">@color/my_dark_background</item>
         <item name="android:buttonStyle">@style/Widget.AppCompat.Button</item>
     </style>
 

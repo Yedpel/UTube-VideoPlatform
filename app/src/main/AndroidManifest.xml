@@ -36,6 +36,10 @@
             android:screenOrientation="portrait" >
         </activity>
 
+        <activity android:name=".activities.FakeIntermediateActivity"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"/>
+
+
         <!-- Login activity -->
         <activity android:name=".activities.LoginActivity" />
 
