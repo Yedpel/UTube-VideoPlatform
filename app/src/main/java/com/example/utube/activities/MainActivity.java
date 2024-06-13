@@ -155,9 +155,15 @@ public class MainActivity extends AppCompatActivity {
                 showLoginPromptDialog(); //try90
             } //try90
         });
+
+
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         isNightMode = sharedPreferences.getBoolean("isNightMode", false); // Ensure this is retrieved before setting the theme
-        applyTheme();  // Apply theme immediately after super.onCreate()
+        //if its first time application, make sure isNightMode is false
+        if (isFirstThemeApplication) {
+            isNightMode = false;
+        }
+        applyTheme();
 
 
         isFirstThemeApplication = false; // Set isFirstThemeApplication to false after the first theme application
