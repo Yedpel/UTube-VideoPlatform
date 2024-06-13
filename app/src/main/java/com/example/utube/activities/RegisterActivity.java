@@ -94,6 +94,7 @@ public class RegisterActivity extends AppCompatActivity {
                     (view, year1, monthOfYear, dayOfMonth) -> dobEditText.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year1), //try9
                     year, month, day); //try9
 
+
             datePickerDialog.show(); //try9
         });
 
