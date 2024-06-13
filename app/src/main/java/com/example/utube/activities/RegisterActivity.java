@@ -72,7 +72,8 @@ public class RegisterActivity extends AppCompatActivity {
                         lastNameEditText.getText().toString(),
                         dobEditText.getText().toString(),
                         emailEditText.getText().toString(),
-                        selectedImageUri != null ? selectedImageUri.toString() : null
+                        //set profile pic to placeholder if no image is selected, and to the selected image string if an image is selected
+                        selectedImageUri != null ? selectedImageUri.toString() : "android.resource://com.example.utube/drawable/ic_profile_pic"
                 );
                 Toast.makeText(RegisterActivity.this, "Registration Successful", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
