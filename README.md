@@ -30,12 +30,9 @@ If not, download and install it from [Android Studio's official website](https:/
 ### Setting up the Project
 
 1. **Clone the Repository**
-
-   First, you need to clone the repository to your local machine.
    Open your terminal and run the following command:
-
-git clone https://github.com/Yedpel/UTube_Android.git
-
+   git clone https://github.com/Yedpel/UTube_Android.git
+2.
 2. **Open the Project in Android Studio**
 
 - Open Android Studio.
@@ -52,9 +49,8 @@ git clone https://github.com/Yedpel/UTube_Android.git
 
 That’s it! You now have the project running on your Android device or emulator.
 
-### Troubleshooting    
+### Troubleshooting
 
 If you encounter any issues with building or running the app,
 ensure your Android SDK is up-to-date and that you have the correct build tools installed.
 Check the `build.gradle` file for any specific SDK or library dependency that might need attention.
-
