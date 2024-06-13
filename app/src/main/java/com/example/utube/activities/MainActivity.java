@@ -156,13 +156,16 @@ public class MainActivity extends AppCompatActivity {
             } //try90
         });
 
+        //if its first time application, make sure isNightMode is false
+        //and set the shared preference to false
+        if (isFirstThemeApplication) {
+            isNightMode = false;
+            sharedPreferences.edit().putBoolean("isNightMode", isNightMode).apply();
+        }
 
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         isNightMode = sharedPreferences.getBoolean("isNightMode", false); // Ensure this is retrieved before setting the theme
-        //if its first time application, make sure isNightMode is false
-        if (isFirstThemeApplication) {
-            isNightMode = false;
-        }
+
         applyTheme();
 
 
