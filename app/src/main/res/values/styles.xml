@@ -3,7 +3,6 @@
     <!-- Base application theme -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:icon">@mipmap/ic_launcher</item>
-        <item name="android:roundIcon">@mipmap/ic_launcher_round</item>
         <!-- Customize your theme here -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>

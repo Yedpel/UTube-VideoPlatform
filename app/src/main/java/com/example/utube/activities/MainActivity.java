@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Apply colors to UI elements
         toolbar.setBackgroundColor(primaryColor);
-        menuButton.setTextColor(textColor);
+        menuButton.setTextColor(buttonTextColor);
         mainLayout.setBackgroundColor(backgroundColor);
 
         // Update colors of all buttons
@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
         btnLogout.setTextColor(buttonTextColor);
 
         // Set background for buttons based on the theme
-        int buttonBackground = isNightMode ? R.drawable.button_rounded_dark : R.drawable.button_rounded_light;
+        int buttonBackground = isNightMode ? R.drawable.button_background : R.drawable.button_rounded_light;
         btnLogin.setBackgroundResource(buttonBackground);
         btnRegister.setBackgroundResource(buttonBackground);
         btnThemeSwitch.setBackgroundResource(buttonBackground);
