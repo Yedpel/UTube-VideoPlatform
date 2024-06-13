@@ -52,7 +52,7 @@ git clone https://github.com/Yedpel/UTube_Android.git
 
 That’s it! You now have the project running on your Android device or emulator.
 
-### Troubleshooting 
+### Troubleshooting  
 
 If you encounter any issues with building or running the app,
 ensure your Android SDK is up-to-date and that you have the correct build tools installed.
