@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams( // try90
                 LinearLayout.LayoutParams.WRAP_CONTENT, // try90
                 LinearLayout.LayoutParams.WRAP_CONTENT); // try90
-        params.setMargins(0, 0, 10, 0); // set marginEnd to 10dp as the other buttons // try90
+        params.setMargins(10, 0, 10, 0); // set marginEnd to 10dp as the other buttons // try90
         btnLogout.setLayoutParams(params); // try90
 
         btnThemeSwitch.setText(isNightMode ? "Day Mode" : "Night Mode"); //try90
@@ -178,23 +178,32 @@ public class MainActivity extends AppCompatActivity {
         // Determine colors based on the current theme
         int backgroundColor = isNightMode ? getResources().getColor(R.color.my_dark_background) : getResources().getColor(R.color.my_light_background);
         int primaryColor = isNightMode ? getResources().getColor(R.color.my_dark_primary) : getResources().getColor(R.color.my_light_primary);
-        int textColor = isNightMode ? getResources().getColor(R.color.my_dark_on_primary) : getResources().getColor(R.color.my_light_on_primary);
+        int textColor = isNightMode ? getResources().getColor(R.color.my_dark_on_primary) : getResources().getColor(R.color.my_light_on_secondary);
+        int buttonTextColor = isNightMode ? getResources().getColor(R.color.my_dark_on_primary) : getResources().getColor(R.color.my_light_on_primary);
 
         // Apply colors to UI elements
         toolbar.setBackgroundColor(primaryColor);
         menuButton.setTextColor(textColor);
-        mainLayout.setBackgroundColor(backgroundColor); // Set background color of the main layout
+        mainLayout.setBackgroundColor(backgroundColor);
 
         // Update colors of all buttons
-        btnLogin.setTextColor(textColor);
-        btnRegister.setTextColor(textColor);
-        btnThemeSwitch.setTextColor(textColor);
-        btnAddVideo.setTextColor(textColor);
-        btnLogout.setTextColor(textColor);
+        btnLogin.setTextColor(buttonTextColor);
+        btnRegister.setTextColor(buttonTextColor);
+        btnThemeSwitch.setTextColor(buttonTextColor);
+        btnAddVideo.setTextColor(buttonTextColor);
+        btnLogout.setTextColor(buttonTextColor);
+
+        // Set background for buttons based on the theme
+        int buttonBackground = isNightMode ? R.drawable.button_rounded_dark : R.drawable.button_rounded_light;
+        btnLogin.setBackgroundResource(buttonBackground);
+        btnRegister.setBackgroundResource(buttonBackground);
+        btnThemeSwitch.setBackgroundResource(buttonBackground);
+        btnAddVideo.setBackgroundResource(buttonBackground);
+        btnLogout.setBackgroundResource(buttonBackground);
 
         // Refresh RecyclerView to apply theme colors to its items
         if (videoAdapter != null) {
-            videoAdapter.notifyDataSetChanged(); // Notify changes to refresh views
+            videoAdapter.notifyDataSetChanged();
         }
 
         // Redraw the main layout to ensure all changes are visible
@@ -203,7 +212,9 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        private void switchTheme() {
+
+
+    private void switchTheme() {
         isNightMode = !isNightMode;
         sharedPreferences.edit().putBoolean("isNightMode", isNightMode).apply(); // Save theme preference
         applyTheme(); // Apply the new theme

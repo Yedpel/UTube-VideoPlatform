@@ -289,6 +289,8 @@ public class VideoDetailActivity extends AppCompatActivity {
         findViewById(R.id.share_button).setVisibility(View.GONE);
         findViewById(R.id.like_button).setVisibility(View.GONE);
         findViewById(R.id.comments_headline).setVisibility(View.GONE);
+        //make toast to exit full screen scroll down to see the button
+        Toast.makeText(this, "To exit full screen, scroll down and press the Exit Full Screen button", Toast.LENGTH_LONG).show();
     }
 
     private void exitFullScreen() {
