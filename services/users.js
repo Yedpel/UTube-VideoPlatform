@@ -13,3 +13,7 @@ export const findUser = async (username) => {
         throw new Error('Error checking username and password');
     }
 };
+
+// Using default export
+export default User;
+

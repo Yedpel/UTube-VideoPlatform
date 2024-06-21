@@ -1,4 +1,4 @@
-import { getVideoModel, createVideoModel, getVideosModel } from '../services/videoPlay';
+import { getVideoModel, createVideoModel, getVideosModel } from '../services/videoPlay.js';
 
 export function getVideos(req, res) {
     const videos = getVideosModel();

@@ -1,0 +1,380 @@
+[
+  {
+    "id": "1",
+    "thumbnailUrl": "drawable/imvid1",
+    "title": "roland garros 05",
+    "author": "Author 1",
+    "authorProfilePicUrl": "drawable/pro_1",
+    "views": 1000,
+    "uploadTime": "1 day ago",
+    "videoUrl": "raw/vid1_rg05",
+    "category": "Sport",
+    "likes": 0,
+    "comments": [
+      {
+        "example of comment": "delete in final version",
+        "username": "Author 1",
+        "text": "Great video!",
+        "uploadTime": "2020-01-02T15:00:00Z",
+        "likes": 0,
+        "likedByUsers": [],
+        "profilePicUrl": "http://example.com/profilepic1.jpg"
+      }
+    ]
+  },
+    {
+        "id": "2",
+        "thumbnailUrl": "drawable/imvid2",
+        "title": "roland garros 06",
+        "author": "Author 2",
+        "authorProfilePicUrl": "drawable/pro_2",
+        "views": 2000,
+        "uploadTime": "2 days ago",
+        "videoUrl": "raw/vid2_rg06",
+      "category": "News",
+        "likes": 20,
+      "comments": [
+        {
+        }
+      ]
+    },
+    {
+        "id": "3",
+        "thumbnailUrl": "drawable/imvid3",
+        "title": "roland garros 07",
+        "author": "Author 3",
+        "authorProfilePicUrl": "drawable/pro_3",
+        "views": 3000,
+        "uploadTime": "3 days ago",
+        "videoUrl": "raw/vid3_rg07",
+      "category": "Cinema",
+        "likes": 30,
+      "comments": [
+        {
+        }
+      ]
+    },
+    {
+        "id": "4",
+        "thumbnailUrl": "drawable/imvid4",
+        "title": "roland garros 08",
+        "author": "Author 4",
+        "authorProfilePicUrl": "drawable/pro_4",
+        "views": 4000,
+        "uploadTime": "4 days ago",
+        "videoUrl": "raw/vid4_rg08",
+      "category": "Gaming",
+        "likes": 40,
+      "comments": [
+        {
+        }
+      ]
+    },
+    {
+        "id": "5",
+        "thumbnailUrl": "drawable/imvid5",
+        "title": "wimbledon 08",
+        "author": "Author 1",
+        "authorProfilePicUrl": "drawable/pro_1",
+        "views":  5000,
+        "uploadTime": "5 days ago",
+        "videoUrl": "raw/vid5_wimb08",
+        "category": "Sport",
+        "likes": 50,
+      "comments": [
+        {
+        }
+      ]
+    },
+    {
+        "id": "6",
+        "thumbnailUrl": "drawable/imvid6",
+        "title": "aus open 09",
+        "author": "Author 2",
+        "authorProfilePicUrl": "drawable/pro_2",
+        "views": 6000,
+        "uploadTime": "6 days ago",
+        "videoUrl": "raw/vid6_aus09",
+        "category": "News",
+        "likes": 60,
+      "comments": [
+        {
+        }
+      ]
+    },
+    {
+        "id": "7",
+        "thumbnailUrl": "drawable/imvid7",
+        "title": "roland garros 10",
+        "author": "Author 3",
+        "authorProfilePicUrl": "drawable/pro_3",
+        "views": 7000,
+        "uploadTime": "7 days ago",
+        "videoUrl": "raw/vid7_rg10",
+        "category": "Cinema",
+        "likes": 70,
+      "comments": [
+        {
+        }
+      ]
+    },
+    {
+        "id": "8",
+        "thumbnailUrl": "drawable/imvid8",
+        "title": "wimbledon 10",
+        "author": "Author 3",
+        "authorProfilePicUrl": "drawable/pro_3",
+        "views": 8000,
+        "uploadTime": "8 days ago",
+        "videoUrl": "raw/vid8_wimb10",
+        "category": "Gaming",
+        "likes": 80,
+      "comments": [
+        {
+        }
+      ]
+    },
+    {
+        "id": "9",
+        "thumbnailUrl": "drawable/imvid9",
+        "title": "us open 10",
+        "author": "Author 1",
+        "authorProfilePicUrl": "drawable/pro_1",
+        "views": 9000,
+        "uploadTime": "9 days ago",
+        "videoUrl": "raw/vid9_us10",
+        "category": "Sport",
+        "likes": 90,
+      "comments": [
+        {
+        }
+      ]
+    },
+    {
+        "id": "10",
+        "thumbnailUrl": "drawable/imvid10",
+        "title": "roland garros 11",
+        "author": "Author 1",
+        "authorProfilePicUrl": "drawable/pro_1",
+        "views": 10000,
+        "uploadTime": "10 days ago",
+        "videoUrl": "raw/vid10_rg11",
+        "category": "News",
+        "likes": 100,
+      "comments": [
+        {
+        }
+      ]
+    },
+    {
+        "id": "11",
+        "thumbnailUrl": "drawable/imvid11",
+        "title": "roland garros 12",
+        "author": "Author 4",
+        "authorProfilePicUrl": "drawable/pro_4",
+        "views": 11000,
+        "uploadTime": "11 days ago",
+        "videoUrl": "raw/vid11_rg12",
+        "category": "Cinema",
+        "likes": 110,
+      "comments": [
+        {
+        }
+      ]
+    },
+    {
+        "id": "12",
+        "thumbnailUrl": "drawable/imvid12",
+        "title": "roland garros 13",
+        "author": "Author 4",
+        "authorProfilePicUrl": "drawable/pro_4",
+        "views": 12000,
+        "uploadTime": "12 days ago",
+        "videoUrl": "raw/vid12_rg13",
+        "category": "Gaming",
+        "likes": 120,
+      "comments": [
+        {
+        }
+      ]
+    },
+    {
+        "id": "13",
+        "thumbnailUrl": "drawable/imvid13",
+        "title": "us open 13",
+        "author": "Author 2",
+        "authorProfilePicUrl": "drawable/pro_2",
+        "views": 13000,
+        "uploadTime": "13 days ago",
+        "videoUrl": "raw/vid13_us13",
+        "category": "Sport",
+        "likes": 130,
+      "comments": [
+        {
+        }
+      ]
+    },
+    {
+        "id": "14",
+        "thumbnailUrl": "drawable/imvid14",
+        "title": "roland garros 14",
+        "author": "Author 2",
+        "authorProfilePicUrl": "drawable/pro_2",
+        "views": 14000,
+        "uploadTime": "14 days ago",
+        "videoUrl": "raw/vid14_rg14",
+        "category": "News",
+        "likes": 140,
+      "comments": [
+        {
+        }
+      ]
+    }
+,
+  {
+    "id": "15",
+    "thumbnailUrl": "drawable/imvid15",
+    "title": "roland garros 17",
+    "author": "Author 2",
+    "authorProfilePicUrl": "drawable/pro_2",
+    "views": 15000,
+    "uploadTime": "15 days ago",
+    "videoUrl": "raw/vid15_rg17",
+    "category": "News",
+    "likes": 150,
+    "comments": [
+      {
+      }
+    ]
+  },
+  {
+    "id": "16",
+    "thumbnailUrl": "drawable/imvid16",
+    "title": "us open 17",
+    "author": "Author 2",
+    "authorProfilePicUrl": "drawable/pro_2",
+    "views": 16000,
+    "uploadTime": "16 days ago",
+    "videoUrl": "raw/vid16_us17",
+    "category": "News",
+    "likes": 160,
+    "comments": [
+      {
+      }
+    ]
+  },
+  {
+    "id": "17",
+    "thumbnailUrl": "drawable/imvid17",
+    "title": "roland garros 18",
+    "author": "Author 2",
+    "authorProfilePicUrl": "drawable/pro_2",
+    "views": 17000,
+    "uploadTime": "17 days ago",
+    "videoUrl": "raw/vid17_rg18",
+    "category": "News",
+    "likes": 170,
+    "comments": [
+      {
+      }
+    ]
+  },
+  {
+    "id": "18",
+    "thumbnailUrl": "drawable/imvid18",
+    "title": "roland garros 19",
+    "author": "Author 2",
+    "authorProfilePicUrl": "drawable/pro_2",
+    "views": 18000,
+    "uploadTime": "18 days ago",
+    "videoUrl": "raw/vid18_rg19",
+    "category": "News",
+    "likes": 180,
+    "comments": [
+      {
+      }
+    ]
+  },
+  {
+    "id": "19",
+    "thumbnailUrl": "drawable/imvid19",
+    "title": "us open 19",
+    "author": "Author 2",
+    "authorProfilePicUrl": "drawable/pro_2",
+    "views": 19000,
+    "uploadTime": "19 days ago",
+    "videoUrl": "raw/vid19_us19",
+    "category": "News",
+    "likes": 190,
+    "comments": [
+      {
+      }
+    ]
+  },
+  {
+    "id": "20",
+    "thumbnailUrl": "drawable/imvid20",
+    "title": "roland garros 20",
+    "author": "Author 2",
+    "authorProfilePicUrl": "drawable/pro_2",
+    "views": 20000,
+    "uploadTime": "20 days ago",
+    "videoUrl": "raw/vid20_rg20",
+    "category": "News",
+    "likes": 200,
+    "comments": [
+      {
+      }
+    ]
+  },
+  {
+    "id": "21",
+    "thumbnailUrl": "drawable/imvid21",
+    "title": "aus open 22",
+    "author": "Author 2",
+    "authorProfilePicUrl": "drawable/pro_2",
+    "views": 21000,
+    "uploadTime": "21 days ago",
+    "videoUrl": "raw/vid21_ao22",
+    "category": "News",
+    "likes": 210,
+    "comments": [
+      {
+      }
+    ]
+  },
+  {
+    "id": "22",
+    "thumbnailUrl": "drawable/imvid22",
+    "title": "roland garros 22",
+    "author": "Author 2",
+    "authorProfilePicUrl": "drawable/pro_2",
+    "views": 22000,
+    "uploadTime": "22 days ago",
+    "videoUrl": "raw/vid22_rg22",
+    "category": "News",
+    "likes": 220,
+    "comments": [
+      {
+      }
+    ]
+  },
+  {
+    "id": "23",
+    "thumbnailUrl": "drawable/imvid23",
+    "title": "olympics 08",
+    "author": "Author 2",
+    "authorProfilePicUrl": "drawable/pro_2",
+    "views": 23000,
+    "uploadTime": "23 days ago",
+    "videoUrl": "raw/vid23_oly08",
+    "category": "News",
+    "likes": 230,
+    "comments": [
+      {
+      }
+    ]
+  }
+]
+
+

@@ -1,6 +1,6 @@
 import userService from '../services/users.js'
 
-const checkUserNameAndPassword = async (req, res) => {
+export const checkUserNameAndPassword = async (req, res) => {
     const { username, password } = req.body;
 
     try {
@@ -21,5 +21,3 @@ export function isLoggedIn(req, res, next) {
     else
         res.redirect('/login')
 }
-
-export default { checkUserNameAndPassword };
