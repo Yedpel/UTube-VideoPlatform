@@ -8,17 +8,7 @@
     "videoUrl": "raw/vid1_rg05",
     "category": "Sport",
     "likes": 0,
-    "comments": [
-      {
-        "example of comment": "delete in final version",
-        "username": "Author 1",
-        "text": "Great video!",
-        "uploadTime": "2020-01-02T15:00:00Z",
-        "likes": 0,
-        "likedByUsers": [],
-        "profilePicUrl": "http://example.com/profilepic1.jpg"
-      }
-    ]
+    "comments": []
   },
     {
         "thumbnailUrl": "drawable/imvid2",
@@ -29,10 +19,7 @@
         "videoUrl": "raw/vid2_rg06",
       "category": "News",
         "likes": 20,
-      "comments": [
-        {
-        }
-      ]
+      "comments": []
     },
     {
         "thumbnailUrl": "drawable/imvid3",
@@ -43,10 +30,7 @@
         "videoUrl": "raw/vid3_rg07",
       "category": "Cinema",
         "likes": 30,
-      "comments": [
-        {
-        }
-      ]
+      "comments": []
     },
     {
         "thumbnailUrl": "drawable/imvid4",
@@ -57,10 +41,7 @@
         "videoUrl": "raw/vid4_rg08",
       "category": "Gaming",
         "likes": 40,
-      "comments": [
-        {
-        }
-      ]
+     "comments": []
     },
     {
         "thumbnailUrl": "drawable/imvid5",
@@ -71,10 +52,7 @@
         "videoUrl": "raw/vid5_wimb08",
         "category": "Sport",
         "likes": 50,
-      "comments": [
-        {
-        }
-      ]
+      "comments": []
     },
     {
         "thumbnailUrl": "drawable/imvid6",
@@ -85,10 +63,7 @@
         "videoUrl": "raw/vid6_aus09",
         "category": "News",
         "likes": 60,
-      "comments": [
-        {
-        }
-      ]
+     "comments": []
     },
     {
         "thumbnailUrl": "drawable/imvid7",
@@ -99,10 +74,7 @@
         "videoUrl": "raw/vid7_rg10",
         "category": "Cinema",
         "likes": 70,
-      "comments": [
-        {
-        }
-      ]
+      "comments": []
     },
     {
         "thumbnailUrl": "drawable/imvid8",
@@ -113,10 +85,7 @@
         "videoUrl": "raw/vid8_wimb10",
         "category": "Gaming",
         "likes": 80,
-      "comments": [
-        {
-        }
-      ]
+     "comments": []
     },
     {
         "thumbnailUrl": "drawable/imvid9",
@@ -127,10 +96,7 @@
         "videoUrl": "raw/vid9_us10",
         "category": "Sport",
         "likes": 90,
-      "comments": [
-        {
-        }
-      ]
+     "comments": []
     },
     {
         "thumbnailUrl": "drawable/imvid10",
@@ -141,10 +107,7 @@
         "videoUrl": "raw/vid10_rg11",
         "category": "News",
         "likes": 100,
-      "comments": [
-        {
-        }
-      ]
+      "comments": []
     },
     {
         "thumbnailUrl": "drawable/imvid11",
@@ -155,10 +118,7 @@
         "videoUrl": "raw/vid11_rg12",
         "category": "Cinema",
         "likes": 110,
-      "comments": [
-        {
-        }
-      ]
+      "comments": []
     },
     {
         "thumbnailUrl": "drawable/imvid12",
@@ -169,10 +129,7 @@
         "videoUrl": "raw/vid12_rg13",
         "category": "Gaming",
         "likes": 120,
-      "comments": [
-        {
-        }
-      ]
+      "comments": []
     },
     {
         "thumbnailUrl": "drawable/imvid13",
@@ -183,10 +140,7 @@
         "videoUrl": "raw/vid13_us13",
         "category": "Sport",
         "likes": 130,
-      "comments": [
-        {
-        }
-      ]
+      "comments": []
     },
     {
         "thumbnailUrl": "drawable/imvid14",
@@ -197,10 +151,7 @@
         "videoUrl": "raw/vid14_rg14",
         "category": "News",
         "likes": 140,
-      "comments": [
-        {
-        }
-      ]
+      "comments": []
     }
 ,
   {
@@ -212,10 +163,7 @@
     "videoUrl": "raw/vid15_rg17",
     "category": "News",
     "likes": 150,
-    "comments": [
-      {
-      }
-    ]
+    "comments": []
   },
   {
     "thumbnailUrl": "drawable/imvid16",
@@ -226,10 +174,7 @@
     "videoUrl": "raw/vid16_us17",
     "category": "News",
     "likes": 160,
-    "comments": [
-      {
-      }
-    ]
+   "comments": []
   },
   {
     "thumbnailUrl": "drawable/imvid17",
@@ -240,10 +185,7 @@
     "videoUrl": "raw/vid17_rg18",
     "category": "News",
     "likes": 170,
-    "comments": [
-      {
-      }
-    ]
+   "comments": []
   },
   {
     "thumbnailUrl": "drawable/imvid18",
@@ -253,11 +195,7 @@
     "uploadTime": "18 days ago",
     "videoUrl": "raw/vid18_rg19",
     "category": "News",
-    "likes": 180,
-    "comments": [
-      {
-      }
-    ]
+   "comments": []
   },
   {
     "thumbnailUrl": "drawable/imvid19",
@@ -268,10 +206,7 @@
     "videoUrl": "raw/vid19_us19",
     "category": "News",
     "likes": 190,
-    "comments": [
-      {
-      }
-    ]
+    "comments": []
   },
   {
     "thumbnailUrl": "drawable/imvid20",
@@ -282,10 +217,7 @@
     "videoUrl": "raw/vid20_rg20",
     "category": "News",
     "likes": 200,
-    "comments": [
-      {
-      }
-    ]
+    "comments": []
   },
   {
     "thumbnailUrl": "drawable/imvid21",
@@ -296,10 +228,7 @@
     "videoUrl": "raw/vid21_ao22",
     "category": "News",
     "likes": 210,
-    "comments": [
-      {
-      }
-    ]
+   "comments": []
   },
   {
     "thumbnailUrl": "drawable/imvid22",
@@ -310,10 +239,7 @@
     "videoUrl": "raw/vid22_rg22",
     "category": "News",
     "likes": 220,
-    "comments": [
-      {
-      }
-    ]
+   "comments": []
   },
   {
     "thumbnailUrl": "drawable/imvid23",
@@ -324,10 +250,7 @@
     "videoUrl": "raw/vid23_oly08",
     "category": "News",
     "likes": 230,
-    "comments": [
-      {
-      }
-    ]
+    "comments": []
   }
 ]
 

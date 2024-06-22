@@ -15,6 +15,8 @@ import { createVideoModel, updateVideoModel, deleteVideoModel, likeVideo, unlike
     isUserTheAuthor, getVideosByUserId } from './services/videoPlay.js'; // Make sure updateVideoModel is imported
 import { registerUser } from './controllers/signUp.js'; // Make sure to import registerUser
 import { updateUserModel, deleteUserModel } from './services/users.js'; // Make sure updateUserModel and deleteUserModel are imported
+import { createCommentModel } from './services/comments.js';
+
 
 //add dotenv for environment variables
 import dotenv from 'dotenv';
@@ -30,7 +32,7 @@ mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnif
        .then(() => {
            console.log('MongoDB connected');
            checkAndLoadData();  // Call the function after the connection is established
-           testDeleteUserAndVideos("6676faa2de0663d0aaa2a234");  // Use the user ID provided
+           testCreateComment();
         })
     .catch(err => console.error('MongoDB connection error:', err));
 
@@ -113,6 +115,26 @@ async function loadData() {
 
 
 /////////////////////tests///////////////////// and below the start of the server listen
+
+
+// Testing comment creation
+async function testCreateComment() {
+    const commentData = {
+        userId: "66771d56ee7de545aba5a49a",  // Example user ID
+        videoId: "66771d56ee7de545aba5a4a1",  // Example video ID
+        text: "Great video!",
+        uploadTime: new Date("2020-01-02T15:00:00Z"),
+        likes: 0,
+        likedByUsers: []
+    };
+
+    try {
+        const newComment = await createCommentModel(commentData);
+        console.log('Comment created and added to video:', newComment);
+    } catch (error) {
+        console.error('Failed to create comment:', error);
+    }
+}
 
 
 async function testDeleteUserAndVideos(userId) {

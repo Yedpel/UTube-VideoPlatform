@@ -9,7 +9,7 @@ const videoPlaySchema = new Schema({
     thumbnailUrl: String,
     title: String,
     authorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },  // Reference to User model
-  //  authorName : String, 
+    authorName : String, 
 //    authorPofilePic: String,
     views: Number,
     uploadTime :{  type: String, default: Date.now } ,
@@ -17,7 +17,7 @@ const videoPlaySchema = new Schema({
     category: String,
     likes: Number,
     likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],  // Ensure this is set correctly
-    comments: Array, 
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }]  // Reference to Comment model
 
 });
 
