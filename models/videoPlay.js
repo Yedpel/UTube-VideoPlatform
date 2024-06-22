@@ -18,7 +18,7 @@ const videoPlaySchema = new Schema({
     videoUrl: String,
     category: String,
     likes: Number,
-    likedBy: Array,
+    likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],  // Ensure this is set correctly
     comments: Array, 
 
 });

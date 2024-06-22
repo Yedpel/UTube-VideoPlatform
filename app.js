@@ -11,7 +11,7 @@ import routerLogin from './routes/login.js';
 import User from './models/users.js';
 import Video from './models/videoPlay.js';
 import userRouter from './routes/users.js';  // Adjust path as necessary
-import { createVideoModel, updateVideoModel, deleteVideoModel, likeVideo, unlikeVideo } from './services/videoPlay.js'; // Make sure updateVideoModel is imported
+import { createVideoModel, updateVideoModel, deleteVideoModel, likeVideo, unlikeVideo, isUserLikedVideo } from './services/videoPlay.js'; // Make sure updateVideoModel is imported
 import { registerUser } from './controllers/signUp.js'; // Make sure to import registerUser
 import { updateUserModel, deleteUserModel } from './services/users.js'; // Make sure updateUserModel and deleteUserModel are imported
 
@@ -26,7 +26,9 @@ customEnv.env(process.env.NODE_ENV || 'local', './config');
 mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
        .then(() => {
            console.log('MongoDB connected');
-           testLikeAndUnlikeFeatures();
+           checkAndLoadData();  // Call the function after the connection is established
+          // testLikeAndUnlikeFeatures();
+           testUserLikedVideo();  // Call the test function after the connection is established
        })
     .catch(err => console.error('MongoDB connection error:', err));
 
@@ -78,6 +80,19 @@ async function loadData() {
 
 /////////////////////tests///////////////////// and below the start of the server listen
 
+
+
+async function testUserLikedVideo() {
+    const videoId = '6676af630402f0c497e29d94';
+    const userId = '6676af630402f0c497e29d8c';
+
+    try {
+        const hasLiked = await isUserLikedVideo(videoId, userId);
+        console.log(`Has user ${userId} liked video ${videoId}?`, hasLiked);
+    } catch (error) {
+        console.error('Error checking if user liked video:', error);
+    }
+}
 
 async function testLikeAndUnlikeFeatures() {
     const videoId = '6676af630402f0c497e29d93';

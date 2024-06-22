@@ -43,6 +43,14 @@ export async function unlikeVideo(videoId, userId) {
     );
 }
 
+export async function isUserLikedVideo(videoId, userId) {
+    const video = await Video.findById(videoId);
+    if (!video) {
+        throw new Error('Video not found');
+    }
+    return video.likedBy.includes(userId);
+}
+
 
 
 // export function getVideosModel() {
