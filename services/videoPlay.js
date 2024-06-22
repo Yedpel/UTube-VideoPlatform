@@ -69,6 +69,11 @@ export async function isUserTheAuthor(videoId, userId) {
     return video.authorId.toString() === userId;
 }
 
+// Function to get all videos by a specific user
+export async function getVideosByUserId(userId) {
+    return await Video.find({ authorId: userId });
+}
+
 
 
 // export function getVideosModel() {

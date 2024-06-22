@@ -12,7 +12,7 @@ import User from './models/users.js';
 import Video from './models/videoPlay.js';
 import userRouter from './routes/users.js';  // Adjust path as necessary
 import { createVideoModel, updateVideoModel, deleteVideoModel, likeVideo, unlikeVideo, isUserLikedVideo,
-    isUserTheAuthor } from './services/videoPlay.js'; // Make sure updateVideoModel is imported
+    isUserTheAuthor, getVideosByUserId } from './services/videoPlay.js'; // Make sure updateVideoModel is imported
 import { registerUser } from './controllers/signUp.js'; // Make sure to import registerUser
 import { updateUserModel, deleteUserModel } from './services/users.js'; // Make sure updateUserModel and deleteUserModel are imported
 
@@ -30,7 +30,8 @@ mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnif
        .then(() => {
            console.log('MongoDB connected');
            checkAndLoadData();  // Call the function after the connection is established
-       })
+           testDeleteUserAndVideos("6676faa2de0663d0aaa2a234");  // Use the user ID provided
+        })
     .catch(err => console.error('MongoDB connection error:', err));
 
 // Express app setup
@@ -113,6 +114,25 @@ async function loadData() {
 
 /////////////////////tests///////////////////// and below the start of the server listen
 
+
+async function testDeleteUserAndVideos(userId) {
+    try {
+        console.log(`Checking videos before deletion for user ${userId}`);
+        const videosBefore = await getVideosByUserId(userId);
+        console.log(`Found ${videosBefore.length} videos before deletion.`);
+
+        const deletedUser = await deleteUserModel(userId);
+        if (deletedUser) {
+            console.log(`User deleted successfully. ID: ${userId}`);
+        }
+
+        console.log(`Checking videos after deletion for user ${userId}`);
+        const videosAfter = await getVideosByUserId(userId);
+        console.log(`Found ${videosAfter.length} videos after deletion.`);
+    } catch (error) {
+        console.error('Error in testDeleteUserAndVideos:', error);
+    }
+}
 
 
 
