@@ -11,7 +11,8 @@ import routerLogin from './routes/login.js';
 import User from './models/users.js';
 import Video from './models/videoPlay.js';
 import userRouter from './routes/users.js';  // Adjust path as necessary
-import { createVideoModel, updateVideoModel, deleteVideoModel, likeVideo, unlikeVideo, isUserLikedVideo } from './services/videoPlay.js'; // Make sure updateVideoModel is imported
+import { createVideoModel, updateVideoModel, deleteVideoModel, likeVideo, unlikeVideo, isUserLikedVideo,
+    isUserTheAuthor } from './services/videoPlay.js'; // Make sure updateVideoModel is imported
 import { registerUser } from './controllers/signUp.js'; // Make sure to import registerUser
 import { updateUserModel, deleteUserModel } from './services/users.js'; // Make sure updateUserModel and deleteUserModel are imported
 
@@ -22,13 +23,13 @@ dotenv.config();
 // Environment variables
 customEnv.env(process.env.NODE_ENV || 'local', './config');
 
+
+
 // MongoDB connection
 mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
        .then(() => {
            console.log('MongoDB connected');
            checkAndLoadData();  // Call the function after the connection is established
-          // testLikeAndUnlikeFeatures();
-           testUserLikedVideo();  // Call the test function after the connection is established
        })
     .catch(err => console.error('MongoDB connection error:', err));
 
@@ -60,6 +61,38 @@ async function checkAndLoadData() {
     }
 }
 
+async function loadData() {
+    try {
+        const usersData = JSON.parse(fs.readFileSync('./users.json', 'utf8'));
+        const videosData = JSON.parse(fs.readFileSync('./videos.json', 'utf8'));
+
+        await User.deleteMany({});
+        const createdUsers = await User.insertMany(usersData);
+
+        // Create a map of usernames to user IDs
+        const usernameToIdMap = createdUsers.reduce((map, user) => {
+            map[user.username] = user._id;
+            return map;
+        }, {});
+
+        // Transform video data to include authorId instead of author username
+        const transformedVideos = videosData.map(video => ({
+            ...video,
+            authorId: usernameToIdMap[video.author],  // Map the username to ObjectId
+            authorName: video.author,  // Optionally keep authorName if needed
+            uploadTime: new Date() // Convert to actual Date if necessary
+        }));
+
+        await Video.deleteMany({});
+        await Video.insertMany(transformedVideos);
+        console.log('Data loaded successfully');
+    } catch (err) {
+        console.error('Failed to load data:', err);
+    }
+}
+
+
+/*
 // Load initial data into MongoDB
 async function loadData() {
     try {
@@ -75,11 +108,37 @@ async function loadData() {
     } catch (err) {
         console.error('Failed to load data:', err);
     }
-}
+}*/
 
 
 /////////////////////tests///////////////////// and below the start of the server listen
 
+
+
+
+async function testAuthorship() {
+    const videoId = "6676faa2de0663d0aaa2a23b";
+    const userId = "6676faa2de0663d0aaa2a234";
+
+    try {
+        const isAuthor = await isUserTheAuthor(videoId, userId);
+        console.log(`1 - Is user ${userId} the author of video ${videoId}? ${isAuthor}`);
+    } catch (error) {
+        console.error('Error checking authorship:', error);
+    }
+}
+
+async function testAuthorship2() {
+    const videoId = "6676faa2de0663d0aaa2a23b";
+    const userId = "6676faa2de0663d0aaa2a235";
+
+    try {
+        const isAuthor = await isUserTheAuthor(videoId, userId);
+        console.log(`2 - Is user ${userId} the author of video ${videoId}? ${isAuthor}`);
+    } catch (error) {
+        console.error('Error checking authorship:', error);
+    }
+}
 
 
 async function testUserLikedVideo() {
@@ -161,8 +220,7 @@ async function addSampleVideo() {
     const sampleVideoData = {
         thumbnailUrl: "drawable/imvid23",
         title: "tryAdd",
-        author: "Author 2",
-        authorProfilePic: "drawable/pro_2",  // Corrected field name
+        authorId: "6676f39196de4690f086aa54",
         views: 0,
         uploadTime: new Date(),  // Current date/time or specific date
         videoUrl: "raw/vid23_oly08",

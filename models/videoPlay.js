@@ -5,16 +5,14 @@ const Schema = mongoose.Schema
 
 const videoPlaySchema = new Schema({
     //id is automatically created by mongoDB if not provided
-    id: String,
+  //  id: String,
     thumbnailUrl: String,
     title: String,
-    author : String,
-    authorPofilePic: String,
+    authorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },  // Reference to User model
+  //  authorName : String, 
+//    authorPofilePic: String,
     views: Number,
-    uploadTime :{
-        type: String,
-        default: Date.now
-    } ,
+    uploadTime :{  type: String, default: Date.now } ,
     videoUrl: String,
     category: String,
     likes: Number,

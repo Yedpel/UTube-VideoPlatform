@@ -1,10 +1,13 @@
-import { getVideoModel, createVideoModel, getVideosModel, updateVideoModel, deleteVideoModel } from '../services/videoPlay.js';
+import { getVideoModel, createVideoModel, getVideosModel, updateVideoModel, deleteVideoModel,
+     getVideosWithAuthorDetails } from '../services/videoPlay.js';
 
 export async function getVideos(req, res) {
     try {
-        const videos = await getVideosModel();
+      //  const videos = await getVideosModel();
+      const videos = await getVideosWithAuthorDetails();
         res.render('allVideos', { videos });
     } catch (error) {
+        console.error('Error fetching videos with author details:', error);
         res.status(500).send('Failed to retrieve videos');
     }
 }

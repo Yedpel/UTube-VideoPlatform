@@ -51,6 +51,24 @@ export async function isUserLikedVideo(videoId, userId) {
     return video.likedBy.includes(userId);
 }
 
+// Function to get videos with editable author details that showed - username and profilePic
+export async function getVideosWithAuthorDetails() {
+    return await Video.find()
+                      .populate({
+                          path: 'authorId',
+                          select: 'username profilePic -_id'  // Only fetch the username and profilePic
+                      });
+}
+
+// Function to check if a user is the author of a video
+export async function isUserTheAuthor(videoId, userId) {
+    const video = await Video.findById(videoId);
+    if (!video) {
+        throw new Error('Video not found');
+    }
+    return video.authorId.toString() === userId;
+}
+
 
 
 // export function getVideosModel() {
