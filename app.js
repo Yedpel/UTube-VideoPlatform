@@ -15,7 +15,8 @@ import { createVideoModel, updateVideoModel, deleteVideoModel, likeVideo, unlike
     isUserTheAuthor, getVideosByUserId } from './services/videoPlay.js'; // Make sure updateVideoModel is imported
 import { registerUser } from './controllers/signUp.js'; // Make sure to import registerUser
 import { updateUserModel, deleteUserModel } from './services/users.js'; // Make sure updateUserModel and deleteUserModel are imported
-import { createCommentModel } from './services/comments.js';
+import { createCommentModel, editCommentModel, deleteCommentModel, isUserTheAuthorOfComment,
+    likeComment, unlikeComment, isUserLikedComment, getCommentsByVideoId, countCommentsByVideoId  } from './services/comments.js';
 
 
 //add dotenv for environment variables
@@ -32,7 +33,6 @@ mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnif
        .then(() => {
            console.log('MongoDB connected');
            checkAndLoadData();  // Call the function after the connection is established
-           testCreateComment();
         })
     .catch(err => console.error('MongoDB connection error:', err));
 
@@ -116,6 +116,128 @@ async function loadData() {
 
 /////////////////////tests///////////////////// and below the start of the server listen
 
+// test delete user
+async function testDeleteUser(userId) {
+    try {
+        console.log(`Attempting to delete user with ID: ${userId}`);
+        const user = await deleteUserModel(userId);
+        if (user) {
+            console.log(`User with ID: ${userId} was deleted successfully.`);
+        } else {
+            console.log(`No user found with ID: ${userId}.`);
+        }
+    } catch (error) {
+        console.error('Failed to delete user:', error);
+    }
+}
+
+async function testFetchComments() {
+    const videoId = '66771d56ee7de545aba5a4a1';  // Replace with an actual video ID from your database
+
+    try {
+        console.log(`Fetching comments for video ID: ${videoId}`);
+        const comments = await getCommentsByVideoId(videoId);
+        console.log(`Comments for video ${videoId}:`, comments);
+        comments.forEach(comment => {
+            console.log(`- Comment text: "${comment.text}" by User ID: ${comment.userId}`);
+        });
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+    }
+}
+
+async function testFetchCommentCount() {
+    const videoId = '66771d56ee7de545aba5a4a1';  // Replace with an actual video ID from your database
+
+    try {
+        console.log(`Fetching comment count for video ID: ${videoId}`);
+        const count = await countCommentsByVideoId(videoId);
+        console.log(`Total comments for video ${videoId}: ${count}`);
+    } catch (error) {
+        console.error('Error fetching comment count:', error);
+    }
+}
+
+
+async function testIsUserLikedComment() {
+    const commentId = "667722b7e4d39c07e840d0c7";  // Replace with an actual comment ID
+    const userId = "66771d56ee7de545aba5a49a";  // Replace with an actual user ID
+    const userId2 = "66771d56ee7de545aba5a49b";  // Replace with an actual user ID
+    try {
+        const hasLiked = await isUserLikedComment(commentId, userId2);
+        console.log(`Has user ${userId2} liked comment ${commentId}? ${hasLiked}`);
+        // hasLiked = await isUserLikedComment(commentId, userId2);
+        // console.log(`Has user ${userId2} liked comment ${commentId}? ${hasLiked}`);
+    } catch (error) {
+        console.error('Failed to check if user is the liker of the comment:', error);
+    }
+}
+
+async function testLikeAndUnlikeComment() {
+    const commentId = "667722b7e4d39c07e840d0c7";  // Replace with an actual comment ID
+    const userId = "66771d56ee7de545aba5a49a";  // Replace with an actual user ID
+
+    try {
+        console.log(`Liking comment ${commentId} by user ${userId}`);
+        const likedComment = await likeComment(commentId, userId);
+        console.log('Comment liked:', likedComment);
+
+        // console.log(`Unliking comment ${commentId} by user ${userId}`);
+        // const unlikedComment = await unlikeComment(commentId, userId);
+        // console.log('Comment unliked:', unlikedComment);
+    } catch (error) {
+        console.error('Failed to like or unlike comment:', error);
+    }
+}
+
+async function testIsUserTheAuthorOfComment() {
+    const commentId = "667722b7e4d39c07e840d0c7";  // Replace with an actual comment ID
+    const userId = "66771d56ee7de545aba5a49a";  // Replace with an actual user ID
+
+    try {
+        const isAuthor = await isUserTheAuthorOfComment(commentId, userId);
+        console.log(`1- Is user ${userId} the author of comment ${commentId}? ${isAuthor}`);
+    } catch (error) {
+        console.error('1 -Failed to check if user is the author of the comment:', error);
+    }
+}
+
+async function testIsUserTheAuthorOfComment2() {
+    const commentId = "667722b7e4d39c07e840d0c7";  // Replace with an actual comment ID
+    const userId = "66771d56ee7de545aba5a49c";  // Replace with an actual user ID
+
+    try {
+        const isAuthor = await isUserTheAuthorOfComment(commentId, userId);
+        console.log(`2 -Is user ${userId} the author of comment ${commentId}? ${isAuthor}`);
+    } catch (error) {
+        console.error('2 -Failed to check if user is the author of the comment:', error);
+    }
+}
+
+// Testing comment deletion
+async function testDeleteComment() {
+    const commentId = "66771ea4fef6b2921ffe42f6";  // Replace with an actual comment ID
+
+    try {
+        const result = await deleteCommentModel(commentId);
+        console.log(result.message);
+    } catch (error) {
+        console.error('Failed to delete comment:', error);
+    }
+}
+
+// Testing comment editing
+async function testEditComment() {
+    const commentId = "66771ea4fef6b2921ffe42f6";  // Replace with an actual comment ID
+    const newText = "Updated text for this comment.";
+
+    try {
+        const updatedComment = await editCommentModel(commentId, newText);
+        console.log('Comment updated:', updatedComment);
+    } catch (error) {
+        console.error('Failed to update comment:', error);
+    }
+}
 
 // Testing comment creation
 async function testCreateComment() {

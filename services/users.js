@@ -1,5 +1,7 @@
 import User from '../models/users.js';
 import Video from '../models/videoPlay.js';
+import Comment from '../models/comments.js';
+
 
 /**
  * Check if a username is already in use
@@ -34,6 +36,36 @@ export async function updateUserModel(id, updateData) {
 export async function deleteUserModel(id) {
     try {
         const user = await User.findByIdAndDelete(id);
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        // Fetch and delete all comments made by the user
+        const comments = await Comment.find({ userId: id });
+        const commentIds = comments.map(comment => comment._id);
+
+        // Remove these comments from the videos
+        await Video.updateMany(
+            {},
+            { $pull: { comments: { $in: commentIds } } }
+        );
+
+        // Delete all comments made by the user
+        await Comment.deleteMany({ userId: id });
+
+        // Delete videos authored by the user
+        await Video.deleteMany({ authorId: id });
+
+        return user;
+    } catch (error) {
+        throw new Error('Error deleting user and related data: ' + error.message);
+    }
+}
+
+/*
+export async function deleteUserModel(id) {
+    try {
+        const user = await User.findByIdAndDelete(id);
         if (user) {
             await Video.deleteMany({ authorId: id });
         }
@@ -42,6 +74,7 @@ export async function deleteUserModel(id) {
         throw error;
     }
 }
+    */
 /* export async function deleteUserModel(id) {
     return await User.findByIdAndDelete(id);
 } */

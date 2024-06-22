@@ -1,5 +1,7 @@
 import { getVideoModel, createVideoModel, getVideosModel, updateVideoModel, deleteVideoModel,
      getVideosWithAuthorDetails } from '../services/videoPlay.js';
+import { getCommentsByVideoId, countCommentsByVideoId } from '../services/comments.js';
+
 
 export async function getVideos(req, res) {
     try {
@@ -59,6 +61,27 @@ export async function deleteVideo(req, res) {
         res.status(500).send('Failed to delete video');
     }
 }
+
+export async function fetchComments(req, res) {
+    try {
+        const videoId = req.params.videoId;  // Get video ID from request parameters
+        const comments = await getCommentsByVideoId(videoId);
+        res.json(comments);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+}
+
+export async function fetchCommentCount(req, res) {
+    try {
+        const videoId = req.params.videoId;  // Get video ID from request parameters
+        const count = await countCommentsByVideoId(videoId);
+        res.json({ count });
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+}
+
 
 
 // import { getVideoModel, createVideoModel, getVideosModel } from '../services/videoPlay.js';
