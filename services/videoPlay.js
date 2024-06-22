@@ -21,6 +21,28 @@ export async function deleteVideoModel(id) {
     return await Video.findByIdAndDelete(id); // Deletes the video by its ID
 }
 
+export async function likeVideo(videoId, userId) {
+    return await Video.findByIdAndUpdate(
+        videoId,
+        { 
+            $inc: { likes: 1 },
+            $addToSet: { likedBy: userId }  // Ensures the user ID is only added once
+        },
+        { new: true }
+    );
+}
+
+export async function unlikeVideo(videoId, userId) {
+    return await Video.findByIdAndUpdate(
+        videoId,
+        { 
+            $inc: { likes: -1 },
+            $pull: { likedBy: userId }  // Removes the user ID from the array
+        },
+        { new: true }
+    );
+}
+
 
 
 // export function getVideosModel() {

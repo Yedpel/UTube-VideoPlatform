@@ -11,9 +11,10 @@ import routerLogin from './routes/login.js';
 import User from './models/users.js';
 import Video from './models/videoPlay.js';
 import userRouter from './routes/users.js';  // Adjust path as necessary
-import { createVideoModel, updateVideoModel, deleteVideoModel } from './services/videoPlay.js'; // Make sure updateVideoModel is imported
+import { createVideoModel, updateVideoModel, deleteVideoModel, likeVideo, unlikeVideo } from './services/videoPlay.js'; // Make sure updateVideoModel is imported
 import { registerUser } from './controllers/signUp.js'; // Make sure to import registerUser
 import { updateUserModel, deleteUserModel } from './services/users.js'; // Make sure updateUserModel and deleteUserModel are imported
+
 //add dotenv for environment variables
 import dotenv from 'dotenv';
 dotenv.config();
@@ -25,7 +26,7 @@ customEnv.env(process.env.NODE_ENV || 'local', './config');
 mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
        .then(() => {
            console.log('MongoDB connected');
-           checkAndLoadData(); // Changed from loadData to checkAndLoadData
+           testLikeAndUnlikeFeatures();
        })
     .catch(err => console.error('MongoDB connection error:', err));
 
@@ -74,6 +75,24 @@ async function loadData() {
     }
 }
 
+
+/////////////////////tests///////////////////// and below the start of the server listen
+
+
+async function testLikeAndUnlikeFeatures() {
+    const videoId = '6676af630402f0c497e29d93';
+    const userId = '6676af630402f0c497e29d8c';
+
+    try {
+        // const likedVideo = await likeVideo(videoId, userId);
+        // console.log('Video liked:', likedVideo);
+
+        const unlikedVideo = await unlikeVideo(videoId, userId);
+        console.log('Video unliked:', unlikedVideo);
+    } catch (error) {
+        console.error('Failed to like/unlike video:', error);
+    }
+}
 
 
 // Test user registration
