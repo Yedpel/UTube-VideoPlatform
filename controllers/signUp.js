@@ -7,7 +7,7 @@ import { findUser } from '../services/users.js';
  * @param {Response} res - Express response object
  */
 export const registerUser = async (req, res) => {
-    const { firstName, lastName, date, email, profilePic, userName, password, passwordConfirm } = req.body;
+    const { firstName, lastName, date, email, profilePic, username, password, passwordConfirm } = req.body;
 
     if (password !== passwordConfirm) {
         return res.status(400).json({ message: "Passwords do not match" });
@@ -15,12 +15,12 @@ export const registerUser = async (req, res) => {
 
     try {
         // Check if the username is already taken
-        const usernameExists = await findUser(userName);
+        const usernameExists = await findUser(username);
         if (usernameExists) {
             return res.status(400).json({ message: 'Username is already in use' });
         }
 
-        const user = new User({ firstName, lastName, date, email, profilePic, userName, password });
+        const user = new User({ firstName, lastName, date, email, profilePic, username, password });
         await user.save();
         res.status(201).json({ message: 'User registered successfully' });
     } catch (err) {

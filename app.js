@@ -10,24 +10,23 @@ import routerSignUp from './routes/signUp.js';
 import routerLogin from './routes/login.js';
 import User from './models/users.js';
 import Video from './models/videoPlay.js';
+import userRouter from './routes/users.js';  // Adjust path as necessary
+import { createVideoModel, updateVideoModel, deleteVideoModel } from './services/videoPlay.js'; // Make sure updateVideoModel is imported
+import { registerUser } from './controllers/signUp.js'; // Make sure to import registerUser
+import { updateUserModel, deleteUserModel } from './services/users.js'; // Make sure updateUserModel and deleteUserModel are imported
 //add dotenv for environment variables
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Manually set the environment if NODE_ENV is not set
-const env = process.env.NODE_ENV || 'local'; // Assuming 'local' is your development environment
-customEnv.env(env, './config');
 // Environment variables
-//customEnv.env(process.env.NODE_ENV, './config');
+customEnv.env(process.env.NODE_ENV || 'local', './config');
 
 // MongoDB connection
 mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => {
-        console.log('MongoDB connected');
-        loadData().then(() => {
-            console.log('Data loaded successfully');
-        });
-    })
+       .then(() => {
+           console.log('MongoDB connected');
+           checkAndLoadData(); // Changed from loadData to checkAndLoadData
+       })
     .catch(err => console.error('MongoDB connection error:', err));
 
 // Express app setup
@@ -42,6 +41,21 @@ server.set('views', './views');
 server.use('/videoPlay', routerVideoPlay);
 server.use('/login', routerLogin);
 server.use('/signUp', routerSignUp);
+server.use('/users', userRouter);
+
+
+// Load initial data if no data exists in MongoDB
+async function checkAndLoadData() {
+    const userExists = await User.findOne();
+    const videoExists = await Video.findOne();
+
+    if (!userExists && !videoExists) {
+        console.log("No data found in MongoDB, loading initial data...");
+        loadData();
+    } else {
+        console.log("Data already exists in MongoDB, skipping initial load.");
+    }
+}
 
 // Load initial data into MongoDB
 async function loadData() {
@@ -59,6 +73,98 @@ async function loadData() {
         console.error('Failed to load data:', err);
     }
 }
+
+
+
+// Test user registration
+async function testRegisterUser() {
+    // Simulate request and response
+    const req = {
+        body: {
+            firstName: "Test",
+            lastName: "User",
+            date: "1990-01-01",
+            email: "testuser@example.com",
+            profilePic: "url_to_pic",
+            username: "testuser",
+            password: "password123",
+            passwordConfirm: "password123"
+        }
+    };
+    const res = {
+        status: (statusCode) => {
+            console.log(`Status Code: ${statusCode}`);
+            return {
+                json: (data) => {
+                    console.log('Response:', data);
+                },
+                send: (data) => {
+                    console.log('Response:', data);
+                }
+            };
+        }
+    };
+
+    await registerUser(req, res);
+}
+
+//test update and delete user manually
+async function updateAndDeleteSampleUser() {
+    const userId = '6676b7785c00cb8e630072f5';  // Use a valid user ID
+    try {
+        await updateUserModel(userId, { firstName: 'New Name' });  // Change attributes as needed
+        console.log('User updated');
+        await deleteUserModel(userId);
+        console.log('User deleted');
+    } catch (error) {
+        console.error('Error updating or deleting user:', error);
+    }
+}
+
+
+// test manually Add a sample video to the database to test the API
+async function addSampleVideo() {
+    const sampleVideoData = {
+        thumbnailUrl: "drawable/imvid23",
+        title: "tryAdd",
+        author: "Author 2",
+        authorProfilePic: "drawable/pro_2",  // Corrected field name
+        views: 0,
+        uploadTime: new Date(),  // Current date/time or specific date
+        videoUrl: "raw/vid23_oly08",
+        category: "News",
+        likes: 0,
+        comments: []  // Empty array if no comments
+    };
+
+    try {
+        const newVideo = await createVideoModel(sampleVideoData);
+        console.log('Sample video added:', newVideo);
+    } catch (error) {
+        console.error('Failed to add sample video:', error);
+    }
+}
+// test manually Update the sample video added earlier
+async function updateSampleVideo() {
+    const videoId = '6676a61dafc32dbcb2a532c4';  // Replace with the actual ID
+    try {
+        const updatedVideo = await updateVideoModel(videoId, { title: 'tryEdit' });
+        console.log('Video updated:', updatedVideo);
+    } catch (error) {
+        console.error('Failed to update video:', error);
+    }
+}
+// test manually Delete the sample video added earlier
+async function deleteSampleVideo() {
+    const videoId = '6676aa67d97f7d21b433c0e3';  // Replace with the actual ID
+    try {
+        const deletedVideo = await deleteVideoModel(videoId);
+        console.log('Video deleted:', deletedVideo);
+    } catch (error) {
+        console.error('Failed to delete video:', error);
+    }
+}
+
 
 // Start the server
 const PORT = process.env.PORT || 89;

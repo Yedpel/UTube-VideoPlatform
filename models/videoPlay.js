@@ -20,7 +20,14 @@ const videoPlaySchema = new Schema({
     likes: Number,
     likedBy: Array,
     comments: Array, 
-    // old names of the fields :
+
+});
+
+
+
+export default mongoose.model('videoPlay', videoPlaySchema);
+
+  // old names of the fields in videoPlaySchema ://
     // published: {
     //     type: Date,
     //     default: Date.now
@@ -28,8 +35,8 @@ const videoPlaySchema = new Schema({
     //uplaodTime string, if ont exist, use default Date.now as string
     
    // creator: String,
-});
 
+// tyuta for comments schema//
 // const commentSchema = new Schema({
 //     username: String,
 //     text: String,
@@ -43,11 +50,7 @@ const videoPlaySchema = new Schema({
 // });
 
 
-export default mongoose.model('videoPlay', videoPlaySchema);
-
-
-
-
+//old schema for videoPlay//
 // const videoPlaySchema = new Schema({
 //     title: {
 //         type: String,
