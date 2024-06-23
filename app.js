@@ -17,6 +17,7 @@ import { registerUser } from './controllers/signUp.js'; // Make sure to import r
 import { updateUserModel, deleteUserModel } from './services/users.js'; // Make sure updateUserModel and deleteUserModel are imported
 import { createCommentModel, editCommentModel, deleteCommentModel, isUserTheAuthorOfComment,
     likeComment, unlikeComment, isUserLikedComment, getCommentsByVideoId, countCommentsByVideoId  } from './services/comments.js';
+import { checkUserNameAndPassword } from './services/login.js';  // Assuming this is correctly imported as a function
 
 
 //add dotenv for environment variables
@@ -32,7 +33,7 @@ customEnv.env(process.env.NODE_ENV || 'local', './config');
 mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
        .then(() => {
            console.log('MongoDB connected');
-           checkAndLoadData();  // Call the function after the connection is established
+           checkAndLoadData();  // check if the mongoDB is empty and load the data
         })
     .catch(err => console.error('MongoDB connection error:', err));
 
@@ -115,6 +116,17 @@ async function loadData() {
 
 
 /////////////////////tests///////////////////// and below the start of the server listen
+
+
+async function testLogin() {
+    try {
+        const isValid = await checkUserNameAndPassword("Author 1", "Author 2");
+        console.log(`Login valid: ${isValid}`);
+    } catch (error) {
+        console.error('Error during login test:', error);
+    }
+}
+
 
 // test delete user
 async function testDeleteUser(userId) {
@@ -242,8 +254,8 @@ async function testEditComment() {
 // Testing comment creation
 async function testCreateComment() {
     const commentData = {
-        userId: "66771d56ee7de545aba5a49a",  // Example user ID
-        videoId: "66771d56ee7de545aba5a4a1",  // Example video ID
+        userId: "66782b4d5939f8d3739fc64f",  // Example user ID
+        videoId: "66782b4d5939f8d3739fc656",  // Example video ID
         text: "Great video!",
         uploadTime: new Date("2020-01-02T15:00:00Z"),
         likes: 0,
