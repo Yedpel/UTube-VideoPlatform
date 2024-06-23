@@ -62,22 +62,7 @@ export async function deleteUserModel(id) {
     }
 }
 
-/*
-export async function deleteUserModel(id) {
-    try {
-        const user = await User.findByIdAndDelete(id);
-        if (user) {
-            await Video.deleteMany({ authorId: id });
-        }
-        return user;
-    } catch (error) {
-        throw error;
-    }
-}
-    */
-/* export async function deleteUserModel(id) {
-    return await User.findByIdAndDelete(id);
-} */
+
 
 // Using default export
 export default User;

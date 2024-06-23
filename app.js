@@ -11,12 +11,16 @@ import routerLogin from './routes/login.js';
 import User from './models/users.js';
 import Video from './models/videoPlay.js';
 import userRouter from './routes/users.js';  // Adjust path as necessary
-import { createVideoModel, updateVideoModel, deleteVideoModel, likeVideo, unlikeVideo, isUserLikedVideo,
-    isUserTheAuthor, getVideosByUserId } from './services/videoPlay.js'; // Make sure updateVideoModel is imported
+import {
+    createVideoModel, updateVideoModel, deleteVideoModel, likeVideo, unlikeVideo, isUserLikedVideo,
+    isUserTheAuthor, getVideosByUserId
+} from './services/videoPlay.js'; // Make sure updateVideoModel is imported
 import { registerUser } from './controllers/signUp.js'; // Make sure to import registerUser
 import { updateUserModel, deleteUserModel } from './services/users.js'; // Make sure updateUserModel and deleteUserModel are imported
-import { createCommentModel, editCommentModel, deleteCommentModel, isUserTheAuthorOfComment,
-    likeComment, unlikeComment, isUserLikedComment, getCommentsByVideoId, countCommentsByVideoId  } from './services/comments.js';
+import {
+    createCommentModel, editCommentModel, deleteCommentModel, isUserTheAuthorOfComment,
+    likeComment, unlikeComment, isUserLikedComment, getCommentsByVideoId, countCommentsByVideoId
+} from './services/comments.js';
 import { checkUserNameAndPassword } from './services/login.js';  // Assuming this is correctly imported as a function
 
 
@@ -31,10 +35,10 @@ customEnv.env(process.env.NODE_ENV || 'local', './config');
 
 // MongoDB connection
 mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
-       .then(() => {
-           console.log('MongoDB connected');
-           checkAndLoadData();  // check if the mongoDB is empty and load the data
-        })
+    .then(() => {
+        console.log('MongoDB connected');
+        checkAndLoadData();  // check if the mongoDB is empty and load the data
+    })
     .catch(err => console.error('MongoDB connection error:', err));
 
 // Express app setup
