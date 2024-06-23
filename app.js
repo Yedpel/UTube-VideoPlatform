@@ -4,28 +4,33 @@ import cors from 'cors';
 import fs from 'fs';
 import mongoose from 'mongoose';
 import customEnv from 'custom-env';
+//add dotenv for environment variables
+import dotenv from 'dotenv';
+// mediaRoutes is for uploading and replacing media files
+import mediaRoutes from './routes/mediaRoutes.js';  
+
 
 import routerVideoPlay from './routes/videoplay.js';
 import routerSignUp from './routes/signUp.js';
 import routerLogin from './routes/login.js';
+import userRouter from './routes/users.js';  
+
 import User from './models/users.js';
 import Video from './models/videoPlay.js';
-import userRouter from './routes/users.js';  // Adjust path as necessary
 import {
     createVideoModel, updateVideoModel, deleteVideoModel, likeVideo, unlikeVideo, isUserLikedVideo,
     isUserTheAuthor, getVideosByUserId
-} from './services/videoPlay.js'; // Make sure updateVideoModel is imported
-import { registerUser } from './controllers/signUp.js'; // Make sure to import registerUser
-import { updateUserModel, deleteUserModel } from './services/users.js'; // Make sure updateUserModel and deleteUserModel are imported
+} from './services/videoPlay.js'; 
+import { registerUser } from './controllers/signUp.js'; 
+import { updateUserModel, deleteUserModel } from './services/users.js'; 
 import {
     createCommentModel, editCommentModel, deleteCommentModel, isUserTheAuthorOfComment,
     likeComment, unlikeComment, isUserLikedComment, getCommentsByVideoId, countCommentsByVideoId
 } from './services/comments.js';
-import { checkUserNameAndPassword } from './services/login.js';  // Assuming this is correctly imported as a function
+import { checkUserNameAndPassword } from './services/login.js'; 
 
 
-//add dotenv for environment variables
-import dotenv from 'dotenv';
+
 dotenv.config();
 
 // Environment variables
@@ -54,7 +59,7 @@ server.use('/videoPlay', routerVideoPlay);
 server.use('/login', routerLogin);
 server.use('/signUp', routerSignUp);
 server.use('/users', userRouter);
-
+server.use('/media', mediaRoutes); 
 
 // Load initial data if no data exists in MongoDB
 async function checkAndLoadData() {
@@ -98,6 +103,7 @@ async function loadData() {
         console.error('Failed to load data:', err);
     }
 }
+
 
 
 /*
@@ -438,40 +444,11 @@ async function deleteSampleVideo() {
 }
 
 
+
+/////////////////////////end of tests///////////////////////
+
 // Start the server
 const PORT = process.env.PORT || 89;
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-
-
-
-// import express from 'express';
-// import bodyParser from 'body-parser';
-// import routerVideoPlay from './routes/videoplay.js';
-// import routerSignUp from './routes/signUp.js';
-// import routerLogin from './routes/login.js';
-// import cors from 'cors';
-// import customEnv from 'custom-env';
-// import mongoose from 'mongoose';
-
-// //import session from 'express-session';
-// customEnv.env(process.env.NODE_ENV, './config');
-
-// mongoose.connect(process.env.CONNECTION_SRTING, { useNewUrlParser: true, useUnifiedTopology: true })
-//     .then(() => console.log('MongoDB connected'))
-//     .catch(err => console.error('MongoDB connection error:', err));
-
-// server.use(express.static('public'));
-// server.use(bodyParser.urlencoded({ extended: true }));
-// server.set('view engine', 'ejs');
-// server.set('views', './views');
-// server.use(cors());
-// server.use('/videoPlay', routerVideoPlay);
-// server.use('/login', routerLogin);
-// server.use('/signUp', routerSignUp);
-
-// const PORT = process.env.PORT || 89;
-// server.listen(PORT, () => {
-//     console.log(`Server is running on port ${PORT}`);
-// });

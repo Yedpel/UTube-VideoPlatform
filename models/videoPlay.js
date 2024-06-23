@@ -4,20 +4,17 @@ const Schema = mongoose.Schema
 
 
 const videoPlaySchema = new Schema({
-    //id is automatically created by mongoDB if not provided
-  //  id: String,
     thumbnailUrl: String,
     title: String,
-    authorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },  // Reference to User model
+    authorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },  
     authorName : String, 
-//    authorPofilePic: String,
     views: Number,
     uploadTime :{  type: String, default: Date.now } ,
     videoUrl: String,
     category: String,
     likes: Number,
-    likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],  // Ensure this is set correctly
-    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }]  // Reference to Comment model
+    likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],  
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }]  
 
 });
 
