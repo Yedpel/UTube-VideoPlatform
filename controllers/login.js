@@ -1,5 +1,5 @@
 import userService from '../services/users.js'
-import checkUserNameAndPassword from '../services/login.js'
+//import checkUserNameAndPassword from '../services/login.js'
 import jwt from 'jsonwebtoken'
 const key = "secertkey"
 

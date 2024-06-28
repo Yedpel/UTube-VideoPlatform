@@ -1,11 +1,14 @@
 import Video from '../models/videoPlay.js'; // Import the Mongoose model
 
+// Fetch all!!!! videos from the database - just in case we need it
+// we use mixed videos funciton down the page
 export async function getVideosModel() {
-    return await Video.find(); // Fetch all videos from the database
+    return await Video.find().populate('authorId', 'username profilePic'); 
 }
 
+// Function to get a video by its ID and populate the author details
 export async function getVideoModel(id) {
-    return await Video.findById(id); // Find a video by its MongoDB ObjectId
+    return await Video.findById(id).populate('authorId', 'username profilePic');
 }
 
 export async function createVideoModel(videoData) {
@@ -44,7 +47,6 @@ export async function unlikeVideo(videoId, userId) {
 }
 
 
-
 export async function isUserLikedVideo(videoId, userId) {
     const video = await Video.findById(videoId);
     if (!video) {
@@ -71,9 +73,9 @@ export async function isUserTheAuthor(videoId, userId) {
     return video.authorId.toString() === userId;
 }
 
-// Function to get all videos by a specific user
-export async function getVideosByUserId(userId) {
-    return await Video.find({ authorId: userId });
+// Function to get all videos by a specific user and populate the author details
+export async function getVideosbyUserId(userId) {
+    return await Video.find({ authorId: userId }).populate('authorId', 'username profilePic');
 }
 
 export async function getMixedVideos() {

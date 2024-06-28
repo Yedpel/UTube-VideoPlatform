@@ -13,7 +13,7 @@ import mediaRoutes from './routes/mediaRoutes.js';
 
 
 import routerVideoPlay from './routes/videoplay.js';
-import routerSignUp from './routes/signUp.js';
+//import routerSignUp from './routes/signUp.js';
 import routerToken from './routes/tokens.js';
 import userRouter from './routes/users.js';  
 
@@ -21,13 +21,13 @@ import User from './models/users.js';
 import Video from './models/videoPlay.js';
 import {
     createVideoModel, updateVideoModel, deleteVideoModel, likeVideo, unlikeVideo, isUserLikedVideo,
-    isUserTheAuthor, getVideosByUserId
+    isUserTheAuthor, getVideosbyUserId
 } from './services/videoPlay.js'; 
-import { registerUser } from './controllers/signUp.js'; 
+//import { registerUser } from './controllers/signUp.js'; 
 import { updateUserModel, deleteUserModel } from './services/users.js'; 
 import {
     createCommentModel, editCommentModel, deleteCommentModel, isUserTheAuthorOfComment,
-    likeComment, unlikeComment, isUserLikedComment, getCommentsByVideoId, countCommentsByVideoId
+    LikeComment, UnlikeComment, isUserLikedComment, getCommentsByVideoId, countCommentsByVideoId
 } from './services/comments.js';
 // import { checkUserNameAndPassword } from './services/tokens.js'; 
 import { fetchMixedVideos ,fetchVideosByCategory } from './controllers/videoPlay.js';
@@ -64,7 +64,7 @@ mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnif
     
     server.use('/api', routerVideoPlay);
     
-    server.use('/api', routerSignUp);
+    //server.use('/api', routerSignUp);
     
     server.use('/api', mediaRoutes); 
 

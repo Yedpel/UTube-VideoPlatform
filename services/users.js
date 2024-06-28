@@ -3,21 +3,7 @@ import Video from '../models/videoPlay.js';
 import Comment from '../models/comments.js';
 
 
-/**
- * Check if a username is already in use
- * @param {string} username - The username to check
- * @returns {Promise<boolean>} - Returns true if the username is in use, false otherwise
- */
-/*
-export const findUser = async (username) => {
-    try {
-        const user = await User.findOne({ userName: username, password: password });
-        return !!user; // returns true if user is found, otherwise false
-    } catch (err) {
-        throw new Error('Error checking username and password');
-    }
-}; */
-// Expected implementation in services/users.js
+
 export const createUser = async (newUser) => {
     try {
         const user = new User(newUser);
@@ -28,7 +14,17 @@ export const createUser = async (newUser) => {
 
 }
 
-
+export const findUser = async (username) => {
+    try {
+        const user = await User.findOne({ username: username });
+        return user != null;
+    } catch (err) {
+        console.error("Error checking username availability:", err);
+        throw err;  // Ensure errors are thrown appropriately
+    }
+};
+///why you added password here ?  just check if the username is already in use or not///
+/*
 export const findUser = async (username, password) => {
     try {
         const user = await User.findOne({ username: username, password: password });
@@ -37,7 +33,7 @@ export const findUser = async (username, password) => {
         console.error("Error finding user:", err);
         throw err;  // Ensure errors are thrown appropriately
     }
-};
+}; */
 
 export const getUserid = async (username) => {
     try {
@@ -127,3 +123,21 @@ export async function deleteUserModel(id) {
 // Using default export
 export default User;
 
+
+
+
+/*
+ * Check if a username is already in use
+// * @param {string} username - The username to check
+// * @returns {Promise<boolean>} - Returns true if the username is in use, false otherwise
+ */
+/*
+export const findUser = async (username) => {
+    try {
+        const user = await User.findOne({ userName: username, password: password });
+        return !!user; // returns true if user is found, otherwise false
+    } catch (err) {
+        throw new Error('Error checking username and password');
+    }
+}; */
+// Expected implementation in services/users.js

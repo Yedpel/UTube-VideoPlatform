@@ -5,6 +5,7 @@ import {isLoggedIn} from '../controllers/login.js';
 const router = express.Router();
 
 // Route to create user
+////are you sure that the route is correct?, isn't it need to be SignUp?////
 router.post('/users',isLoggedIn, registerUser);  
 
 // Route to get a user details after authentication 

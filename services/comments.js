@@ -82,7 +82,8 @@ export async function isUserTheAuthorOfComment(commentId, userId) {
     }
 }
 
-export async function likeComment(commentId, userId) {
+
+export async function LikeComment(commentId, userId) {
     try {
         const updatedComment = await Comment.findByIdAndUpdate(
             commentId,
@@ -101,7 +102,7 @@ export async function likeComment(commentId, userId) {
     }
 }
 
-export async function unlikeComment(commentId, userId) {
+export async function UnlikeComment(commentId, userId) {
     try {
         const updatedComment = await Comment.findByIdAndUpdate(
             commentId,
@@ -160,3 +161,4 @@ export async function countCommentsByVideoId(videoId) {
         throw new Error('Error counting comments: ' + error.message);
     }
 }
+export default Comment;

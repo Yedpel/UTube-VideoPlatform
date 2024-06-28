@@ -1,58 +1,67 @@
 import express from 'express';
-import { getVideos, getVideo, createVideo, fetchComments, fetchCommentCount,fetchMixedVideos, fetchVideosByCategory } from '../controllers/videoPlay.js'
+import {
+    getVideos, getVideo, createVideo, fetchComments, fetchCommentCount, fetchMixedVideos, fetchVideosByCategory
+    , updateVideo, deleteVideo, likeVideo, UnlikeVideo, getVideosByUserId,
+    getUserLikedVideo
+} from '../controllers/videoPlay.js'
 import { isLoggedIn } from '../controllers/tokens.js';
-import { addComment, deleteComment, likeComment, UnlikeComment, Updatecomment } from '../controllers/comments.js';
+import { addComment, deleteComment, likeComment, unlikeComment, updateComment } from '../controllers/comments.js';
+import { isUserLikedVideo } from '../services/videoPlay.js';
 //import { isLoggedIn} from '../controllers/login.js'
 const router = express.Router();
 
 
+//////videos list page/////
 
-// Route to get a mix of videos
+// Route to get a mix of 20 videos (or less if there are less than 20) from the database
 router.get('/videos', fetchMixedVideos);
 
-// Route to get videos by category
+//get user videos
+router.get('/users/:id/videos', getVideosByUserId);
+
+// Route to get videos by category (can implement also on client side, from the videos list page he got)
+// need to update the real adress, depand on how the button will be on client side//
 router.get('/videos/category/:category', fetchVideosByCategory);
 
-//update video
-router.put('/users/:id/videos/:pid',isLoggedIn, updateVideo);
+//search videos is on client side (search bar), from the videos list page he got
 
-//get the video of the user
-router.delete('/users/:id/videos/:pid',isLoggedIn, deleteVideo); 
+///actions on videos////
 
 // Route to upload a new video
-router.post('/users/:id/videos',isLoggedIn, createVideo);
+router.post('/users/:id/videos', isLoggedIn, createVideo);
 
-//get user videos
-router.get('/users/:id/videos', getUserVideos);//need to craete this function 
+//update video
+router.put('/users/:id/videos/:pid', isLoggedIn, updateVideo);
 
-//watch video page
+//delete video
+router.delete('/users/:id/videos/:pid', isLoggedIn, deleteVideo);
 
-//get a video to watch with all the comments
+//////watch video page/////
+
+//get a video to watch without comments (comments will be fetched by next routes)
 router.get('/users/:id/videos/:pid', getVideo);
 
+//////comments data on videos///// (actions of comments are on routes/comments.js)
+
+//get the comments list of a video
+router.get('/users/:id/videos/:pid/comments', fetchComments);
+
+//get the count of comments of a video
+router.get('/users/:id/videos/:pid/comments/count', fetchCommentCount);
+
+///likes on videos////
+
+//get ahead if a user liked the video or not
+router.get('/users/:id/videos/:pid', isLoggedIn, getUserLikedVideo);
+
 //a route to like a video
-router.put('/users/:id/videos/:pid/likes',isLoggedIn,likeVideo);
+router.put('/users/:id/videos/:pid/likes', isLoggedIn, likeVideo);
 
 //a route to unlike a video
-//router.put('/users/:id/videos/:pid/unlikes',isLoggedIn,UnlikeVideo);
-
-//a route to add a comment of videos
-router.post('/users/:id/videos/:pid/comments',isLoggedIn ,addComment);
-
-//a route to update a comment of videos
-router.put('/users/:id/videos/:pid/comments/cid',isLoggedIn ,Updatecomment);
-
-//a route to delte a comment of videos
-router.delete('/users/:id/videos/:pid/comments/cid',isLoggedIn,deleteComment);
+router.put('/users/:id/videos/:pid/unlikes', isLoggedIn, UnlikeVideo);
 
 
-//a route to update a comment of videos
-router.put('/users/:id/videos/:pid/comments/cid/like',isLoggedIn ,likeComment);
-
-//a route to update a comment of videos
-router.put('/users/:id/videos/:pid/comments/cid/unLike',isLoggedIn ,UnlikeComment);
-
-
+export default router;
 
 
 
@@ -68,12 +77,6 @@ router.put('/users/:id/videos/:pid/comments/cid/unLike',isLoggedIn ,UnlikeCommen
 
 // Route to get all videos with enhanced author details
 // router.get('/', getVideosWithAuthorDetails);
-
-
-
-
-export default router;
-
 
 
 

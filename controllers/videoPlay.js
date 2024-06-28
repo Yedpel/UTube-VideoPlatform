@@ -1,5 +1,6 @@
 import { getVideoModel, createVideoModel, getVideosModel, updateVideoModel, deleteVideoModel,
-     getVideosWithAuthorDetails,getMixedVideos, getVideosByCategory } from '../services/videoPlay.js';
+     getVideosWithAuthorDetails,getMixedVideos, getVideosByCategory, 
+     unlikeVideo, getVideosbyUserId, isUserLikedVideo} from '../services/videoPlay.js';
 import { getCommentsByVideoId, countCommentsByVideoId } from '../services/comments.js';
 import { likeVideo as toggleLikeVideo } from '../services/videoPlay.js';
 
@@ -115,25 +116,42 @@ export const likeVideo = async (req, res) => {
     }
 };
 
+//unlike video to unlikeVideo in services/videoPlay.js
+export const UnlikeVideo = async (req, res) => {
+    const { pid: videoId } = req.params;
+    const userId = req.user._id; // Assuming req.user is set by your authentication middleware
+
+    try {
+        // Call the service function to toggle unlike the video
+        const video = await unlikeVideo(videoId, userId, false);
+        res.status(200).json(video);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+//deal getVideosByUserId in services/videoPlay.js
+export async function getVideosByUserId(req, res) {
+    try {
+        const userId = req.params.id;
+        const videos = await getVideosbyUserId(userId);
+        res.json(videos);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+}
+
+//deal isUserLikedVideo in services/videoPlay.js
+export async function getUserLikedVideo(req, res) {
+    const videoId = req.params.pid;
+    const userId = req.user._id; // Assuming req.user is set by your authentication middleware
+
+    try {
+        const isLiked = await isUserLikedVideo(videoId, userId);
+        res.json({ isLiked });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
 
 
-// import { getVideoModel, createVideoModel, getVideosModel } from '../services/videoPlay.js';
-
-// export function getVideos(req, res) {
-//     const videos = getVideosModel();
-//     res.render('allVideos', { videos });
-// }
-
-// export function getVideo(req, res) {
-//     const video = getVideoModel(req.params.id);
-//     if (video) {
-//         res.render('video', { video });
-//     } else {
-//         res.status(404).send('Video not found');
-//     }
-// }
-
-// export function createVideo(req, res) {
-//     createVideoModel(req.body.title, req.body.content);
-//     res.redirect('/videoPlay');
-// }
