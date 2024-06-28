@@ -1,6 +1,7 @@
 import express from 'express';
 import { getVideos, getVideo, createVideo, fetchComments, fetchCommentCount,fetchMixedVideos, fetchVideosByCategory } from '../controllers/videoPlay.js'
 import { isLoggedIn } from '../controllers/tokens.js';
+import { addComment, deleteComment, likeComment, UnlikeComment, Updatecomment } from '../controllers/comments.js';
 //import { isLoggedIn} from '../controllers/login.js'
 const router = express.Router();
 
@@ -33,7 +34,7 @@ router.get('/users/:id/videos/:pid', getVideo);
 router.put('/users/:id/videos/:pid/likes',isLoggedIn,likeVideo);
 
 //a route to unlike a video
-router.put('/users/:id/videos/:pid/unlikes',isLoggedIn,UnlikeVideo);
+//router.put('/users/:id/videos/:pid/unlikes',isLoggedIn,UnlikeVideo);
 
 //a route to add a comment of videos
 router.post('/users/:id/videos/:pid/comments',isLoggedIn ,addComment);

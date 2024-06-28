@@ -1,6 +1,8 @@
 import { getVideoModel, createVideoModel, getVideosModel, updateVideoModel, deleteVideoModel,
      getVideosWithAuthorDetails,getMixedVideos, getVideosByCategory } from '../services/videoPlay.js';
 import { getCommentsByVideoId, countCommentsByVideoId } from '../services/comments.js';
+import { likeVideo as toggleLikeVideo } from '../services/videoPlay.js';
+
 
 
 export async function getVideos(req, res) {
@@ -100,6 +102,18 @@ export async function fetchVideosByCategory(req, res) {
         res.status(500).send({ message: "Error fetching videos by category", error: error.message });
     }
 }
+
+export const likeVideo = async (req, res) => {
+    const { pid: videoId } = req.params;
+    const userId = req.user._id; // Assuming req.user is set by your authentication middleware
+
+    try {
+        const video = await toggleLikeVideo(videoId, userId);
+        res.status(200).json(video);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
 
 
 
