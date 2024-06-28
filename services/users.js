@@ -18,15 +18,75 @@ export const findUser = async (username) => {
     }
 }; */
 // Expected implementation in services/users.js
-export const findUser = async (username) => {
+export const createUser = async (newUser) => {
     try {
-        const user = await User.findOne({ username: username });
-        return user != null;
+        const user = new User(newUser);
+        await user.save();
+    } catch (error) {
+        throw new Error('Error creating user: ' + error.message);
+    }
+
+}
+
+
+export const findUser = async (username, password) => {
+    try {
+        const user = await User.findOne({ username: username, password: password });
+        return !!user; // returns true if user is found, otherwise false
     } catch (err) {
-        console.error("Error checking username availability:", err);
+        console.error("Error finding user:", err);
         throw err;  // Ensure errors are thrown appropriately
     }
 };
+
+export const getUserid = async (username) => {
+    try {
+        const user = await User.findOne({ username: username });
+        return user._id;
+    }
+    catch (error) {
+        throw new Error('Error fetching user: ' + error.message);
+        throw error;
+    }
+
+}
+
+// export const getUserbyNameAndPass = async (username, password) => {
+//     try {
+//         const user = await User.findOne({ username: username, password: password });
+//         return user;
+//     }
+//     catch (error) {
+//         throw new Error('Error fetching user: ' + error.message);
+//         throw error;
+//     }
+// }
+
+
+export const getUserbyId = async (id) => {
+    // console.log('hello');
+    try {
+        const user = await User.findById({ _id: id });
+        console.log(user);
+        if (user === null) {
+            console.log('User not found');
+            throw new Error('User not found');
+        } else {
+            console.log('User found 1');
+            const userObj = 
+                 {
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    profilePic: user.profilePic,
+                    username: user.username
+                }
+            console.log(userObj);
+            return userObj;
+        }
+    } catch (error) {
+        throw new Error('Error fetching user: ' + error.message);
+    }
+}
 
 export async function updateUserModel(id, updateData) {
     return await User.findByIdAndUpdate(id, updateData, { new: true });

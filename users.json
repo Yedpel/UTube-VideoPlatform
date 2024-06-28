@@ -6,7 +6,7 @@
         "lastName": "1",
         "dob": "1972-09-01",
         "email": "author1@example.com",
-        "profilePic": "drawable/pro_1"
+        "profilePic": "media/Profile_Images/pro_1"
     },
     {
         "username": "Author 2",
@@ -15,7 +15,7 @@
         "lastName": "2",
         "dob": "1977-05-25",
         "email": "author2@example.com",
-        "profilePic": "drawable/pro_2"
+        "profilePic": "media/Profile_Images/pro_2"
     },
     {
         "username": "Author 3",
@@ -24,7 +24,7 @@
         "lastName": "3",
         "dob": "1976-01-26",
         "email": "author3@example.com",
-        "profilePic": "drawable/pro_3"
+        "profilePic": "media/Profile_Images/pro_3"
     },
     {
         "username": "Author 4",
@@ -33,6 +33,6 @@
         "lastName": "4",
         "dob": "1988-04-14",
         "email": "author4@example.com",
-        "profilePic": "drawable/pro_4"
+        "profilePic": "media/Profile_Images/pro_4"
     }
 ]

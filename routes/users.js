@@ -1,10 +1,23 @@
 import express from 'express';
-import { updateUser, deleteUser } from '../controllers/users.js';
+import { updateUser, deleteUser,registerUser,getUser } from '../controllers/users.js';
+import {isLoggedIn} from '../controllers/login.js';
 
 const router = express.Router();
 
-// Assuming you have routes to get and create users already
-router.put('/users/:id', updateUser);  // Route to update a user
-router.delete('/users/:id', deleteUser);  // Route to delete a user
+// Route to create user
+router.post('/users',isLoggedIn, registerUser);  
+
+// Route to get a user details after authentication 
+router.get('/users/:id',isLoggedIn, getUser);  
+
+// Route to update a user
+router.put('/users/:id',isLoggedIn, updateUser);  
+
+ // Route to delete a user
+router.delete('/users/:id',isLoggedIn, deleteUser); 
 
 export default router;
+
+
+
+
