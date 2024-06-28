@@ -39,9 +39,9 @@ export const findUser = async (username, password) => {
     }
 };
 
-export const getUserid = async (username, password) => {
+export const getUserid = async (username) => {
     try {
-        const user = await User.findOne({ username: username, password: password });
+        const user = await User.findOne({ username: username });
         return user._id;
     }
     catch (error) {

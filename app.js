@@ -14,7 +14,7 @@ import mediaRoutes from './routes/mediaRoutes.js';
 
 import routerVideoPlay from './routes/videoplay.js';
 import routerSignUp from './routes/signUp.js';
-import routerLogin from './routes/tokens.js';
+import routerToken from './routes/tokens.js';
 import userRouter from './routes/users.js';  
 
 import User from './models/users.js';
@@ -58,13 +58,15 @@ mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnif
     // server.set('views', './views');
 
     // Routes
-    server.use('/api/users', userRouter);
+    server.use('/api', userRouter);
 
-    server.use('/api/tokens', routerLogin);
+    server.use('/api', routerToken);
     
-    server.use('/api/videos', routerVideoPlay);
-    server.use('/signUp', routerSignUp);
-    server.use('/media', mediaRoutes); 
+    server.use('/api', routerVideoPlay);
+    
+    server.use('/api', routerSignUp);
+    
+    server.use('/api', mediaRoutes); 
 
 })()
 

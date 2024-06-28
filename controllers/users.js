@@ -48,7 +48,6 @@ export const getUser =  async (req, res) => {
         console.log('login failed');
         res.status(500).send('Error fetching user');
     }
-
 }
 
 

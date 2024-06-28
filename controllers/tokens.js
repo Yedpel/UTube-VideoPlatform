@@ -1,7 +1,7 @@
 import { getUserid } from '../services/users.js';
 import jwt from 'jsonwebtoken';
 const key = "secretkey";
-import User from '../services/users.js';
+
 
 // export const checkUserNameAndPassword = async (req, res) => {
 //     const { username, password } = req.body;
@@ -20,13 +20,13 @@ import User from '../services/users.js';
 
 
 export const createToken = async (req, res) => {
-    const { username, password } = req.body;
+    const { username} = req.body;
     try {
         // console.log(req.body);
         // console.log(username);
         // console.log(password);
         // console.log(req);
-        const id = await getUserid(username, password);
+        const id = await getUserid(username);
         // console.log(`User found: ${user}`); 
         if (id) {
             console.log(id);
@@ -47,13 +47,31 @@ export const createToken = async (req, res) => {
 };
 
 
+export async function isLoggedIn(req, res, next) {
+    if (req.headers.authorization) {
+        let token = req.headers.authorization.split(' ')[1]
+        try {
+            if (token.at(0) === '"') {
+                token = token.slice(1, -1)
+            }
+            const decoded = jwt.verify(token, key)
+            const [username, password] = decoded.data.split(';');
+            const user = await userService.findUser(username);
+            if (user && user.password === password) {
+                req.user = user.username;
+                next();
+            } else {
+                res.status(401).json({ message: 'Unauthorized' });
+            }
+        }
+        catch (err) {
+            res.status(401).json({ message: 'Unauthorized' });
+        }
+    } else {
+        res.status(401).json({ message: 'Token required' });
+    }
+
+}
 
 
 
-
-// export function isLoggedIn(req, res, next) {
-//     if (req.session.username != null)
-//         return next()
-//     else
-//         res.redirect('/login')
-// }
