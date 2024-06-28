@@ -30,7 +30,7 @@ import {
     likeComment, unlikeComment, isUserLikedComment, getCommentsByVideoId, countCommentsByVideoId
 } from './services/comments.js';
 // import { checkUserNameAndPassword } from './services/tokens.js'; 
-
+import { fetchMixedVideos ,fetchVideosByCategory } from './controllers/videoPlay.js';
 
 
 dotenv.config();
@@ -62,7 +62,7 @@ mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnif
 
     server.use('/api/tokens', routerLogin);
     
-    server.use('/videoPlay', routerVideoPlay);
+    server.use('/api/videos', routerVideoPlay);
     server.use('/signUp', routerSignUp);
     server.use('/media', mediaRoutes); 
 
@@ -133,6 +133,47 @@ async function loadData() {
 
 
 /////////////////////tests///////////////////// and below the start of the server listen
+// Function to test fetching videos by category
+async function testFetchVideosByCategory() {
+    const fakeReq = {
+        params: {
+            category: 'Sport'  // Change to the category you'd like to test
+        }
+    };
+    const fakeRes = {
+        json: (data) => console.log("Test Fetch Videos By Category:", data),
+        status: function (statusCode) {
+            console.log(`HTTP Status: ${statusCode}`);
+            return this;  // Allow method chaining
+        },
+        send: (data) => console.log(data)
+    };
+
+    try {
+        await fetchVideosByCategory(fakeReq, fakeRes);
+    } catch (err) {
+        console.error('Error during fetchVideosByCategory test:', err);
+    }
+}
+
+// Function to test fetching mixed videos
+async function testFetchMixedVideos() {
+    const fakeReq = {};  // Mock request object, add properties if your controller uses them
+    const fakeRes = {
+        json: (data) => console.log("Test Fetch Mixed Videos:", data),
+        status: function (statusCode) {
+            console.log(`HTTP Status: ${statusCode}`);
+            return this;  // Allow method chaining
+        },
+        send: (data) => console.log(data)
+    };
+
+    try {
+        await fetchMixedVideos(fakeReq, fakeRes);
+    } catch (err) {
+        console.error('Error during fetchMixedVideos test:', err);
+    }
+}
 
 
 // async function testLogin() {

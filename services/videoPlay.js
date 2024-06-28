@@ -74,5 +74,46 @@ export async function getVideosByUserId(userId) {
     return await Video.find({ authorId: userId });
 }
 
+export async function getMixedVideos() {
+    try {
+        // Fetch the top 10 viewed videos
+        const topVideos = await Video.find().sort({ views: -1 }).limit(10).populate('authorId', 'username profilePic');
 
+        // Get IDs of topVideos to exclude them from the random selection
+        const topVideoIds = topVideos.map(video => video._id);
+
+        // Fetch random videos excluding the top viewed ones
+        const totalVideosCount = await Video.countDocuments();
+        const randomVideosCount = Math.min(10, totalVideosCount - topVideos.length); // Ensure we don't fetch more than exists minus the top videos
+        const randomVideos = await Video.aggregate([
+            { $match: { _id: { $nin: topVideoIds } } }, // Exclude top viewed videos
+            { $sample: { size: randomVideosCount } }
+        ]);
+
+        // Populate author details for random videos (since aggregate doesn't populate)
+        const randomVideoIds = randomVideos.map(video => video._id);
+        const populatedRandomVideos = await Video.find({ _id: { $in: randomVideoIds } }).populate('authorId', 'username profilePic');
+
+        // Combine and shuffle the array
+        const combinedVideos = [...topVideos, ...populatedRandomVideos];
+        for (let i = combinedVideos.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [combinedVideos[i], combinedVideos[j]] = [combinedVideos[j], combinedVideos[i]]; // ES6 destructuring assignment for swapping
+        }
+
+        return combinedVideos;
+    } catch (err) {
+        console.error('Failed to fetch mixed videos:', err);
+        throw err;
+    }
+}
+
+export async function getVideosByCategory(category) {
+    try {
+        return await Video.find({ category: category }).populate('authorId', 'username profilePic');
+    } catch (err) {
+        console.error('Failed to fetch videos by category:', err);
+        throw err;
+    }
+}
 

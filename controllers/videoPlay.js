@@ -1,5 +1,5 @@
 import { getVideoModel, createVideoModel, getVideosModel, updateVideoModel, deleteVideoModel,
-     getVideosWithAuthorDetails } from '../services/videoPlay.js';
+     getVideosWithAuthorDetails,getMixedVideos, getVideosByCategory } from '../services/videoPlay.js';
 import { getCommentsByVideoId, countCommentsByVideoId } from '../services/comments.js';
 
 
@@ -79,6 +79,25 @@ export async function fetchCommentCount(req, res) {
         res.json({ count });
     } catch (error) {
         res.status(500).send(error.message);
+    }
+}
+
+export async function fetchMixedVideos(req, res) {
+    try {
+        const videos = await getMixedVideos();
+        res.json(videos);
+    } catch (error) {
+        res.status(500).send({ message: "Error fetching videos", error: error.message });
+    }
+}
+
+export async function fetchVideosByCategory(req, res) {
+    try {
+        const category = req.params.category;  // Assumes category is passed as a URL parameter
+        const videos = await getVideosByCategory(category);
+        res.json(videos);
+    } catch (error) {
+        res.status(500).send({ message: "Error fetching videos by category", error: error.message });
     }
 }
 
