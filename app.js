@@ -7,12 +7,12 @@ import customEnv from 'custom-env';
 //add dotenv for environment variables
 import dotenv from 'dotenv';
 // mediaRoutes is for uploading and replacing media files
-import mediaRoutes from './routes/mediaRoutes.js'; 
+import mediaRoutes from './routes/mediaRoutes.js';
 // import jwt from 'jsonwebtoken';
 import routerVideoPlay from './routes/videoPlay.js';
 //import routerSignUp from './routes/signUp.js';
 import routerToken from './routes/tokens.js';
-import userRouter from './routes/users.js';  
+import userRouter from './routes/users.js';
 import routerComments from './routes/comments.js';
 
 import User from './models/users.js';
@@ -20,15 +20,15 @@ import Video from './models/videoPlay.js';
 import {
     createVideoModel, updateVideoModel, deleteVideoModel, likeVideo, unlikeVideo, isUserLikedVideo,
     isUserTheAuthor, getVideosbyUserId
-} from './services/videoPlay.js'; 
+} from './services/videoPlay.js';
 //import { registerUser } from './controllers/signUp.js'; 
-import { updateUserModel, deleteUserModel } from './services/users.js'; 
+import { updateUserModel, deleteUserModel } from './services/users.js';
 import {
     createCommentModel, editCommentModel, deleteCommentModel, isUserTheAuthorOfComment,
     LikeComment, UnlikeComment, isUserLikedComment, getCommentsByVideoId, countCommentsByVideoId
 } from './services/comments.js';
 // import { checkUserNameAndPassword } from './services/tokens.js'; 
-import { fetchMixedVideos ,fetchVideosByCategory } from './controllers/videoPlay.js';
+import { fetchMixedVideos, fetchVideosByCategory } from './controllers/videoPlay.js';
 import request from 'supertest';  // npm install supertest --save-dev
 //import server from './server'; // Assuming your Express instance is exported from a file named 'server.js'
 
@@ -39,35 +39,27 @@ customEnv.env(process.env.NODE_ENV || 'local', './config');
 
 const server = express();
 
-(async ()=> {
-// MongoDB connection
-mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => {
-        console.log('MongoDB connected');
-        checkAndLoadData();  // check if the mongoDB is empty and load the data
-    })
-    .catch(err => console.error('MongoDB connection error:', err));
+// Middleware setup
+server.use(cors());
+server.use(express.static('public'));
+server.use(bodyParser.urlencoded({ extended: true }));
+server.use(express.json({ limit: '10mb' }));  // Keep this if you anticipate large JSON payloads, otherwise it's safe to remove
 
-    // Express app setup
-    server.use(express.static('public'));
-    server.use(bodyParser.urlencoded({ extended: true }));
-    server.use(cors());
-    server.use(express.json({ limit: '10mb' }) )
-    // server.set('view engine', 'ejs');
-    // server.set('views', './views');
+// Route configuration
+server.use('/api/users', userRouter);
+server.use('/api/tokens', routerToken);
+server.use('/api/videos', routerVideoPlay);
+server.use('/api/media', mediaRoutes);  // Dedicated endpoint for media operations
+server.use('/api/comments', routerComments);
 
-    // Routes
-    server.use('/api', userRouter);
-
-    server.use('/api', routerToken);
-    
-    server.use('/api', routerVideoPlay);
-    
-    //server.use('/api', routerSignUp);
-    
-    server.use('/api', mediaRoutes); 
-    server.use('/api', routerComments);
-
+(async () => {
+    // MongoDB connection
+    mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
+        .then(() => {
+            console.log('MongoDB connected');
+            checkAndLoadData();  // check if the mongoDB is empty and load the data
+        })
+        .catch(err => console.error('MongoDB connection error:', err));
 })()
 
 // Load initial data if no data exists in MongoDB
@@ -122,7 +114,7 @@ server.listen(PORT, () => {
 
 
 
-/////////////////////tests///////////////////// 
+/////////////////////tests/////////////////////
 
 
 

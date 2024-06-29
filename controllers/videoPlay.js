@@ -1,6 +1,8 @@
-import { getVideoModel, createVideoModel, getVideosModel, updateVideoModel, deleteVideoModel,
-     getVideosWithAuthorDetails,getMixedVideos, getVideosByCategory, 
-     unlikeVideo, getVideosbyUserId, isUserLikedVideo} from '../services/videoPlay.js';
+import {
+    getVideoModel, createVideoModel, getVideosModel, updateVideoModel, deleteVideoModel,
+    getVideosWithAuthorDetails, getMixedVideos, getVideosByCategory,
+    unlikeVideo, getVideosbyUserId, isUserLikedVideo
+} from '../services/videoPlay.js';
 import { getCommentsByVideoId, countCommentsByVideoId } from '../services/comments.js';
 import { likeVideo as toggleLikeVideo } from '../services/videoPlay.js';
 
@@ -8,8 +10,8 @@ import { likeVideo as toggleLikeVideo } from '../services/videoPlay.js';
 
 export async function getVideos(req, res) {
     try {
-      //  const videos = await getVideosModel();
-      const videos = await getVideosWithAuthorDetails();
+        //  const videos = await getVideosModel();
+        const videos = await getVideosWithAuthorDetails();
         res.render('allVideos', { videos });
     } catch (error) {
         console.error('Error fetching videos with author details:', error);
@@ -30,15 +32,29 @@ export async function getVideo(req, res) {
     }
 }
 
+// export async function createVideo(req, res) {
+//     try {
+//         await createVideoModel(req.body);
+//         res.redirect('/videoPlay');
+//     } catch (error) {
+//         res.status(500).send('Failed to create video');
+//     }
+// }
 export async function createVideo(req, res) {
     try {
-        await createVideoModel(req.body);
-        res.redirect('/videoPlay');
+        const videoData = {
+            ...req.body,
+            videoUrl: req.files.video[0].path.replace('public/', ''),  // Adjust the path stripping 'public/'
+            thumbnailUrl: req.files.thumbnail[0].path.replace('public/', '')
+        };
+        await createVideoModel(videoData);
+        res.json({ message: 'Video created successfully', data: videoData });
     } catch (error) {
         res.status(500).send('Failed to create video');
     }
 }
 
+/*
 export async function updateVideo(req, res) {
     try {
         const updatedVideo = await updateVideoModel(req.params.id, req.body);
@@ -50,7 +66,26 @@ export async function updateVideo(req, res) {
     } catch (error) {
         res.status(500).send('Failed to update video');
     }
+} */
+
+export async function updateVideo(req, res) {
+    try {
+        const updateData = {
+            ...req.body,
+            videoUrl: req.files.video ? req.files.video[0].path.replace('public/', '') : undefined,
+            thumbnailUrl: req.files.thumbnail ? req.files.thumbnail[0].path.replace('public/', '') : undefined
+        };
+        const updatedVideo = await updateVideoModel(req.params.pid, updateData);
+        if (updatedVideo) {
+            res.json({ message: 'Video updated successfully', data: updatedVideo });
+        } else {
+            res.status(404).send('Video not found');
+        }
+    } catch (error) {
+        res.status(500).send('Failed to update video');
+    }
 }
+
 
 export async function deleteVideo(req, res) {
     try {
@@ -109,7 +144,7 @@ export const likeVideo = async (req, res) => {
     const userId = req.user.id; // Assuming req.user is set by your authentication middleware
     console.log("Video ID:", videoId);
     console.log("User ID:", userId);
-    
+
     try {
         const video = await toggleLikeVideo(videoId, userId);
         res.status(200).json(video);

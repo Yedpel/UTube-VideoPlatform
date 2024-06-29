@@ -8,6 +8,24 @@ const key = "secretkey"; // Ensure this key is stored securely and consistently
 
 
 export const registerUser = async (req, res) => {
+    const { firstName, lastName, date, email, username, password } = req.body;
+    const profilePic = req.file ? `/media/${req.file.filename}` : '';
+
+    try {
+        const usernameExists = await userService.findUser(username);
+        if (usernameExists) {
+            return res.status(400).json({ message: 'Username is already in use' });
+        }
+
+        const newUser = { firstName, lastName, date, email, profilePic, username, password };
+        const createdUser = await userService.createUser(newUser);
+        res.status(201).json({ message: 'User registered successfully' });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+/*
+export const registerUser = async (req, res) => {
     //const { firstName, lastName, date, email, profilePic, username, password } = req.body.newUser;
     const { firstName, lastName, date, email, profilePic, username, password } = req.body.newUser || req.body;
     try {
@@ -26,6 +44,7 @@ export const registerUser = async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 };
+*/
 
 export const getUser =  async (req, res) => {
     // console.log(req.params.id);
@@ -58,6 +77,33 @@ export async function deleteUser(req, res) {
     }
 }
 
+
+export async function updateUser(req, res) {
+    try {
+        if (req.body.username && req.body.username !== req.user.username) {
+            const usernameExists = await userService.findUser(req.body.username);
+            if (usernameExists) {
+                return res.status(400).json({ message: 'Username is already in use' });
+            }
+        }
+
+        const updateData = { ...req.body };
+        if (req.file) {
+            updateData.profilePic = `/media/${req.file.filename}`;
+        }
+
+        const updatedUser = await userService.updateUserModel(req.params.id, updateData);
+        if (updatedUser) {
+            res.json({ message: 'User updated successfully' });
+        } else {
+            res.status(404).send('User not found');
+        }
+    } catch (error) {
+        res.status(500).send('Failed to update user');
+    }
+}
+
+/*
 // update user - if username is changed, check if it is already taken, and issue a new token
 export async function updateUser(req, res) {
     try {
@@ -85,6 +131,8 @@ export async function updateUser(req, res) {
         res.status(500).send('Failed to update user');
     }
 }
+
+*/
 
 ///////////client side code to handle username update for token///////////
 /*

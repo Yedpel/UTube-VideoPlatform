@@ -1,4 +1,5 @@
 import express from 'express';
+import { upload } from './mediaRoutes.js'; 
 import {
     getVideos, getVideo, createVideo, fetchComments, fetchCommentCount, fetchMixedVideos, fetchVideosByCategory
     , updateVideo, deleteVideo, likeVideo, UnlikeVideo, getVideosByUserId,
@@ -29,10 +30,14 @@ router.get('/videos/category/:category', fetchVideosByCategory);
 ///actions on videos////
 
 // Route to upload a new video
-router.post('/users/:id/videos', isLoggedIn, createVideo);
+//router.post('/users/:id/videos', isLoggedIn, createVideo);
+// Updated route to handle video and thumbnail upload
+router.post('/users/:id/videos', isLoggedIn, upload.fields([{ name: 'video', maxCount: 1 }, { name: 'thumbnail', maxCount: 1 }]), createVideo);
 
 //update video
-router.put('/users/:id/videos/:pid', isLoggedIn, updateVideo);
+//router.put('/users/:id/videos/:pid', isLoggedIn, updateVideo);
+// Update route to handle video and thumbnail replacement
+router.put('/users/:id/videos/:pid', isLoggedIn, upload.fields([{ name: 'video', maxCount: 1 }, { name: 'thumbnail', maxCount: 1 }]), updateVideo);
 
 //delete video
 router.delete('/users/:id/videos/:pid', isLoggedIn, deleteVideo);
