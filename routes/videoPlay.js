@@ -52,7 +52,7 @@ router.get('/users/:id/videos/:pid/comments/count', fetchCommentCount);
 
 ///likes on videos////
 
-//get ahead if a user liked the video or not
+//get ahead if a user liked the video or not (return false on guest)
 router.get('/users/:id/videos/:pid', isLoggedIn, getUserLikedVideo);
 
 //a route to like a video

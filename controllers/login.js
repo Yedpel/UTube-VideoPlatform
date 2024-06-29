@@ -7,15 +7,12 @@ import bcrypt from 'bcryptjs';
 
 export const checkUserNameAndPassword = async (req, res) => {
     const { username, password } = req.body;
-    console.log("Received username:", username);
-    console.log("Received password:", password);
+  
     try {
      //   const user = await userService.findUser(username);
         const user = await userService.getUserbyUsername(username);
 
-        console.log("User found:", user);  // Check what user data is retrieved
-
-        if (user &&  await bcrypt.compare(password, user.password)) {  // Consider using bcrypt for password comparison for security
+        if (user &&  await bcrypt.compare(password, user.password)) {  
             const token = jwt.sign({ username }, key, { expiresIn: '5h' });
 
             res.status(200).json({ message: 'Login successful', token });

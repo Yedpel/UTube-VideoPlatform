@@ -3,6 +3,8 @@
 
 // import User from '../services/users.js';
 import * as userService from '../services/users.js';
+import jwt from 'jsonwebtoken';
+const key = "secretkey"; // Ensure this key is stored securely and consistently
 
 
 export const registerUser = async (req, res) => {
@@ -11,7 +13,6 @@ export const registerUser = async (req, res) => {
     try {
         // Check if the username is already taken
         const usernameExists = await userService.findUser(username);
-        console.log(usernameExists);
         if (usernameExists) {
             return res.status(400).json({ message: 'Username is already in use' });
         }
@@ -44,20 +45,6 @@ export const getUser =  async (req, res) => {
     }
 }
 
-
-export async function updateUser(req, res) {
-    try {
-        const updatedUser = await userService.updateUserModel(req.params.id, req.body);
-        if (updatedUser) {
-            res.send('User updated successfully');
-        } else {
-            res.status(404).send('User not found');
-        }
-    } catch (error) {
-        res.status(500).send('Failed to update user');
-    }
-}
-
 export async function deleteUser(req, res) {
     try {
         const deletedUser = await userService.deleteUserModel(req.params.id);
@@ -70,3 +57,79 @@ export async function deleteUser(req, res) {
         res.status(500).send('Failed to delete user');
     }
 }
+
+// update user - if username is changed, check if it is already taken, and issue a new token
+export async function updateUser(req, res) {
+    try {
+        // Check if new username is already taken
+        if (req.body.username && req.body.username !== req.user.username) {
+            const usernameExists = await userService.findUser(req.body.username);
+            if (usernameExists) {
+                return res.status(400).json({ message: 'Username is already in use' });
+            }
+        }
+
+        const updatedUser = await userService.updateUserModel(req.params.id, req.body);
+        if (updatedUser) {
+            // Issue a new token if username was part of the update
+            if (req.body.username) {
+                const newToken = jwt.sign({ username: updatedUser.username }, key, { expiresIn: '5h' });
+                res.json({ message: 'User updated successfully', token: newToken });
+            } else {
+                res.send('User updated successfully');
+            }
+        } else {
+            res.status(404).send('User not found');
+        }
+    } catch (error) {
+        res.status(500).send('Failed to update user');
+    }
+}
+
+///////////client side code to handle username update for token///////////
+/*
+// Example of handling the response after updating user details
+fetch('/api/users/update', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${oldToken}` // Your existing token
+    },
+    body: JSON.stringify(userData)
+})
+.then(response => response.json())
+.then(data => {
+    if (data.token) {
+        localStorage.setItem('token', data.token); // Save the new token
+        // Update the global headers or request instance used for API calls
+        api.setToken(data.token);
+    }
+    console.log(data.message);
+})
+.catch(error => console.error('Error:', error));
+*/
+
+
+
+/*
+export async function updateUser(req, res) {
+    try {
+        //if the username changed, check if the new username is already in use,
+        //if the username is not changed, no need to check
+        if (req.body.username) {
+            const usernameExists = await userService.findUser(req.body.username);
+            if (usernameExists) {
+                return res.status(400).json({ message: 'Username is already in use' });
+            }
+        }
+      
+        const updatedUser = await userService.updateUserModel(req.params.id, req.body);
+        if (updatedUser) {
+            res.send('User updated successfully');
+        } else {
+            res.status(404).send('User not found');
+        }
+    } catch (error) {
+        res.status(500).send('Failed to update user');
+    }
+} */

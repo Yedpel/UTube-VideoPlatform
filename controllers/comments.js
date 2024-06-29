@@ -1,12 +1,13 @@
 // controllers/comments.js
 //const commentsService = require('../services/comments');
-import commentsService from '../services/comments.js'; 
+import commentsService from '../services/comments.js';
 //import all the services from the comments.js
-import { createCommentModel, editCommentModel, deleteCommentModel, LikeComment, UnlikeComment,
+import {
+    createCommentModel, editCommentModel, deleteCommentModel, LikeComment, UnlikeComment,
     isUserLikedComment
- } from '../services/comments.js';
+} from '../services/comments.js';
 
-export const addComment = async(req, res) => {
+export const addComment = async (req, res) => {
     try {
         const pid = req.params.pid;
         const comment = req.body;
@@ -19,7 +20,7 @@ export const addComment = async(req, res) => {
     }
 }
 
-export const deleteComment = async(req, res) => {
+export const deleteComment = async (req, res) => {
     try {
         const pid = req.params.pid;
         const commentId = req.params.commentId;
@@ -46,6 +47,10 @@ export const updateComment = async (req, res) => {
 export const getUserLikedComment = async (req, res) => {
     const { pid, cid } = req.params;
     const userId = req.user.userId;
+    //if it is a guest, then isLiked will be false
+    if (!userId) {
+        return res.json({ isLiked: false });
+    }
 
     try {
         const comment = await isUserLikedComment(pid, cid, userId);
@@ -80,4 +85,4 @@ export const unlikeComment = async (req, res) => {
     }
 };
 
- //module.exports = { addComment, deleteComment };
+//module.exports = { addComment, deleteComment };

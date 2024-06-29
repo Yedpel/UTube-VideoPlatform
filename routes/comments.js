@@ -27,7 +27,7 @@ router.put('/users/:id/videos/:pid/comments/cid', isLoggedIn, updateComment);
 //a route to delete a comment of videos
 router.delete('/users/:id/videos/:pid/comments/cid', isLoggedIn, deleteComment);
 
-//get ahead if a user liked the comment or not
+//get ahead if a user liked the comment or not (return false on guest)
 router.get('/users/:id/videos/:pid/comments/cid', isLoggedIn, getUserLikedComment);
 
 //a route to like a comment of videos

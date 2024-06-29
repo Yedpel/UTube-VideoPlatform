@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 // mediaRoutes is for uploading and replacing media files
 import mediaRoutes from './routes/mediaRoutes.js'; 
 // import jwt from 'jsonwebtoken';
-import routerVideoPlay from './routes/videoplay.js';
+import routerVideoPlay from './routes/videoPlay.js';
 //import routerSignUp from './routes/signUp.js';
 import routerToken from './routes/tokens.js';
 import userRouter from './routes/users.js';  

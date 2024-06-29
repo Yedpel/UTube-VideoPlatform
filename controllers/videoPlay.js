@@ -147,6 +147,10 @@ export async function getVideosByUserId(req, res) {
 export async function getUserLikedVideo(req, res) {
     const videoId = req.params.pid;
     const userId = req.user._id; // Assuming req.user is set by your authentication middleware
+    //if it is a guest, then isLiked will be false
+    if (!userId) {
+        return res.json({ isLiked: false });
+    }
 
     try {
         const isLiked = await isUserLikedVideo(videoId, userId);
