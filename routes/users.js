@@ -1,12 +1,18 @@
 import express from 'express';
 import { updateUser, deleteUser,registerUser,getUser } from '../controllers/users.js';
-import {isLoggedIn} from '../controllers/login.js';
+//import {isLoggedIn} from '../controllers/login.js';
+import { isLoggedIn } from '../middlewares/auth.js';
+import { checkUserNameAndPassword } from '../controllers/login.js';
 
 const router = express.Router();
 
 // Route to create user
 ////are you sure that the route is correct?, isn't it need to be SignUp?////
-router.post('/users',isLoggedIn, registerUser);  
+router.post ('/SignUp', registerUser);
+// router.post('/users',isLoggedIn, registerUser);  
+
+//login route
+router.post('/login', checkUserNameAndPassword);
 
 // Route to get a user details after authentication 
 router.get('/users/:id',isLoggedIn, getUser);  

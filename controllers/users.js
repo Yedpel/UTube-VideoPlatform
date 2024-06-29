@@ -4,13 +4,10 @@
 // import User from '../services/users.js';
 import * as userService from '../services/users.js';
 
-/**
- * Handle user registration
- * @param {Request} req - Express request object
- * @param {Response} res - Express response object
- */
+
 export const registerUser = async (req, res) => {
-    const { firstName, lastName, date, email, profilePic, username, password } = req.body.newUser;
+    //const { firstName, lastName, date, email, profilePic, username, password } = req.body.newUser;
+    const { firstName, lastName, date, email, profilePic, username, password } = req.body.newUser || req.body;
     try {
         // Check if the username is already taken
         const usernameExists = await userService.findUser(username);
@@ -19,13 +16,10 @@ export const registerUser = async (req, res) => {
             return res.status(400).json({ message: 'Username is already in use' });
         }
 
-        // console.log('hello')
         // Create a new user
         const newUser = { firstName, lastName, date, email, profilePic, username, password };
-        userService.createUser({ newUser })
-        // const user = new User({ firstName, lastName, date, email, profilePic, username, password });
-        // console.log('hello')
-        // await user.save();
+       // userService.createUser({ newUser })
+       const createdUser = await userService.createUser(newUser); // Pass newUser directly
         res.status(201).json({ message: 'User registered successfully' });
     } catch (err) {
         res.status(400).json({ message: err.message });

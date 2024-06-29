@@ -9,13 +9,11 @@ import dotenv from 'dotenv';
 // mediaRoutes is for uploading and replacing media files
 import mediaRoutes from './routes/mediaRoutes.js'; 
 // import jwt from 'jsonwebtoken';
-
-
-
 import routerVideoPlay from './routes/videoplay.js';
 //import routerSignUp from './routes/signUp.js';
 import routerToken from './routes/tokens.js';
 import userRouter from './routes/users.js';  
+import routerComments from './routes/comments.js';
 
 import User from './models/users.js';
 import Video from './models/videoPlay.js';
@@ -31,7 +29,8 @@ import {
 } from './services/comments.js';
 // import { checkUserNameAndPassword } from './services/tokens.js'; 
 import { fetchMixedVideos ,fetchVideosByCategory } from './controllers/videoPlay.js';
-
+import request from 'supertest';  // npm install supertest --save-dev
+//import server from './server'; // Assuming your Express instance is exported from a file named 'server.js'
 
 dotenv.config();
 
@@ -67,6 +66,7 @@ mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnif
     //server.use('/api', routerSignUp);
     
     server.use('/api', mediaRoutes); 
+    server.use('/api', routerComments);
 
 })()
 
@@ -114,6 +114,54 @@ async function loadData() {
 }
 
 
+// Start the server
+const PORT = process.env.PORT || 89;
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+
+
+
+/////////////////////tests///////////////////// 
+
+
+
+
+// async function testUserFlow() {
+//     // Simulate user registration
+//     const registerResponse = await request(server)
+//         .post('/api/SignUp')  // Adjusted endpoint with the /api prefix
+//         .send({
+//             username: "testuser",
+//             password: "password123",
+//             firstName: "Test",
+//             lastName: "User",
+//             email: "testuser@example.com"
+//         });
+//     console.log('Register Response:', registerResponse.body);
+
+//     // Simulate user login
+//     const loginResponse = await request(server)
+//         .post('/api/login')  // Adjusted endpoint with the /api prefix
+//         .send({
+//             username: "testuser",
+//             password: "password123"
+//         });
+//     const { token } = loginResponse.body;
+//     console.log('Login Response:', loginResponse.body);
+
+//     // Simulate liking a video with authentication
+//     const likeResponse = await request(server)
+//         .put(`/api/users/667ec704aa2855d236860a17/videos/667ec704aa2855d236860a1e/likes`)  // Adjusted endpoint with the /api prefix
+//         .set('Authorization', `Bearer ${token}`);
+//     console.log('Like Video Response:', likeResponse.body);
+
+//     // Simulate trying to like a video as a guest (no token)
+//     const guestLikeResponse = await request(server)
+//         .put(`/api/users/667ec704aa2855d236860a17/videos/667ec704aa2855d236860a1e/likes`);  // Adjusted endpoint with the /api prefix
+//     console.log('Guest Like Video Response:', guestLikeResponse.body);
+// }
+
 
 
 // Load initial data into MongoDB
@@ -134,48 +182,47 @@ async function loadData() {
 // }
 
 
-/////////////////////tests///////////////////// and below the start of the server listen
-// Function to test fetching videos by category
-async function testFetchVideosByCategory() {
-    const fakeReq = {
-        params: {
-            category: 'Sport'  // Change to the category you'd like to test
-        }
-    };
-    const fakeRes = {
-        json: (data) => console.log("Test Fetch Videos By Category:", data),
-        status: function (statusCode) {
-            console.log(`HTTP Status: ${statusCode}`);
-            return this;  // Allow method chaining
-        },
-        send: (data) => console.log(data)
-    };
+// // Function to test fetching videos by category
+// async function testFetchVideosByCategory() {
+//     const fakeReq = {
+//         params: {
+//             category: 'Sport'  // Change to the category you'd like to test
+//         }
+//     };
+//     const fakeRes = {
+//         json: (data) => console.log("Test Fetch Videos By Category:", data),
+//         status: function (statusCode) {
+//             console.log(`HTTP Status: ${statusCode}`);
+//             return this;  // Allow method chaining
+//         },
+//         send: (data) => console.log(data)
+//     };
 
-    try {
-        await fetchVideosByCategory(fakeReq, fakeRes);
-    } catch (err) {
-        console.error('Error during fetchVideosByCategory test:', err);
-    }
-}
+//     try {
+//         await fetchVideosByCategory(fakeReq, fakeRes);
+//     } catch (err) {
+//         console.error('Error during fetchVideosByCategory test:', err);
+//     }
+// }
 
-// Function to test fetching mixed videos
-async function testFetchMixedVideos() {
-    const fakeReq = {};  // Mock request object, add properties if your controller uses them
-    const fakeRes = {
-        json: (data) => console.log("Test Fetch Mixed Videos:", data),
-        status: function (statusCode) {
-            console.log(`HTTP Status: ${statusCode}`);
-            return this;  // Allow method chaining
-        },
-        send: (data) => console.log(data)
-    };
+// // Function to test fetching mixed videos
+// async function testFetchMixedVideos() {
+//     const fakeReq = {};  // Mock request object, add properties if your controller uses them
+//     const fakeRes = {
+//         json: (data) => console.log("Test Fetch Mixed Videos:", data),
+//         status: function (statusCode) {
+//             console.log(`HTTP Status: ${statusCode}`);
+//             return this;  // Allow method chaining
+//         },
+//         send: (data) => console.log(data)
+//     };
 
-    try {
-        await fetchMixedVideos(fakeReq, fakeRes);
-    } catch (err) {
-        console.error('Error during fetchMixedVideos test:', err);
-    }
-}
+//     try {
+//         await fetchMixedVideos(fakeReq, fakeRes);
+//     } catch (err) {
+//         console.error('Error during fetchMixedVideos test:', err);
+//     }
+// }
 
 
 // async function testLogin() {
@@ -497,8 +544,3 @@ async function testFetchMixedVideos() {
 
 /////////////////////////end of tests///////////////////////
 
-// Start the server
-const PORT = process.env.PORT || 89;
-server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});

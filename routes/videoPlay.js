@@ -4,10 +4,11 @@ import {
     , updateVideo, deleteVideo, likeVideo, UnlikeVideo, getVideosByUserId,
     getUserLikedVideo
 } from '../controllers/videoPlay.js'
-import { isLoggedIn } from '../controllers/tokens.js';
+//import { isLoggedIn } from '../controllers/tokens.js';
 import { addComment, deleteComment, likeComment, unlikeComment, updateComment } from '../controllers/comments.js';
 import { isUserLikedVideo } from '../services/videoPlay.js';
 //import { isLoggedIn} from '../controllers/login.js'
+import { isLoggedIn } from '../middlewares/auth.js';
 const router = express.Router();
 
 

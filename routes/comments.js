@@ -1,12 +1,18 @@
 // routes/comments.js
-const express = require('express');
-const commentsController = require('../controllers/comments');
+//const express = require('express');
+import express from 'express'
+
+//const commentsController = require('../controllers/comments');
 const router = express.Router();
 
+import e from 'express';
 import {
     addComment, deleteComment, likeComment, unlikeComment, updateComment,
     getUserLikedComment
 } from '../controllers/comments.js';
+
+import { isLoggedIn } from '../middlewares/auth.js';
+
 
 ///get comments of a video and count is on routes/videoPlay.js///
 
@@ -31,8 +37,8 @@ router.put('/users/:id/videos/:pid/comments/cid/like', isLoggedIn, likeComment);
 router.put('/users/:id/videos/:pid/comments/cid/unLike', isLoggedIn, unlikeComment);
 
 
-
-module.exports = router;
+export default router;
+//module.exports = router;
 
 
 

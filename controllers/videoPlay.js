@@ -106,8 +106,10 @@ export async function fetchVideosByCategory(req, res) {
 
 export const likeVideo = async (req, res) => {
     const { pid: videoId } = req.params;
-    const userId = req.user._id; // Assuming req.user is set by your authentication middleware
-
+    const userId = req.user.id; // Assuming req.user is set by your authentication middleware
+    console.log("Video ID:", videoId);
+    console.log("User ID:", userId);
+    
     try {
         const video = await toggleLikeVideo(videoId, userId);
         res.status(200).json(video);

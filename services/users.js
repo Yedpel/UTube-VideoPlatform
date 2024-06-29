@@ -3,16 +3,26 @@ import Video from '../models/videoPlay.js';
 import Comment from '../models/comments.js';
 
 
-
 export const createUser = async (newUser) => {
     try {
         const user = new User(newUser);
         await user.save();
+        return user; // It's often useful to return the created user object
     } catch (error) {
         throw new Error('Error creating user: ' + error.message);
     }
+};
 
-}
+
+// export const createUser = async (newUser) => {
+//     try {
+//         const user = new User(newUser);
+//         await user.save();
+//     } catch (error) {
+//         throw new Error('Error creating user: ' + error.message);
+//     }
+
+// }
 
 export const findUser = async (username) => {
     try {
@@ -74,7 +84,40 @@ export const getUserbyId = async (id) => {
                     firstName: user.firstName,
                     lastName: user.lastName,
                     profilePic: user.profilePic,
-                    username: user.username
+                    username: user.username,
+                    password: user.password,
+                    email: user.email,
+                    date: user.date,
+                    id: user._id
+                }
+            console.log(userObj);
+            return userObj;
+        }
+    } catch (error) {
+        throw new Error('Error fetching user: ' + error.message);
+    }
+}
+
+//get user by username just like the above function
+export const getUserbyUsername = async (username) => {
+    try {
+        const user = await User.findOne({ username: username });
+        console.log(user);
+        if (user === null) {
+            console.log('User not found');
+            throw new Error('User not found');
+        } else {
+            console.log('User found 1');
+            const userObj = 
+                 {
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    profilePic: user.profilePic,
+                    username: user.username,
+                    password: user.password,
+                    email: user.email,
+                    date: user.date,
+                    id: user._id
                 }
             console.log(userObj);
             return userObj;
