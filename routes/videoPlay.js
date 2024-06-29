@@ -3,7 +3,7 @@ import { upload } from './mediaRoutes.js';
 import {
     getVideos, getVideo, createVideo, fetchComments, fetchCommentCount, fetchMixedVideos, fetchVideosByCategory
     , updateVideo, deleteVideo, likeVideo, UnlikeVideo, getVideosByUserId,
-    getUserLikedVideo
+    getUserLikedVideo, addView, getWatchPageData
 } from '../controllers/videoPlay.js'
 //import { isLoggedIn } from '../controllers/tokens.js';
 import { addComment, deleteComment, likeComment, unlikeComment, updateComment } from '../controllers/comments.js';
@@ -44,8 +44,15 @@ router.delete('/users/:id/videos/:pid', isLoggedIn, deleteVideo);
 
 //////watch video page/////
 
+// Route to fetch all watch page data
+router.get('/users/:id/videos/:pid', getWatchPageData);
+
 //get a video to watch without comments (comments will be fetched by next routes)
 router.get('/users/:id/videos/:pid', getVideo);
+
+// Route to increment video views (need to decied how to implement it on client side, maybe)
+router.get('/users/:id/videos/:pid', addView);
+///code for react is on the end of the file///
 
 //////comments data on videos///// (actions of comments are on routes/comments.js)
 
@@ -73,7 +80,21 @@ export default router;
 
 
 
+///code for react to see the updated views without refreshing the page///
+/*
+fetch(`/api/users/${userId}/videos/${videoId}`)
+  .then(response => response.json())
+  .then(data => {
+    if(data.message === 'View added successfully') {
+      setVideoDetails(prevDetails => ({ ...prevDetails, views: data.views }));
+    }
+  })
+  .catch(error => console.error('Error updating views:', error));
+    */
+///end of code for react to see the updated views without refreshing the page///
 
+
+  ///old routes for videos and comments////
 // // Route to get a single video with enhanced author details
 // router.get('/video/:videoId/comments', fetchComments); //maybe 
 

@@ -121,3 +121,17 @@ export async function getVideosByCategory(category) {
     }
 }
 
+export async function incrementVideoViews(videoId) {
+    try {
+        return await Video.findByIdAndUpdate(
+            videoId,
+            { $inc: { views: 1 } },
+            { new: true }  // This option returns the document after the update
+        );
+    } catch (error) {
+        console.error('Failed to increment video views:', error);
+        throw error;  // Rethrow the error for handling at a higher level
+    }
+}
+
+

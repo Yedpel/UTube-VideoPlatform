@@ -21,6 +21,8 @@ router.post('/upload', upload.single('file'), (req, res) => {
     res.json({ message: 'File uploaded successfully', filePath: `/media/${req.file.filename}` });
 });
 
+
+// just in case you want to replace a file actually
 router.post('/replace', upload.single('file'), (req, res) => {
     const oldFilePath = req.body.oldFilePath; // Assuming the full path is provided
     fs.unlink(`public${oldFilePath}`, (err) => {

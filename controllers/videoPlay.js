@@ -1,7 +1,7 @@
 import {
     getVideoModel, createVideoModel, getVideosModel, updateVideoModel, deleteVideoModel,
     getVideosWithAuthorDetails, getMixedVideos, getVideosByCategory,
-    unlikeVideo, getVideosbyUserId, isUserLikedVideo
+    unlikeVideo, getVideosbyUserId, isUserLikedVideo, incrementVideoViews
 } from '../services/videoPlay.js';
 import { getCommentsByVideoId, countCommentsByVideoId } from '../services/comments.js';
 import { likeVideo as toggleLikeVideo } from '../services/videoPlay.js';
@@ -196,3 +196,65 @@ export async function getUserLikedVideo(req, res) {
 }
 
 
+export async function addView(req, res) {
+    const { pid } = req.params;  // Assuming 'pid' stands for 'videoId'
+
+    try {
+        const updatedVideo = await incrementVideoViews(pid);
+        if (updatedVideo) {
+            res.status(200).json({ message: 'View added successfully', views: updatedVideo.views });
+        } else {
+            res.status(404).send('Video not found');
+        }
+    } catch (error) {
+        res.status(500).send('Failed to increment views');
+    }
+}
+
+export async function getWatchPageData(req, res) {
+    try {
+        const videoId = req.params.pid;
+        const userId = req.params.id;
+
+        // Get video details
+        const video = await getVideoModel(videoId);
+        if (!video) {
+            return res.status(404).json({ message: 'Video not found' });
+        }
+        // Increment views
+        const updatedVideo = await incrementVideoViews(videoId);
+
+        // Get comments
+        const comments = await getCommentsByVideoId(videoId);
+        // Get comment count
+        const commentCount = await countCommentsByVideoId(videoId);
+        res.status(200).json({
+            video: updatedVideo,
+            comments: comments,
+            commentCount: commentCount
+        });
+    } catch (error) {
+        console.error('Failed to fetch watch page data:', error);
+        res.status(500).json({ message: 'Failed to fetch watch page data' });
+    }
+}
+
+///optional code for get watch page data in react///
+/*
+useEffect(() => {
+    const fetchVideoData = async () => {
+        const response = await fetch(`/api/users/${userId}/videos/${videoId}/watch`);
+        const data = await response.json();
+        if (response.ok) {
+            setVideo(data.video);
+            setComments(data.comments);
+            setCommentCount(data.commentCount);
+        } else {
+            console.error('Failed to load video data:', data.message);
+        }
+    };
+
+    fetchVideoData();
+}, [userId, videoId]);
+*/
+///end of optional code for get watch page data in react///
