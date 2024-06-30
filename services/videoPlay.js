@@ -3,13 +3,51 @@ import Video from '../models/videoPlay.js'; // Import the Mongoose model
 // Fetch all!!!! videos from the database - just in case we need it
 // we use mixed videos funciton down the page
 export async function getVideosModel() {
-    return await Video.find().populate('authorId', 'username profilePic'); 
+    return await Video.find().populate('authorId', 'username profilePic');
 }
 
 // Function to get a video by its ID and populate the author details
+/* old code
 export async function getVideoModel(id) {
     return await Video.findById(id).populate('authorId', 'username profilePic');
 }
+*/
+export async function getVideoModel(id) {
+    // console.log(id);
+    try {
+        const video = await Video.findById(id)
+            .populate('authorId', 'username profilePic'); // Populate author details
+
+        if (!video) {
+            return null; // or throw an error if you prefer
+        }
+
+        // Transform the video object to include authorProfilePic
+        const transformedVideo = {
+            _id: video._id,
+            thumbnailUrl: video.thumbnailUrl,
+            title: video.title,
+            authorId: video.authorId._id,
+            authorName: video.authorId.username, // Use the populated username
+            authorProfilePic: video.authorId.profilePic, // Add the profile picture
+            views: video.views,
+            uploadTime: video.uploadTime,
+            videoUrl: video.videoUrl,
+            category: video.category,
+            likes: video.likes,
+            likedBy: video.likedBy,
+            comments: video.comments,
+            _v: video._v
+        };
+
+        return transformedVideo;
+    } catch (error) {
+        console.error('Error fetching video:', error);
+        throw error;
+    }
+}
+
+
 
 export async function createVideoModel(videoData) {
     const video = new Video(videoData); // Create a new video instance with the passed data
@@ -78,6 +116,7 @@ export async function getVideosbyUserId(userId) {
     return await Video.find({ authorId: userId }).populate('authorId', 'username profilePic');
 }
 
+/*
 export async function getMixedVideos() {
     try {
         // Fetch the top 10 viewed videos
@@ -106,6 +145,60 @@ export async function getMixedVideos() {
         }
 
         return combinedVideos;
+    } catch (err) {
+        console.error('Failed to fetch mixed videos:', err);
+        throw err;
+    }
+}
+*/
+export async function getMixedVideos() {
+    try {
+        // Fetch the top 10 viewed videos with selected fields
+        const topVideos = await Video.find()
+            .sort({ views: -1 })
+            .limit(10)
+            .populate('authorId', 'username profilePic')
+            .select('thumbnailUrl title views uploadTime');
+
+        // Get IDs of topVideos to exclude them from the random selection
+        const topVideoIds = topVideos.map(video => video._id);
+
+        // Fetch random videos excluding the top viewed ones
+        const totalVideosCount = await Video.countDocuments();
+        const randomVideosCount = Math.min(10, totalVideosCount - topVideos.length);
+        const randomVideos = await Video.aggregate([
+            { $match: { _id: { $nin: topVideoIds } } },
+            { $sample: { size: randomVideosCount } },
+            { $project: { thumbnailUrl: 1, title: 1, views: 1, uploadTime: 1 } }
+        ]);
+
+        // Populate author details for random videos
+        const randomVideoIds = randomVideos.map(video => video._id);
+        const populatedRandomVideos = await Video.find({ _id: { $in: randomVideoIds } })
+            .populate('authorId', 'username profilePic')
+            .select('thumbnailUrl title views uploadTime');
+
+        // Combine and shuffle the array
+        const combinedVideos = [...topVideos, ...populatedRandomVideos];
+        for (let i = combinedVideos.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [combinedVideos[i], combinedVideos[j]] = [combinedVideos[j], combinedVideos[i]];
+        }
+        // console.log(combinedVideos);
+
+        // Transform the result to include only the required fields
+        const transformedVideos = combinedVideos.map(video => ({
+            _id: video._id,
+            thumbnailUrl: video.thumbnailUrl,
+            author: video.authorId.username,
+            authorId: video.authorId._id,
+            authorProfilePic: video.authorId.profilePic,
+            title: video.title,
+            views: video.views,
+            uploadTime: video.uploadTime
+        }));
+
+        return transformedVideos;
     } catch (err) {
         console.error('Failed to fetch mixed videos:', err);
         throw err;

@@ -21,9 +21,9 @@ export async function getVideos(req, res) {
 
 export async function getVideo(req, res) {
     try {
-        const video = await getVideoModel(req.params.id);
+        const video = await getVideoModel(req.params.pid);
         if (video) {
-            res.render('video', { video });
+            res.status(200).json(video);
         } else {
             res.status(404).send('Video not found');
         }
