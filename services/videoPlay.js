@@ -48,8 +48,10 @@ export async function getVideoModel(id) {
 }
 
 
-
 export async function createVideoModel(videoData) {
+    if (!videoData.uploadTime) {
+        videoData.uploadTime = formatDate(new Date()); // formaat is in the bottom of the page
+    }
     const video = new Video(videoData); // Create a new video instance with the passed data
     return await video.save(); // Save the new video to the database
 }
@@ -228,3 +230,18 @@ export async function incrementVideoViews(videoId) {
 }
 
 
+function formatDate(date) {
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let day = date.getDate();
+    let month = date.getMonth() + 1; // JavaScript months are zero-based
+    let year = date.getFullYear().toString().slice(-2); // Get last two digits of year
+
+    // Ensure two digits by adding leading zeros if necessary
+    hours = hours < 10 ? '0' + hours : hours;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    day = day < 10 ? '0' + day : day;
+    month = month < 10 ? '0' + month : month;
+
+    return `${hours}:${minutes} ${day}/${month}/${year}`;
+}

@@ -46,11 +46,11 @@ server.use(bodyParser.urlencoded({ extended: true }));
 server.use(express.json({ limit: '10mb' }));  // Keep this if you anticipate large JSON payloads, otherwise it's safe to remove
 
 // Route configuration
-server.use('/api/users', userRouter);
-server.use('/api/tokens', routerToken);
-server.use('/api/videos', routerVideoPlay);
-server.use('/api/media', mediaRoutes);  // Dedicated endpoint for media operations
-server.use('/api/comments', routerComments);
+server.use('/api', userRouter);
+server.use('/api', routerToken);
+server.use('/api', routerVideoPlay);
+server.use('/api', mediaRoutes);  // Dedicated endpoint for media operations
+server.use('/api', routerComments);
 
 (async () => {
     // MongoDB connection
@@ -94,7 +94,7 @@ async function loadData() {
             ...video,
             authorId: usernameToIdMap[video.author],  // Map the username to ObjectId
             authorName: video.author,  // Optionally keep authorName if needed
-            uploadTime: new Date() // Convert to actual Date if necessary
+           // uploadTime: new Date() // Convert to actual Date if necessary
         }));
 
         await Video.deleteMany({});
@@ -114,9 +114,36 @@ server.listen(PORT, () => {
 
 
 
+
+
 /////////////////////tests/////////////////////
 
 
+/* Test the video creation to see date format 
+// Example Video Data for Testing
+const testVideoData = {
+    thumbnailUrl: "media/images_new/testThumbnail.jpg",
+    title: "Test Video for Upload Time",
+    authorId: "668167fb6349965e76c1be66",  // Use a valid MongoDB ObjectId string that exists in your database
+    authorName: "Test Author",
+    views: 0,
+    videoUrl: "media/videos_new/testVideo.mp4",
+    category: "Test",
+    likes: 0,
+    likedBy: [],
+    comments: []
+};
+
+// Function to test video creation
+async function testCreateVideo() {
+    try {
+        const newVideo = await createVideoModel(testVideoData);
+        console.log('New Video Added:', newVideo);
+    } catch (error) {
+        console.error('Error creating video:', error);
+    }
+}
+ */
 
 
 // async function testUserFlow() {
