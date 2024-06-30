@@ -188,7 +188,7 @@ export async function getMixedVideos() {
 
         // Transform the result to include only the required fields
         const transformedVideos = combinedVideos.map(video => ({
-            _id: video._id,
+            _id:video._id,
             thumbnailUrl: video.thumbnailUrl,
             author: video.authorId.username,
             authorId: video.authorId._id,
@@ -201,8 +201,8 @@ export async function getMixedVideos() {
         return transformedVideos;
     } catch (err) {
         console.error('Failed to fetch mixed videos:', err);
-        throw err;
-    }
+        throw err;
+    }
 }
 
 export async function getVideosByCategory(category) {
