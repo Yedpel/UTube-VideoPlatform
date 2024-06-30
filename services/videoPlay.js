@@ -15,6 +15,8 @@ export async function getVideoModel(id) {
 export async function getVideoModel(id) {
     // console.log(id);
     try {
+        //add 1 to the views of the video
+        const views = incrementVideoViews(id);
         const video = await Video.findById(id)
             .populate('authorId', 'username profilePic'); // Populate author details
 
@@ -30,7 +32,7 @@ export async function getVideoModel(id) {
             authorId: video.authorId._id,
             authorName: video.authorId.username, // Use the populated username
             authorProfilePic: video.authorId.profilePic, // Add the profile picture
-            views: video.views,
+            views: (video.views)+1,
             uploadTime: video.uploadTime,
             videoUrl: video.videoUrl,
             category: video.category,
