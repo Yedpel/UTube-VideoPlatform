@@ -45,22 +45,22 @@ router.delete('/users/:id/videos/:pid', isLoggedIn, deleteVideo);
 //////watch video page/////
 
 // Route to fetch all watch page data
-router.get('/users/:id/videos/:pid', getWatchPageData);
+//router.get('/users/:id/videos/:pid', getWatchPageData);
 
 //get a video to watch without comments (comments will be fetched by next routes)
 router.get('/users/:id/videos/:pid', getVideo);
 
 // Route to increment video views (need to decied how to implement it on client side, maybe)
-router.get('/users/:id/videos/:pid', addView);
+//router.get('/users/:id/videos/:pid', addView);
 ///code for react is on the end of the file///
 
 //////comments data on videos///// (actions of comments are on routes/comments.js)
 
 //get the comments list of a video
-router.get('/users/:id/videos/:pid/comments', fetchComments);
+//router.get('/users/:id/videos/:pid/comments', fetchComments);
 
 //get the count of comments of a video
-router.get('/users/:id/videos/:pid/comments/count', fetchCommentCount);
+//router.get('/users/:id/videos/:pid/comments/count', fetchCommentCount);
 
 ///likes on videos////
 

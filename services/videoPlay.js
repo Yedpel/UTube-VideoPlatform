@@ -37,7 +37,7 @@ export async function getVideoModel(id) {
             likes: video.likes,
             likedBy: video.likedBy,
             comments: video.comments,
-            _v: video._v
+            __v: video.__v
         };
 
         return transformedVideo;
@@ -201,10 +201,10 @@ export async function getMixedVideos() {
         }));
 
         return transformedVideos;
-    } catch (err) {
-        console.error('Failed to fetch mixed videos:', err);
-        throw err;
-    }
+    } catch (error) {
+        console.error('Failed to fetch mixed videos:', error);
+        throw error;
+    }
 }
 
 export async function getVideosByCategory(category) {
