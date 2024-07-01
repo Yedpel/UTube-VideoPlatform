@@ -7,6 +7,10 @@ import mongoose from 'mongoose';
 
 export async function createCommentModel(commentData) {
     try {
+        //add uploadTime to commentData
+        if (!commentData.uploadTime) {
+            commentData.uploadTime = formatDate(new Date());
+        }
         // Create and save the new comment
         const newComment = new Comment(commentData);
         const savedComment = await newComment.save();
@@ -134,7 +138,25 @@ export async function isUserLikedComment(commentId, userId) {
     }
 }
 
-export async function getCommentsByVideoId(videoId) {
+
+function formatDate(date) {
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let day = date.getDate();
+    let month = date.getMonth() + 1; // JavaScript months are zero-based
+    let year = date.getFullYear().toString().slice(-2); // Get last two digits of year
+
+    // Ensure two digits by adding leading zeros if necessary
+    hours = hours < 10 ? '0' + hours : hours;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    day = day < 10 ? '0' + day : day;
+    month = month < 10 ? '0' + month : month;
+
+    return `${hours}:${minutes} ${day}/${month}/${year}`;
+}
+
+//old code for get comments by video id not in use//
+export async function oldgetCommentsByVideoId(videoId) {
     try {
         const video = await Video.findById(videoId).populate({
             path: 'comments',
@@ -148,17 +170,21 @@ export async function getCommentsByVideoId(videoId) {
         throw new Error('Error retrieving comments: ' + error.message);
     }
 }
+//end of old code for get comments by video id not in use//
 
-
+//old code for get comments by video id not in use
 export async function countCommentsByVideoId(videoId) {
     try {
         const video = await Video.findById(videoId).populate('comments');
-        if (!video) {
-            throw new Error('Video not found');
-        }
-        return video.comments.length;
+        return video ? video.comments.length : 0;
     } catch (error) {
-        throw new Error('Error counting comments: ' + error.message);
+        console.error('Error counting comments:', error.message);
+        return 0;  // Return zero if there's an error
     }
 }
+//end of old code for get comments by video id not in use //
+
+
+
+
 export default Comment;

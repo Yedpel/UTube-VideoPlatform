@@ -3,7 +3,7 @@ import {
     getVideosWithAuthorDetails, getMixedVideos, getVideosByCategory,
     unlikeVideo, getVideosbyUserId, isUserLikedVideo, incrementVideoViews
 } from '../services/videoPlay.js';
-import { getCommentsByVideoId, countCommentsByVideoId } from '../services/comments.js';
+//import { getCommentsByVideoId, countCommentsByVideoId } from '../services/comments.js';
 import { likeVideo as toggleLikeVideo } from '../services/videoPlay.js';
 
 
@@ -169,6 +169,7 @@ export const UnlikeVideo = async (req, res) => {
 
 //deal getVideosByUserId in services/videoPlay.js
 export async function getVideosByUserId(req, res) {
+    console.log("getVideosByUserId");
     try {
         const userId = req.params.id;
         const videos = await getVideosbyUserId(userId);

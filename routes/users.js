@@ -20,7 +20,10 @@ router.post('/SignUp', upload.single('profilePic'), registerUser);
 router.post('/login', checkUserNameAndPassword);
 
 // Route to get a user details after authentication 
-router.get('/users/:id',isLoggedIn, getUser);  
+// router.get('/users/:id',isLoggedIn, getUser);
+
+router.get('/users/:id', getUser);  
+
 
 /*
 // Route to update a user

@@ -47,7 +47,8 @@ export const registerUser = async (req, res) => {
 */
 
 export const getUser = async (req, res) => {
-    // console.log(req.params.id);
+    // console.log(req.params.id)
+    ;
     try {
         const user = await userService.getUserbyId(req.params.id);
         if (user !== null) {

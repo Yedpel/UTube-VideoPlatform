@@ -25,7 +25,7 @@ import {
 import { updateUserModel, deleteUserModel } from './services/users.js';
 import {
     createCommentModel, editCommentModel, deleteCommentModel, isUserTheAuthorOfComment,
-    LikeComment, UnlikeComment, isUserLikedComment, getCommentsByVideoId, countCommentsByVideoId
+    LikeComment, UnlikeComment, isUserLikedComment, countCommentsByVideoId
 } from './services/comments.js';
 // import { checkUserNameAndPassword } from './services/tokens.js'; 
 import { fetchMixedVideos, fetchVideosByCategory } from './controllers/videoPlay.js';

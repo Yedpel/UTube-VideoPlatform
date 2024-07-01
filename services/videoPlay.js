@@ -1,4 +1,5 @@
 import Video from '../models/videoPlay.js'; // Import the Mongoose model
+import Comment from '../models/comments.js';
 
 // Fetch all!!!! videos from the database - just in case we need it
 // we use mixed videos funciton down the page
@@ -15,14 +16,23 @@ export async function getVideoModel(id) {
 export async function getVideoModel(id) {
     // console.log(id);
     try {
-        //add 1 to the views of the video
-        const views = incrementVideoViews(id);
+        
+        // Fetch the video by its ID and populate the author details
         const video = await Video.findById(id)
             .populate('authorId', 'username profilePic'); // Populate author details
 
         if (!video) {
             return null; // or throw an error if you prefer
         }
+
+        //add 1 to the views of the video by int updated Views
+        let updatedViews = video.views;
+        updatedViews = updatedViews + 1;
+        const debugViews = incrementVideoViews(id);
+
+        // Fetch the comments for the video
+        const commentsPromise =  getCommentsByVideoId(id);
+        const [commentsList] = await Promise.all([commentsPromise]);
 
         // Transform the video object to include authorProfilePic
         const transformedVideo = {
@@ -32,13 +42,14 @@ export async function getVideoModel(id) {
             authorId: video.authorId._id,
             authorName: video.authorId.username, // Use the populated username
             authorProfilePic: video.authorId.profilePic, // Add the profile picture
-            views: (video.views)+1,
+            views: updatedViews,
             uploadTime: video.uploadTime,
             videoUrl: video.videoUrl,
             category: video.category,
             likes: video.likes,
             likedBy: video.likedBy,
-            comments: video.comments,
+            commentsIds: video.comments, //the include comments id list in video model
+            commensts_list: commentsList, //the list of comments
             __v: video.__v
         };
 
@@ -49,10 +60,20 @@ export async function getVideoModel(id) {
     }
 }
 
+// Function to get comments by video ID
+export async function getCommentsByVideoId(videoId) {
+    try {
+       return await Comment.find({videoId}).populate('userId', 'username profilePic');
+    } catch (error) {
+        console.error('Error retrieving comments:', error.message);
+        return [];  // Return an empty array if there's an error
+    }
+}
+
 
 export async function createVideoModel(videoData) {
     if (!videoData.uploadTime) {
-        videoData.uploadTime = formatDate(new Date()); // formaat is in the bottom of the page
+        videoData.uploadTime = formatDate(new Date()); // format is in the bottom of the page
     }
     const video = new Video(videoData); // Create a new video instance with the passed data
     return await video.save(); // Save the new video to the database
