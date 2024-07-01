@@ -73,12 +73,12 @@ export const getUserbyId = async (id) => {
     // console.log('hello');
     try {
         const user = await User.findById({ _id: id });
-        console.log(user);
+       // console.log(user);
         if (user === null) {
             console.log('User not found');
             throw new Error('User not found');
         } else {
-            console.log('User found 1');
+           // console.log('User found 1');
             const userObj = 
                  {
                     firstName: user.firstName,
@@ -90,7 +90,7 @@ export const getUserbyId = async (id) => {
                     date: user.date,
                     id: user._id
                 }
-            console.log(userObj);
+          //  console.log(userObj);
             return userObj;
         }
     } catch (error) {
@@ -102,12 +102,12 @@ export const getUserbyId = async (id) => {
 export const getUserbyUsername = async (username) => {
     try {
         const user = await User.findOne({ username: username });
-        console.log(user);
+       // console.log(user);
         if (user === null) {
             console.log('User not found');
             throw new Error('User not found');
         } else {
-            console.log('User found 1');
+          //  console.log('User found 1');
             const userObj = 
                  {
                     firstName: user.firstName,
@@ -119,7 +119,7 @@ export const getUserbyUsername = async (username) => {
                     date: user.date,
                     id: user._id
                 }
-            console.log(userObj);
+          //  console.log(userObj);
             return userObj;
         }
     } catch (error) {

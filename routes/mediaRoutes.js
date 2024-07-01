@@ -15,16 +15,28 @@ const storage = multer.diskStorage({
     }
 });
 
-export const upload = multer({ storage: storage });
+// Specify allowed file types
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp|mp4|mov|avi/;  // Add more video types if necessary
+    if (!file.originalname.match(`\.(${allowedTypes.source})$`)) {
+        return cb(new Error(`Only image and video files are allowed! (jpeg, jpg, png, gif, webp for images and mp4, mov, avi for videos)`), false);
+    }
+    cb(null, true);
+};
+
+// Setup the multer upload with the defined storage, file filter, and size limit
+export const upload = multer({ 
+    storage: storage,
+    fileFilter: fileFilter,
+    limits: { fileSize: 10 * 1024 * 1024 }  // 10 MB size limit
+});
 
 router.post('/upload', upload.single('file'), (req, res) => {
     res.json({ message: 'File uploaded successfully', filePath: `/media/${req.file.filename}` });
 });
 
-
-// just in case you want to replace a file actually
 router.post('/replace', upload.single('file'), (req, res) => {
-    const oldFilePath = req.body.oldFilePath; // Assuming the full path is provided
+    const oldFilePath = req.body.oldFilePath;
     fs.unlink(`public${oldFilePath}`, (err) => {
         if (err) {
             return res.status(500).json({ message: 'Failed to delete the old file' });

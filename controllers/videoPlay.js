@@ -142,8 +142,8 @@ export async function fetchVideosByCategory(req, res) {
 export const likeVideo = async (req, res) => {
     const { pid: videoId } = req.params;
     const userId = req.user.id; // Assuming req.user is set by your authentication middleware
-    console.log("Video ID:", videoId);
-    console.log("User ID:", userId);
+    //console.log("Video ID:", videoId);
+    //console.log("User ID:", userId);
 
     try {
         const video = await toggleLikeVideo(videoId, userId);
@@ -169,7 +169,7 @@ export const UnlikeVideo = async (req, res) => {
 
 //deal getVideosByUserId in services/videoPlay.js
 export async function getVideosByUserId(req, res) {
-    console.log("getVideosByUserId");
+    //console.log("getVideosByUserId");
     try {
         const userId = req.params.id;
         const videos = await getVideosbyUserId(userId);

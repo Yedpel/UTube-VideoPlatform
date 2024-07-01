@@ -52,8 +52,8 @@ export const getUser = async (req, res) => {
     try {
         const user = await userService.getUserbyId(req.params.id);
         if (user !== null) {
-            console.log('login successful the user is :', user.username);
-            console.log(user);
+           // console.log('login successful the user is :', user.username);
+          //  console.log(user);
             res.json(user);
         } else {
             res.status(404).send('User not found');

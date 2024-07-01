@@ -14,7 +14,7 @@ router.post ('/SignUp', registerUser);
 // router.post('/users',isLoggedIn, registerUser); */
 
 // Route to create user with profile picture
-router.post('/SignUp', upload.single('profilePic'), registerUser);
+router.post('/users', upload.single('profilePic'), registerUser);
 
 //login route
 router.post('/login', checkUserNameAndPassword);
