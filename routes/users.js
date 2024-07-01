@@ -1,6 +1,6 @@
 import express from 'express';
 import { upload } from './mediaRoutes.js';
-import { updateUser, deleteUser,registerUser,getUser } from '../controllers/users.js';
+import { updateUser, deleteUser, registerUser, getUser } from '../controllers/users.js';
 //import {isLoggedIn} from '../controllers/login.js';
 import { isLoggedIn } from '../middlewares/auth.js';
 import { checkUserNameAndPassword } from '../controllers/login.js';
@@ -17,12 +17,12 @@ router.post ('/SignUp', registerUser);
 router.post('/users', upload.single('profilePic'), registerUser);
 
 //login route
-router.post('/login', checkUserNameAndPassword);
+//router.post('/login', checkUserNameAndPassword);
 
 // Route to get a user details after authentication 
 // router.get('/users/:id',isLoggedIn, getUser);
 
-router.get('/users/:id', getUser);  
+router.get('/users/:id', isLoggedIn, getUser);
 
 
 /*
@@ -32,8 +32,8 @@ router.put('/users/:id',isLoggedIn, updateUser);  */
 router.put('/users/:id', isLoggedIn, upload.single('profilePic'), updateUser);
 
 
- // Route to delete a user
-router.delete('/users/:id',isLoggedIn, deleteUser); 
+// Route to delete a user
+router.delete('/users/:id', isLoggedIn, deleteUser);
 
 export default router;
 

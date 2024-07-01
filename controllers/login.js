@@ -11,11 +11,12 @@ export const checkUserNameAndPassword = async (req, res) => {
     try {
      //   const user = await userService.findUser(username);
         const user = await userService.getUserbyUsername(username);
+        const match = password===user.password;
 
-        if (user &&  await bcrypt.compare(password, user.password)) {  
+        if (user &&  match) { 
             const token = jwt.sign({ username }, key, { expiresIn: '5h' });
 
-            res.status(200).json({ message: 'Login successful', token });
+            res.status(200).json({ message: 'Login successful', token, userId: user.id});
         } else {
             res.status(401).json({ message: 'Invalid username or password' });
         }
