@@ -31,9 +31,23 @@ export const upload = multer({
     limits: { fileSize: 10 * 1024 * 1024 }  // 10 MB size limit
 });
 
+// router.post('/upload', upload.single('file'), (req, res) => {
+//     res.json({ message: 'File uploaded successfully', filePath: `/media/${req.file.filename}` });
+// });
+
+// upload with error handling for file size and other errors
 router.post('/upload', upload.single('file'), (req, res) => {
-    res.json({ message: 'File uploaded successfully', filePath: `/media/${req.file.filename}` });
+    if (req.file) {
+        res.json({ message: 'File uploaded successfully', filePath: `/media/${req.file.filename}` });
+    }
+}, (error, req, res, next) => {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+        res.status(413).json({ message: 'File is too large. Please upload files less than 10MB.' });
+    } else {
+        res.status(500).json({ message: 'Error uploading file' });
+    }
 });
+
 
 router.post('/replace', upload.single('file'), (req, res) => {
     const oldFilePath = req.body.oldFilePath;
