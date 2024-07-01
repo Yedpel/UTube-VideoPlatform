@@ -287,6 +287,7 @@ export async function getMixedVideos() {
     }
 }
 
+/*
 export async function getVideosByCategory(category) {
     try {
         return await Video.find({ category: category }).populate('authorId', 'username profilePic');
@@ -294,7 +295,37 @@ export async function getVideosByCategory(category) {
         console.error('Failed to fetch videos by category:', err);
         throw err;
     }
+}*/
+// Function to get all videos by a specific category and populate the author details
+export async function getVideosByCategory(category) {
+    try {
+        const categoryVideos = await Video.find({ category })
+            .populate('authorId', 'username profilePic')
+            .select('thumbnailUrl title views uploadTime');
+
+        // Check if categoryVideos is an array and not empty
+        if (Array.isArray(categoryVideos) && categoryVideos.length > 0) {
+            // Transform the result to include only the required fields
+            const transformedVideos = categoryVideos.map(video => ({
+                _id: video._id,
+                thumbnailUrl: video.thumbnailUrl,
+                author: video.authorId.username,
+                authorId: video.authorId._id,
+                authorProfilePic: video.authorId.profilePic,
+                title: video.title,
+                views: video.views,
+                uploadTime: video.uploadTime
+            }));
+            return transformedVideos;
+        } else {
+            return []; // Return empty array if no videos found or categoryVideos is not array
+        }
+    } catch (error) {
+        console.error('Failed to fetch videos by category:', error);
+        throw error;
+    }
 }
+
 
 export async function incrementVideoViews(videoId) {
     try {
