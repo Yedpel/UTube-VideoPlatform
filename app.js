@@ -54,7 +54,7 @@ server.use('/api', routerComments);
 
 (async () => {
     // MongoDB connection
-    mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
+    mongoose.connect(process.env.CONNECTION_STRING)
         .then(() => {
             console.log('MongoDB connected');
             checkAndLoadData();  // check if the mongoDB is empty and load the data

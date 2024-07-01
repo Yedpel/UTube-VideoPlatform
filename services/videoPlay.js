@@ -16,7 +16,7 @@ export async function getVideoModel(id) {
 export async function getVideoModel(id) {
     // console.log(id);
     try {
-        
+
         // Fetch the video by its ID and populate the author details
         const video = await Video.findById(id)
             .populate('authorId', 'username profilePic'); // Populate author details
@@ -31,7 +31,7 @@ export async function getVideoModel(id) {
         const debugViews = incrementVideoViews(id);
 
         // Fetch the comments for the video
-        const commentsPromise =  getCommentsByVideoId(id);
+        const commentsPromise = getCommentsByVideoId(id);
         const [commentsList] = await Promise.all([commentsPromise]);
 
         // Transform the video object to include authorProfilePic
@@ -63,7 +63,7 @@ export async function getVideoModel(id) {
 // Function to get comments by video ID
 export async function getCommentsByVideoId(videoId) {
     try {
-       return await Comment.find({videoId}).populate('userId', 'username profilePic');
+        return await Comment.find({ videoId }).populate('userId', 'username profilePic');
     } catch (error) {
         console.error('Error retrieving comments:', error.message);
         return [];  // Return an empty array if there's an error
@@ -136,9 +136,66 @@ export async function isUserTheAuthor(videoId, userId) {
     return video.authorId.toString() === userId;
 }
 
+/*
 // Function to get all videos by a specific user and populate the author details
 export async function getVideosbyUserId(userId) {
-    return await Video.find({ authorId: userId }).populate('authorId', 'username profilePic');
+    try {
+        // return await Video.find({ authorId: userId }).populate('authorId', 'username profilePic').select('thumbnailUrl title views uploadTime');
+        const userVideos = Video.find({ authorId: userId }).populate('authorId', 'username profilePic').select('thumbnailUrl title views uploadTime');
+
+        const listUserVideos = [userVideos];
+        // Transform the result to include only the required fields
+        const transformedVideos = listUserVideos.map(video => ({
+            _id: video._id,
+            thumbnailUrl: video.thumbnailUrl,
+            author: video.authorId.username,
+            authorId: video.authorId._id,
+            authorProfilePic: video.authorId.profilePic,
+            title: video.title,
+            views: video.views,
+            uploadTime: video.uploadTime
+        }));
+
+        return transformedVideos;
+    }
+    catch (error) {
+        console.error('Failed to fetch videos by user ID:', error);
+        throw error;
+    }
+}
+
+*/
+
+// Function to get all videos by a specific user and populate the author details
+export async function getVideosbyUserId(userId) {
+    try {
+        const userVideos = await Video.find({ authorId: userId })
+            .populate('authorId', 'username profilePic')
+            .select('thumbnailUrl title views uploadTime');
+
+        // Check if userVideos is an array and not empty
+        if (Array.isArray(userVideos) && userVideos.length > 0) {
+            // Transform the result to include only the required fields
+            const transformedVideos = userVideos.map(video => ({
+                _id: video._id,
+                thumbnailUrl: video.thumbnailUrl,
+                author: video.authorId.username,
+                authorId: video.authorId._id,
+                authorProfilePic: video.authorId.profilePic,
+                title: video.title,
+                views: video.views,
+                uploadTime: video.uploadTime
+            }));
+            return transformedVideos;
+        } else {
+            return []; // Return empty array if no videos found or userVideos is not array
+
+
+        }
+    } catch (error) {
+        console.error('Failed to fetch videos by user ID:', error);
+        throw error;
+    }
 }
 
 /*
@@ -146,10 +203,10 @@ export async function getMixedVideos() {
     try {
         // Fetch the top 10 viewed videos
         const topVideos = await Video.find().sort({ views: -1 }).limit(10).populate('authorId', 'username profilePic');
-
+ 
         // Get IDs of topVideos to exclude them from the random selection
         const topVideoIds = topVideos.map(video => video._id);
-
+ 
         // Fetch random videos excluding the top viewed ones
         const totalVideosCount = await Video.countDocuments();
         const randomVideosCount = Math.min(10, totalVideosCount - topVideos.length); // Ensure we don't fetch more than exists minus the top videos
@@ -157,18 +214,18 @@ export async function getMixedVideos() {
             { $match: { _id: { $nin: topVideoIds } } }, // Exclude top viewed videos
             { $sample: { size: randomVideosCount } }
         ]);
-
+ 
         // Populate author details for random videos (since aggregate doesn't populate)
         const randomVideoIds = randomVideos.map(video => video._id);
         const populatedRandomVideos = await Video.find({ _id: { $in: randomVideoIds } }).populate('authorId', 'username profilePic');
-
+ 
         // Combine and shuffle the array
         const combinedVideos = [...topVideos, ...populatedRandomVideos];
         for (let i = combinedVideos.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [combinedVideos[i], combinedVideos[j]] = [combinedVideos[j], combinedVideos[i]]; // ES6 destructuring assignment for swapping
         }
-
+ 
         return combinedVideos;
     } catch (err) {
         console.error('Failed to fetch mixed videos:', err);
@@ -213,7 +270,7 @@ export async function getMixedVideos() {
 
         // Transform the result to include only the required fields
         const transformedVideos = combinedVideos.map(video => ({
-            _id:video._id,
+            _id: video._id,
             thumbnailUrl: video.thumbnailUrl,
             author: video.authorId.username,
             authorId: video.authorId._id,
