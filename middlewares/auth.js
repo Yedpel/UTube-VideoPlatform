@@ -5,6 +5,7 @@ const key = "secretkey";
 export async function isLoggedIn(req, res, next) {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
+        console.log('Token required - no token found in headers');
         return res.status(401).json({ message: 'Token required' });
     }
     console.log('token', token);
