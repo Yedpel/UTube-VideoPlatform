@@ -1,19 +1,22 @@
-// controllers/comments.js
-//const commentsService = require('../services/comments');
-import commentsService from '../services/comments.js';
-//import all the services from the comments.js
 import {
     createCommentModel, editCommentModel, deleteCommentModel, LikeComment, UnlikeComment,
-    isUserLikedComment
+    isUserLikedComment, fetchUserLikes, resetLikesForGuest
 } from '../services/comments.js';
 
 export const addComment = async (req, res) => {
     try {
-        const pid = req.params.pid;
-        const comment = req.body;
-        const userId = req.user.userId;
+        console.log('req.body:', req.body);
 
-        const updatedVideo = await createCommentModel(pid, userId, comment);
+        const commentData = {
+            ...req.body,
+            Video: req.params.pid,
+            text: req.body.text,
+            User: req.user.id,
+            videoId: req.params.pid,
+            userId: req.user.id
+        }
+        console.log('commentData:', commentData);
+        const updatedVideo = await createCommentModel(commentData);
         res.status(200).json(updatedVideo);
     } catch (error) {
         res.status(500).send(error.message);
@@ -22,9 +25,9 @@ export const addComment = async (req, res) => {
 
 export const deleteComment = async (req, res) => {
     try {
-        const pid = req.params.pid;
-        const commentId = req.params.commentId;
-        const updatedVideo = await deleteCommentModel(pid, commentId);
+        //const pid = req.params.pid;
+        const commentId = req.params.cid;
+        const updatedVideo = await deleteCommentModel(commentId);
         res.status(200).json(updatedVideo);
     } catch (error) {
         res.status(500).send(error.message);
@@ -63,10 +66,10 @@ export const getUserLikedComment = async (req, res) => {
 
 export const likeComment = async (req, res) => {
     const { pid, cid } = req.params;
-    const userId = req.user.userId;
+    const userId = req.user.id;
 
     try {
-        const comment = await LikeComment(pid, cid, userId);
+        const comment = await LikeComment(cid, userId);
         res.status(200).json(comment);
     } catch (err) {
         res.status(400).json({ message: err.message });
@@ -75,14 +78,32 @@ export const likeComment = async (req, res) => {
 
 export const unlikeComment = async (req, res) => {
     const { pid, cid } = req.params;
-    const userId = req.user.userId;
+    const userId = req.user.id;
 
     try {
-        const comment = await UnlikeComment(pid, cid, userId);
+        const comment = await UnlikeComment(cid, userId);
         res.status(200).json(comment);
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
 };
 
-//module.exports = { addComment, deleteComment };
+export const getUserLikes = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const likedComments = await commentService.fetchUserLikes(userId);
+        res.json({ likedComments });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to fetch like states', error: error.message });
+    }
+};
+
+export const resetGuestLikes = async (req, res) => {
+    try {
+        const defaultLikes = await commentService.resetLikesForGuest();
+        res.json(defaultLikes);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to reset likes for guest', error: error.message });
+    }
+};
+

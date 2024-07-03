@@ -3,6 +3,7 @@ import Video from '../models/videoPlay.js';
 import Comment from '../models/comments.js';
 
 
+
 export const createUser = async (newUser) => {
     try {
         const user = new User(newUser);
@@ -67,30 +68,25 @@ export const getUserid = async (username) => {
 //         throw error;
 //     }
 // }
-
-
-export const getUserbyId = async (id) => {
-    // console.log('hello');
+export const getUserSelectedDetails = async (id) => {
     try {
-        const user = await User.findById({ _id: id });
-       // console.log(user);
+        const user = await getUserbyId(id);
         if (user === null) {
             console.log('User not found');
             throw new Error('User not found');
         } else {
-           // console.log('User found 1');
-            const userObj = 
-                 {
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    profilePic: user.profilePic,
-                    username: user.username,
-                    password: user.password,
-                    email: user.email,
-                    date: user.date,
-                    id: user._id
-                }
-          //  console.log(userObj);
+            console.log('User found 1');
+            const userObj =
+            {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                profilePic: user.profilePic,
+                username: user.username,
+                email: user.email,
+                date: user.date,
+                _id: user._id
+            }
+            // console.log(userObj);
             return userObj;
         }
     } catch (error) {
@@ -98,28 +94,49 @@ export const getUserbyId = async (id) => {
     }
 }
 
-//get user by username just like the above function
-export const getUserbyUsername = async (username) => {
+
+
+export const getUserbyId = async (id) => {
+    // console.log('hello');
     try {
-        const user = await User.findOne({ username: username });
-       // console.log(user);
+        const user = await User.findById({ _id: id });
+        // console.log(user);
         if (user === null) {
             console.log('User not found');
             throw new Error('User not found');
         } else {
-          //  console.log('User found 1');
-            const userObj = 
-                 {
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    profilePic: user.profilePic,
-                    username: user.username,
-                    password: user.password,
-                    email: user.email,
-                    date: user.date,
-                    id: user._id
-                }
-          //  console.log(userObj);
+            return user;
+        }
+    } catch (error) {
+        throw new Error('Error fetching user: ' + error.message);
+    }
+}
+
+
+
+
+//get user by username just like the above function
+export const getUserbyUsername = async (username) => {
+    try {
+        const user = await User.findOne({ username: username });
+        // console.log(user);
+        if (user === null) {
+            console.log('User not found');
+            throw new Error('User not found');
+        } else {
+            //  console.log('User found 1');
+            const userObj =
+            {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                profilePic: user.profilePic,
+                username: user.username,
+                password: user.password,
+                email: user.email,
+                date: user.date,
+                id: user._id
+            }
+            //  console.log(userObj);
             return userObj;
         }
     } catch (error) {
@@ -149,15 +166,28 @@ export async function deleteUserModel(id) {
             { $pull: { comments: { $in: commentIds } } }
         );
 
-        // Delete all comments made by the user
-        await Comment.deleteMany({ userId: id });
-
-        // Delete videos authored by the user
-        await Video.deleteMany({ authorId: id });
-
-        return user;
+        try {
+            // Delete all comments made by the user
+            await Comment.deleteMany({ userId: id });
+        } catch (error) {
+            throw new Error('Error deleting comments: ' + error.message);
+        }
+        try {
+            // Delete videos authored by the user
+            await Video.deleteMany({ authorId: id });
+        } catch (error) {
+            throw new Error('Error deleting videos: ' + error.message);
+        }
+        try {
+            // Delete user
+            await User.findByIdAndDelete(id);
+        }
+        catch (error) {
+            throw new Error('Error deleting user: ' + error.message);
+        }
+        return true;
     } catch (error) {
-        throw new Error('Error deleting user and related data: ' + error.message);
+        throw new Error('Error deleting user and related data: ' + error.message)
     }
 }
 

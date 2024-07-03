@@ -1,18 +1,21 @@
 // services/comments.js
 import Comment from '../models/comments.js';
-import Video from '../models/videoPlay.js';  
+import Video from '../models/videoPlay.js';
 //import mongoose from 'mongoose';
 import mongoose from 'mongoose';
 
 
 export async function createCommentModel(commentData) {
+    console.log('commentData:', commentData);
     try {
         //add uploadTime to commentData
         if (!commentData.uploadTime) {
             commentData.uploadTime = formatDate(new Date());
         }
+        console.log('commentData:', commentData);
         // Create and save the new comment
         const newComment = new Comment(commentData);
+        console.log('newComment:', newComment);
         const savedComment = await newComment.save();
 
         // Push the saved comment's ID to the corresponding video's comments array
@@ -30,6 +33,7 @@ export async function createCommentModel(commentData) {
 
         return savedComment;
     } catch (error) {
+        console.error('Error creating comment:', error.message);
         throw new Error('Error creating comment: ' + error.message);
     }
 }
@@ -58,10 +62,10 @@ export async function deleteCommentModel(commentId) {
         if (!comment) {
             throw new Error('Comment not found');
         }
-        
+
         // Delete the comment
         await Comment.findByIdAndDelete(commentId);
-        
+
         // Pull the comment ID from the corresponding video's comments array
         await Video.findByIdAndUpdate(
             comment.videoId,
@@ -91,7 +95,7 @@ export async function LikeComment(commentId, userId) {
     try {
         const updatedComment = await Comment.findByIdAndUpdate(
             commentId,
-            { 
+            {
                 $inc: { likes: 1 },
                 $addToSet: { likedByUsers: userId }  // Ensures the user ID is only added once
             },
@@ -110,7 +114,7 @@ export async function UnlikeComment(commentId, userId) {
     try {
         const updatedComment = await Comment.findByIdAndUpdate(
             commentId,
-            { 
+            {
                 $inc: { likes: -1 },
                 $pull: { likedByUsers: userId }  // Removes the user ID from the array
             },
@@ -183,6 +187,22 @@ export async function countCommentsByVideoId(videoId) {
     }
 }
 //end of old code for get comments by video id not in use //
+
+
+export async function fetchUserLikes(userId) {
+    try {
+        const comments = await Comment.find({ likedByUsers: userId }).select('_id');
+        return comments.map(comment => comment._id);
+    } catch (error) {
+        throw new Error('Error retrieving user likes: ' + error.message);
+    }
+}
+
+export async function resetLikesForGuest() {
+    // This would actually be handled client-side since guest views don't save state
+    // Returning a simulated empty array for demonstration purposes
+    return [];
+}
 
 
 

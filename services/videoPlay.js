@@ -49,7 +49,7 @@ export async function getVideoModel(id) {
             likes: video.likes,
             likedBy: video.likedBy,
             commentsIds: video.comments, //the include comments id list in video model
-            commensts_list: commentsList, //the list of comments
+            commentsList: commentsList, //the list of comments
             __v: video.__v
         };
 
@@ -76,6 +76,7 @@ export async function createVideoModel(videoData) {
         videoData.uploadTime = formatDate(new Date()); // format is in the bottom of the page
     }
     const video = new Video(videoData); // Create a new video instance with the passed data
+    console.log('the video is:', video);
     return await video.save(); // Save the new video to the database
 }
 
@@ -87,7 +88,7 @@ export async function deleteVideoModel(id) {
     return await Video.findByIdAndDelete(id); // Deletes the video by its ID
 }
 
-export async function likeVideo(videoId, userId) {
+export async function LikeVideo(videoId, userId) {
     return await Video.findByIdAndUpdate(
         videoId,
         {
@@ -277,7 +278,8 @@ export async function getMixedVideos() {
             authorProfilePic: video.authorId.profilePic,
             title: video.title,
             views: video.views,
-            uploadTime: video.uploadTime
+            uploadTime: video.uploadTime,
+            category: video.category
         }));
 
         return transformedVideos;

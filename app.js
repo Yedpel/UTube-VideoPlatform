@@ -18,7 +18,7 @@ import routerComments from './routes/comments.js';
 import User from './models/users.js';
 import Video from './models/videoPlay.js';
 import {
-    createVideoModel, updateVideoModel, deleteVideoModel, likeVideo, unlikeVideo, isUserLikedVideo,
+    createVideoModel, updateVideoModel, deleteVideoModel, unlikeVideo, isUserLikedVideo,
     isUserTheAuthor, getVideosbyUserId
 } from './services/videoPlay.js';
 //import { registerUser } from './controllers/signUp.js'; 
@@ -62,7 +62,7 @@ server.use('/api', routerComments);
         .catch(err => console.error('MongoDB connection error:', err));
 })()
 
-// Load initial data if no data exists in MongoDB
+// Load initial data if no data existsx  in MongoDB
 async function checkAndLoadData() {
     const userExists = await User.findOne();
     const videoExists = await Video.findOne();
@@ -272,7 +272,7 @@ async function testCreateVideo() {
 // async function testFetchComments() {
 //     const videoId = '66771d56ee7de545aba5a4a1';  // Replace with an actual video ID from your database
 
-//     try {
+//     try {    
 //         console.log(`Fetching comments for video ID: ${videoId}`);
 //         const comments = await getCommentsByVideoId(videoId);
 //         console.log(`Comments for video ${videoId}:`, comments);

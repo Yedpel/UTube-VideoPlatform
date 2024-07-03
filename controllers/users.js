@@ -45,14 +45,13 @@ export const registerUser = async (req, res) => {
     }
 };
 */
-
-export const getUser = async (req, res) => {
+export const getUserFullDetails = async (req, res) => {
     // console.log(req.params.id)
     ;
     try {
         const user = await userService.getUserbyId(req.params.id);
         if (user !== null) {
-           // console.log('login successful the user is :', user.username);
+           console.log('login successful the user is :', user.username);
           //  console.log(user);
             res.json(user);
         } else {
@@ -65,11 +64,32 @@ export const getUser = async (req, res) => {
     }
 }
 
+export const getUserSelectedDetails = async (req, res) => {
+    ;
+    try {
+        const user = await userService.getUserSelectedDetails(req.params.id);
+        if (user !== null) {
+           console.log('login successful the user is :', user.username);
+            res.json(user);
+        } else {
+            res.status(404).send('User not found');
+            console.log('login not successful');
+        }
+    } catch (error) {
+        console.log('login failed');
+        res.status(500).send('Error fetching user');
+    }
+}
+
 export async function deleteUser(req, res) {
+    console.log('delete user');
+    const user = await userService.getUserbyId(req.params.id);
+    const userToDelete = user.username;
+    console.log(userToDelete);
     try {
         const deletedUser = await userService.deleteUserModel(req.params.id);
         if (deletedUser) {
-            res.send('User deleted successfully');
+            res.send(`The User: ${userToDelete} deleted successfully`);
         } else {
             res.status(404).send('User not found');
         }
@@ -80,8 +100,52 @@ export async function deleteUser(req, res) {
 
 
 export async function updateUser(req, res) {
+    console.log('update user');
+  //   console.log(req.body.username);
+    const userId = req.params.id;
+    const oldUser = await userService.getUserbyId(userId);
+  
     try {
-        if (req.body.username && req.body.username !== req.user.username) {
+      // If the username from the request is different from the username in the database
+      if (oldUser.username !== req.body.username) {
+        // If the username changed, check if the new username is already in use
+        const usernameExists = await userService.findUser(req.body.username);
+        if (usernameExists) {
+          return res.status(400).json({ message: 'New username is already in use' });
+        }
+      }
+  
+      const updateData = {
+        ...req.body,
+        profilePic: req.file ? `/media/${req.file.filename}` : oldUser.profilePic,
+      };
+  
+      const updatedUser = await userService.updateUserModel(userId, updateData);
+  
+      if (updatedUser) {
+        // Issue a new token if username was part of the update
+        if (req.body.username) {
+          const newToken = jwt.sign({ username: updatedUser.username }, key, { expiresIn: '5h' });
+          // i need to change it
+          res.json({ message: 'User updated successfully', token: newToken , username: updatedUser.username, profilePic: updatedUser.profilePic});
+        } else {
+          res.json({ message: 'User updated successfully', profilePic: updatedUser.profilePic });
+        }
+      } else {
+        res.status(404).send('User not found');
+      }
+    } catch (error) {
+      res.status(500).send('Failed to update user');
+    }
+  }
+
+
+
+/* update user from avi's code 
+export async function updateUser(req, res) {
+    try {
+        if (req.body.username && req.body.username !== req.body.user.username) {
+            // Check if new username is already taken
             const usernameExists = await userService.findUser(req.body.username);
             if (usernameExists) {
                 return res.status(400).json({ message: 'Username is already in use' });
@@ -96,7 +160,7 @@ export async function updateUser(req, res) {
         const updatedUser = await userService.updateUserModel(req.params.id, updateData);
         if (updatedUser) {
             // Issue a new token if username was part of the update
-            if (req.body.username) {
+            if (req.body.username && req.body.username !== req.body.user.username) {
                 const newToken = jwt.sign({ username: updatedUser.username }, key, { expiresIn: '5h' });
                 res.json({ message: 'User updated successfully', token: newToken });
             } else {
@@ -109,6 +173,7 @@ export async function updateUser(req, res) {
         res.status(500).send('Failed to update user');
     }
 }
+    */
 
 ///////////client side code to handle username update for token///////////
 /*
