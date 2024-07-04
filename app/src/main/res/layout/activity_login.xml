@@ -13,8 +13,8 @@
         android:hint="Username"
         android:minHeight="48dp"
         android:padding="10dp"
-        android:textColor="?attr/colorOnBackground"
-        android:textColorHint="?attr/colorOnBackground"/>
+        android:textColor="@color/colorText"
+        android:textColorHint="@color/colorHint"/>
 
     <EditText
         android:id="@+id/password"
@@ -25,8 +25,8 @@
         android:inputType="textPassword"
         android:minHeight="48dp"
         android:padding="10dp"
-        android:textColor="?attr/colorOnBackground"
-        android:textColorHint="?attr/colorOnBackground"/>
+        android:textColor="@color/colorText"
+        android:textColorHint="@color/colorHint"/>
 
     <Button
         android:id="@+id/login_button"

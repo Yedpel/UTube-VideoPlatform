@@ -14,7 +14,7 @@
         android:textSize="18sp"
         android:padding="10dp"
         android:gravity="center"
-        android:textColor="#D31E1E"/>
+        android:textColor="#870909"/>
 
     <LinearLayout
         android:layout_width="match_parent"

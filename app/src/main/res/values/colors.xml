@@ -34,4 +34,7 @@
         <color name="my_dark_surface">#121212</color>
         <color name="my_dark_on_surface">#FFFFFF</color>
 
+    <color name="colorText">#009688</color>
+    <color name="colorHint">#27ECA7</color>
+
 </resources>
