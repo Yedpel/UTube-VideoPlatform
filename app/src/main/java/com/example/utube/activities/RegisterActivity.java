@@ -144,11 +144,20 @@ public class RegisterActivity extends AppCompatActivity {
         String password = passwordEditText.getText().toString();
         String confirmPassword = confirmPasswordEditText.getText().toString();
 
-        //if email address is ilegal mark it red and return false
+        //if email address is illegal mark it red and return false
         if (!email.contains("@") || !email.contains(".")) {
             emailEditText.setError("Invalid email address");
             return false;
         }
+
+        /*
+        put out of // before the submit
+        //if the password less 8 characters, and not have both letters and numbers mark it red and return false
+        if (password.length() < 8 || !password.matches(".*[a-zA-Z].*") || !password.matches(".*[0-9].*")) {
+            passwordEditText.setError("Password must be at least 8 characters long and contain both letters and numbers");
+            return false;
+        } */
+
         //if password and confirm password are not the same mark them red and return false
         if (!password.equals(confirmPassword)) {
             passwordEditText.setError("Passwords do not match");
@@ -161,7 +170,6 @@ public class RegisterActivity extends AppCompatActivity {
             usernameEditText.setError("Username already taken"); //try8
             return false; //try8
         } //try8
-
 
 
 //        //check that all fields are filled except profile pic
