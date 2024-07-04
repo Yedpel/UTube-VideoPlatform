@@ -18,7 +18,8 @@
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/video_thumbnail"
         android:text="Video Title"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:textColor="?attr/colorOnBackground"/>
 
     <TextView
         android:id="@+id/video_author"
@@ -26,7 +27,8 @@
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/video_thumbnail"
         android:layout_below="@id/video_title"
-        android:text="Video Author" />
+        android:text="Video Author"
+        android:textColor="?attr/colorOnBackground"/>
 
     <TextView
         android:id="@+id/video_views"
@@ -34,7 +36,8 @@
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/video_thumbnail"
         android:layout_below="@id/video_author"
-        android:text="Views" />
+        android:text="Views"
+        android:textColor="?attr/colorOnBackground"/>
 
     <TextView
         android:id="@+id/video_upload_time"
@@ -42,7 +45,8 @@
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/video_thumbnail"
         android:layout_below="@id/video_views"
-        android:text="Upload Time" />
+        android:text="Upload Time"
+        android:textColor="?attr/colorOnBackground"/>
 
     <ImageView
         android:id="@+id/author_profile_pic"

@@ -31,7 +31,8 @@
                     android:layout_toEndOf="@id/comment_profile_pic"
                     android:layout_marginStart="8dp"
                     android:text="Username"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnBackground"/>
 
                 <TextView
                     android:id="@+id/comment_upload_time"
@@ -40,7 +41,8 @@
                     android:layout_toEndOf="@id/comment_username"
                     android:layout_alignBaseline="@id/comment_username"
                     android:layout_marginStart="8dp"
-                    android:text="Upload Time" />
+                    android:text="Upload Time"
+                    android:textColor="?attr/colorOnBackground"/>
 
                 <TextView
                     android:id="@+id/comment_text"
@@ -49,7 +51,8 @@
                     android:layout_below="@id/comment_username"
                     android:layout_toEndOf="@id/comment_profile_pic"
                     android:layout_marginStart="8dp"
-                    android:text="Comment Text" />
+                    android:text="Comment Text"
+                    android:textColor="?attr/colorOnBackground"/>
 
                 <TextView
                     android:id="@+id/comment_likes_count"
@@ -58,7 +61,8 @@
                     android:layout_below="@id/comment_text"
                     android:layout_toEndOf="@id/comment_profile_pic"
                     android:layout_marginStart="8dp"
-                    android:text="0 likes" />
+                    android:text="0 likes"
+                    android:textColor="?attr/colorOnBackground"/>
 
                 <LinearLayout
                     android:layout_width="wrap_content"

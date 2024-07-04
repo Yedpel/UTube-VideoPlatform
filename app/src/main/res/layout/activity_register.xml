@@ -15,7 +15,9 @@
             android:layout_height="wrap_content"
             android:hint="First Name"
             android:minHeight="48dp"
-            android:padding="10dp" />
+            android:padding="10dp"
+            android:textColor="?attr/colorOnBackground"
+            android:textColorHint="?attr/colorOnBackground"/>
 
         <EditText
             android:id="@+id/last_name"
@@ -24,7 +26,9 @@
             android:layout_marginTop="10dp"
             android:hint="Last Name"
             android:minHeight="48dp"
-            android:padding="10dp" />
+            android:padding="10dp"
+            android:textColor="?attr/colorOnBackground"
+            android:textColorHint="?attr/colorOnBackground"/>
 
         <EditText
             android:id="@+id/dob"
@@ -33,7 +37,8 @@
             android:layout_marginTop="10dp"
             android:hint="Date of Birth"
             android:inputType="none"
-            android:minHeight="48dp" /> <!--try9-->
+            android:minHeight="48dp"
+            android:textColorHint="?attr/colorOnBackground"/> <!--try9-->
 
         <EditText
             android:id="@+id/email"
@@ -43,7 +48,9 @@
             android:hint="Email"
             android:inputType="textEmailAddress"
             android:minHeight="48dp"
-            android:padding="10dp" />
+            android:padding="10dp"
+            android:textColor="?attr/colorOnBackground"
+            android:textColorHint="?attr/colorOnBackground"/>
 
         <EditText
             android:id="@+id/username"
@@ -52,7 +59,9 @@
             android:layout_marginTop="10dp"
             android:hint="Username"
             android:minHeight="48dp"
-            android:padding="10dp" />
+            android:padding="10dp"
+            android:textColor="?attr/colorOnBackground"
+            android:textColorHint="?attr/colorOnBackground"/>
 
         <EditText
             android:id="@+id/password"
@@ -62,7 +71,9 @@
             android:hint="Password"
             android:inputType="textPassword"
             android:minHeight="48dp"
-            android:padding="10dp" />
+            android:padding="10dp"
+            android:textColor="?attr/colorOnBackground"
+            android:textColorHint="?attr/colorOnBackground"/>
 
         <EditText
             android:id="@+id/confirm_password"
@@ -72,7 +83,9 @@
             android:hint="Confirm Password"
             android:inputType="textPassword"
             android:minHeight="48dp"
-            android:padding="10dp" />
+            android:padding="10dp"
+            android:textColor="?attr/colorOnBackground"
+            android:textColorHint="?attr/colorOnBackground"/>
 
         <ImageView
             android:id="@+id/profile_pic"
