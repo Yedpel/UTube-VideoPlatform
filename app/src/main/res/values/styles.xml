@@ -42,6 +42,18 @@
         <item name="android:textColorPrimary">?attr/colorOnBackground</item>
     </style>
 
+    <!-- Custom style for popup menu items -->
+    <style name="PopupMenuItemStyle" parent="">
+        <item name="android:textColor">#D31E1E</item> <!-- Custom text color -->
+        <item name="android:background">#2196F3</item> <!-- Custom background color -->
+    </style>
+
+    <!-- Custom DatePickerDialog style -->
+    <style name="CustomDatePickerDialog" parent="Theme.AppCompat.Dialog">
+        <item name="android:background">#2196F3</item> <!-- Custom background color -->
+        <item name="android:textColorPrimary">#D31E1E</item> <!-- Custom text color -->
+    </style>
+
 
 
 

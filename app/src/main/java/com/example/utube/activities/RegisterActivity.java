@@ -82,25 +82,43 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        //try9
-        dobEditText.setOnClickListener(v -> { //try9
-            Calendar calendar = Calendar.getInstance(); //try9
-            int year = calendar.get(Calendar.YEAR); //try9
-            int month = calendar.get(Calendar.MONTH); //try9
-            int day = calendar.get(Calendar.DAY_OF_MONTH); //try9
+        dobEditText.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-            DatePickerDialog datePickerDialog = new DatePickerDialog( //try9
-                    RegisterActivity.this, //try9
-                    (view, year1, monthOfYear, dayOfMonth) -> dobEditText.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year1), //try9
-                    year, month, day); //try9
+            DatePickerDialog datePickerDialog = new DatePickerDialog(
+                    RegisterActivity.this,
+                    R.style.CustomDatePickerDialog, // Apply custom style //try9
+                    (view, year1, monthOfYear, dayOfMonth) -> dobEditText.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year1),
+                    year, month, day);
 
-
-            datePickerDialog.show(); //try9
+            datePickerDialog.show();
         });
-
-        // Inside onCreate method
         dobEditText.setInputType(InputType.TYPE_NULL); // Prevents keyboard from popping up //try10
         dobEditText.setFocusable(false); // Prevents focus on the EditText //try10
+
+
+//        //try9
+//        dobEditText.setOnClickListener(v -> { //try9
+//            Calendar calendar = Calendar.getInstance(); //try9
+//            int year = calendar.get(Calendar.YEAR); //try9
+//            int month = calendar.get(Calendar.MONTH); //try9
+//            int day = calendar.get(Calendar.DAY_OF_MONTH); //try9
+//
+//            DatePickerDialog datePickerDialog = new DatePickerDialog( //try9
+//                    RegisterActivity.this, //try9
+//                    (view, year1, monthOfYear, dayOfMonth) -> dobEditText.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year1), //try9
+//                    year, month, day); //try9
+//
+//
+//            datePickerDialog.show(); //try9
+//        });
+//
+//        // Inside onCreate method
+//        dobEditText.setInputType(InputType.TYPE_NULL); // Prevents keyboard from popping up //try10
+//        dobEditText.setFocusable(false); // Prevents focus on the EditText //try10
 
     }
 

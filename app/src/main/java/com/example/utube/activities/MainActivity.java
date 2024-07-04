@@ -3,11 +3,14 @@ package com.example.utube.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.Editable;
+import android.text.SpannableString;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -503,10 +506,47 @@ public class MainActivity extends AppCompatActivity {
             Video video = videoList.get(position);
             holder.bind(video);
 
+//            holder.menuButton.setOnClickListener(v -> {
+//                PopupMenu popupMenu = new PopupMenu(holder.menuButton.getContext(), holder.menuButton);
+//                MenuInflater inflater = popupMenu.getMenuInflater();
+//                inflater.inflate(R.menu.video_item_menu, popupMenu.getMenu());
+//                popupMenu.setOnMenuItemClickListener(item -> {
+//                    if (item.getItemId() == R.id.edit_video) {
+//                        if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) { //try90
+//                            EditVideoDialog dialog = EditVideoDialog.newInstance(video.getId()); //try90
+//                            dialog.setOnDismissListener(dialogInterface -> videoAdapter.notifyDataSetChanged()); //try90
+//                            dialog.show(((AppCompatActivity) holder.itemView.getContext()).getSupportFragmentManager(), "EditVideoDialog"); //try90
+//                        } else { //try90
+//                            showLoginPromptDialog(); //try90
+//                        } //try90
+//                        return true; //try90
+//                    } else if (item.getItemId() == R.id.delete_video) {
+//                        if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) {
+//                            VideoManager.getInstance().removeVideo(video.getId());
+//                            notifyDataSetChanged();
+//                        } else {
+//                            showLoginPromptDialog();
+//                        }
+//                        return true;
+//                    }
+//                    return false;
+//                });
+//                popupMenu.show();
+//            });
+            // MainActivity.java
             holder.menuButton.setOnClickListener(v -> {
                 PopupMenu popupMenu = new PopupMenu(holder.menuButton.getContext(), holder.menuButton);
                 MenuInflater inflater = popupMenu.getMenuInflater();
                 inflater.inflate(R.menu.video_item_menu, popupMenu.getMenu());
+
+                // Apply custom styles to menu items
+                for (int i = 0; i < popupMenu.getMenu().size(); i++) {
+                    MenuItem menuItem = popupMenu.getMenu().getItem(i);
+                    SpannableString spannableTitle = new SpannableString(menuItem.getTitle());
+                    spannableTitle.setSpan(new ForegroundColorSpan(Color.parseColor("#D31E1E")), 0, spannableTitle.length(), 0);
+                    menuItem.setTitle(spannableTitle);
+                }
+
                 popupMenu.setOnMenuItemClickListener(item -> {
                     if (item.getItemId() == R.id.edit_video) {
                         if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) { //try90
@@ -530,6 +570,7 @@ public class MainActivity extends AppCompatActivity {
                 });
                 popupMenu.show();
             });
+
 
             holder.itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(MainActivity.this, VideoDetailActivity.class);
