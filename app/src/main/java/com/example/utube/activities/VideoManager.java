@@ -8,14 +8,15 @@ import java.util.List;
 import java.util.Map;
 
 public class VideoManager {
-    private static  VideoManager instance = new VideoManager();
+    private static VideoManager instance = new VideoManager();
     private List<Video> videoList = new ArrayList<>();
     private List<Video> filteredVideoList = new ArrayList<>();
     private Map<String, Video> videoMap = new HashMap<>();
     private Map<String, Boolean> likedStateMap = new HashMap<>();
     private Map<String, Integer> likesCountMap = new HashMap<>();
 
-    private VideoManager() {}
+    private VideoManager() {
+    }
 
     public static VideoManager getInstance() {
         if (instance == null) {
@@ -80,6 +81,15 @@ public class VideoManager {
         }
     }
 
+    public List<Video> getVideosForAuthor(String author) {
+        List<Video> authorVideos = new ArrayList<>();
+        for (Video video : videoList) {
+            if (video.getAuthor().equals(author)) {
+                authorVideos.add(video);
+            }
+        }
+        return authorVideos;
+    }
 
 
 }

@@ -46,7 +46,7 @@
         <!-- Registration activity -->
         <activity android:name=".activities.RegisterActivity" />
 
-
+        <activity android:name=".activities.ChannelActivity" />
 
     </application>
 

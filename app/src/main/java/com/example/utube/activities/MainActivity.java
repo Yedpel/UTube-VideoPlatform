@@ -70,19 +70,8 @@ public class MainActivity extends AppCompatActivity {
         boolean isLoggedIn = sharedPreferences.getBoolean(LOGGED_IN_KEY, false);
         loggedInUser = sharedPreferences.getString(LOGGED_IN_USER, null);
 
-        // Manually set the theme based on isNightMode //try90
-        //applyTheme();
-//        if (isFirstThemeApplication) {
-//            applyTheme(); // Apply the theme only if it's not the first application
-//       isFirstThemeApplication = false; // Set isFirstThemeApplication to false after the first theme application
-//        }
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-// boop       sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-//        isNightMode = sharedPreferences.getBoolean("isNightMode", false); // Ensure this is retrieved before setting the theme
-//        applyTheme();  // Apply theme immediately after super.onCreate()
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -142,13 +131,17 @@ public class MainActivity extends AppCompatActivity {
 
         searchBox.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 filterVideos(s.toString());
             }
+
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         btnAddVideo.setOnClickListener(v -> {
@@ -176,8 +169,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void applyTheme() {
-       // if (!isFirstThemeApplication) {
-            setTheme(isNightMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light);
+        // if (!isFirstThemeApplication) {
+        setTheme(isNightMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light);
         updateUIWithTheme(); // Refresh UI elements manually after theme change
         //}
     }
@@ -222,17 +215,12 @@ public class MainActivity extends AppCompatActivity {
         mainLayout.invalidate();
     }
 
-
-
-
-
     private void switchTheme() {
         isNightMode = !isNightMode;
         sharedPreferences.edit().putBoolean("isNightMode", isNightMode).apply(); // Save theme preference
         applyTheme(); // Apply the new theme
         recreate(); // Restart activity to apply the new theme
     }
-
 
     private void saveUserAddedVideos() { //try90
         List<Video> videoList = VideoManager.getInstance().getVideoList();
@@ -505,35 +493,6 @@ public class MainActivity extends AppCompatActivity {
         public void onBindViewHolder(VideoViewHolder holder, int position) {
             Video video = videoList.get(position);
             holder.bind(video);
-
-//            holder.menuButton.setOnClickListener(v -> {
-//                PopupMenu popupMenu = new PopupMenu(holder.menuButton.getContext(), holder.menuButton);
-//                MenuInflater inflater = popupMenu.getMenuInflater();
-//                inflater.inflate(R.menu.video_item_menu, popupMenu.getMenu());
-//                popupMenu.setOnMenuItemClickListener(item -> {
-//                    if (item.getItemId() == R.id.edit_video) {
-//                        if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) { //try90
-//                            EditVideoDialog dialog = EditVideoDialog.newInstance(video.getId()); //try90
-//                            dialog.setOnDismissListener(dialogInterface -> videoAdapter.notifyDataSetChanged()); //try90
-//                            dialog.show(((AppCompatActivity) holder.itemView.getContext()).getSupportFragmentManager(), "EditVideoDialog"); //try90
-//                        } else { //try90
-//                            showLoginPromptDialog(); //try90
-//                        } //try90
-//                        return true; //try90
-//                    } else if (item.getItemId() == R.id.delete_video) {
-//                        if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) {
-//                            VideoManager.getInstance().removeVideo(video.getId());
-//                            notifyDataSetChanged();
-//                        } else {
-//                            showLoginPromptDialog();
-//                        }
-//                        return true;
-//                    }
-//                    return false;
-//                });
-//                popupMenu.show();
-//            });
-            // MainActivity.java
             holder.menuButton.setOnClickListener(v -> {
                 PopupMenu popupMenu = new PopupMenu(holder.menuButton.getContext(), holder.menuButton);
                 MenuInflater inflater = popupMenu.getMenuInflater();
@@ -606,6 +565,7 @@ public class MainActivity extends AppCompatActivity {
                 authorProfilePic = itemView.findViewById(R.id.author_profile_pic);
                 menuButton = itemView.findViewById(R.id.menu_button);
             }
+
             public void bind(Video video) {
                 title.setText(video.getTitle());
                 author.setText(video.getAuthor());
@@ -614,6 +574,12 @@ public class MainActivity extends AppCompatActivity {
 
                 loadImageView(thumbnail, video.getThumbnailUrl());
                 loadImageView(authorProfilePic, video.getAuthorProfilePicUrl());
+                authorProfilePic.setOnClickListener(v -> {
+                    Intent intent = new Intent(MainActivity.this, ChannelActivity.class);
+                    intent.putExtra("AUTHOR_NAME", video.getAuthor());
+                    startActivity(intent);
+                });
+
             }
 
             private void loadImageView(ImageView imageView, String imageUrl) {
@@ -625,7 +591,7 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         imageView.setImageResource(R.drawable.policy); // Fallback to error image if resource not found
                     }
-                } else if (imageUrl!=null){
+                } else if (imageUrl != null) {
                     // Handle remote images or local file URIs
                     Picasso.get().load(imageUrl).error(R.drawable.policy).into(imageView);
                 } else {
