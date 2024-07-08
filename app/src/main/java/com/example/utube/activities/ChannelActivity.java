@@ -33,12 +33,10 @@ public class ChannelActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        /* why the night mode make the app crash
+        // Load theme from shared preferences
         SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         boolean isNightMode = sharedPreferences.getBoolean("isNightMode", false);
         setTheme(isNightMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light);
-
-         */
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_channel);
