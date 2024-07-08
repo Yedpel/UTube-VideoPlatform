@@ -41,4 +41,9 @@ dependencies {
     implementation("com.squareup.picasso:picasso:2.8")
     implementation ("com.google.android.exoplayer:exoplayer:2.16.0")
 
+    // Room dependencies
+    val roomVersion = "2.4.3"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
 }

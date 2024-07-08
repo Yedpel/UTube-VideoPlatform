@@ -1,22 +1,19 @@
 package com.example.utube.models;
 
-import java.util.HashMap;
-import java.util.Map;
+import android.app.Application;
+
+import com.example.utube.MyApplication;
+import com.example.utube.data.UserRepository;
+import com.example.utube.models.UserEntity;
 
 public class Users {
-
-    // Singleton instance
     private static Users instance;
+    private UserRepository userRepository;
 
-    // HashMap to store user data
-    private Map<String, User> usersMap;
-
-    // Private constructor to prevent instantiation
     private Users() {
-        usersMap = new HashMap<>();
+        userRepository = MyApplication.getInstance().getUserRepository();
     }
 
-    // Method to get the singleton instance
     public static synchronized Users getInstance() {
         if (instance == null) {
             instance = new Users();
@@ -24,31 +21,27 @@ public class Users {
         return instance;
     }
 
-    // Method to add a new user
     public void addUser(String username, String password, String firstName, String lastName, String dob, String email, String profilePic) {
-        if (!usersMap.containsKey(username)) {
-            User newUser = new User(username, password, firstName, lastName, dob, email, profilePic);
-            usersMap.put(username, newUser);
+        if (!userRepository.userExists(username)) {
+            UserEntity newUser = new UserEntity(username, password, firstName, lastName, dob, email, profilePic);
+            userRepository.insert(newUser);
         } else {
             throw new IllegalArgumentException("Username already exists");
         }
     }
 
-    // Method to get user by username
-    public User getUser(String username) {
-        return usersMap.get(username);
+    public UserEntity getUser(String username) {
+        return userRepository.getUserByUsername(username);
     }
 
-    // Method to check if user exists
     public boolean userExists(String username) {
-        return usersMap.containsKey(username);
+        return userRepository.userExists(username);
     }
 
-    // Method to validate user login
     public boolean validateUser(String username, String password) {
-        User user = usersMap.get(username);
-        return user != null && user.getPassword().equals(password);
+        return userRepository.validateUser(username, password);
     }
+
 
     // User class to store individual user details
     public static class User {

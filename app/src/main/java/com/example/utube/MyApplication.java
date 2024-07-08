@@ -8,12 +8,21 @@ import android.os.Looper;
 import android.widget.Toast;
 
 import com.example.utube.activities.MainActivity;
+import com.example.utube.data.AppDatabase;
+import com.example.utube.data.UserRepository;
 
 public class MyApplication extends Application {
+
+    private static MyApplication instance;
+    private UserRepository userRepository;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
+
+        // Initialize UserRepository
+        userRepository = new UserRepository(this);
 
         // Set the default uncaught exception handler
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
@@ -34,4 +43,17 @@ public class MyApplication extends Application {
             System.exit(1);
         });
     }
+
+    public static MyApplication getInstance() {
+        return instance;
+    }
+
+    public UserRepository getUserRepository() {
+        return userRepository;
+    }
+
+    public static Context getAppContext() {
+        return instance.getApplicationContext();
+    }
+
 }

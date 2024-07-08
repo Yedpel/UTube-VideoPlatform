@@ -65,7 +65,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private boolean validateLogin(String username, String password) {
-        User user = Users.getInstance().getUser(username);
-        return user != null && user.getPassword().equals(password);
+//        User user = Users.getInstance().getUser(username);
+//        return user != null && user.getPassword().equals(password);
+        return Users.getInstance().validateUser(username, password);
     }
 }

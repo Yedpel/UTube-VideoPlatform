@@ -281,7 +281,8 @@ public class MainActivity extends AppCompatActivity {
 
             //String authorProfilePicUrl = sharedPreferences.getString("userProfilePicUrl", "drawable/default_profile_pic");
             //set video author profile pic to the user's profile pic by getprofilepic method
-            String authorProfilePicUrl = Users.getInstance().getUser(loggedInUser).getProfilePic(); //try90
+            // String authorProfilePicUrl = Users.getInstance().getUser(loggedInUser).getProfilePic(); //try90
+            String authorProfilePicUrl = Users.getInstance().getUser(loggedInUser).getProfilePic();
 
             Video video = new Video(id, title, author, views, uploadTime, previewImageUrl, authorProfilePicUrl, videoFilePath, category, likes);
             VideoManager.getInstance().addVideo(video);
