@@ -218,8 +218,8 @@ public class VideoDetailActivity extends AppCompatActivity {
                 dialog.setAddCommentListener(text -> { //try6
                     if (!text.trim().isEmpty()) { //try6
                         String currentTime = "Just now"; // Use a proper timestamp in real app //try6
-                        int random = (int)(Math.random() * 1000000); //try6
-                      //  String authorProfilePicUrl = Users.getInstance().getUser(loggedInUser).getProfilePic();
+                        int random = (int) (Math.random() * 1000000); //try6
+                        //  String authorProfilePicUrl = Users.getInstance().getUser(loggedInUser).getProfilePic();
                         Video.Comment comment = new Video.Comment(random, "user1", text, currentTime, 0, finalAuthorProfilePicUrl); //try6
                         comments.add(comment); //try6
                         commentsAdapter.notifyDataSetChanged(); //try6
@@ -343,12 +343,22 @@ public class VideoDetailActivity extends AppCompatActivity {
         commentsCountTextView.setText("(" + comments.size() + ")");
     }
 
+    //    @Override
+//    public void onBackPressed() {
+//        Intent intent = new Intent();
+//        intent.putExtra("VIDEO_ID", videoId);
+//        intent.putExtra("UPDATED_VIEWS", views);
+//        setResult(RESULT_OK, intent);
+//        super.onBackPressed();
+//    }
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent();
-        intent.putExtra("VIDEO_ID", videoId);
-        intent.putExtra("UPDATED_VIEWS", views);
-        setResult(RESULT_OK, intent);
+        Video video = VideoManager.getInstance(getApplication()).getVideoById(videoId); //try-behave
+        if (video != null) { //try-behave
+            video.setViews(views); //try-behave
+            VideoManager.getInstance(getApplication()).updateVideo(video); //try-behave
+        } //try-behave
+        setResult(RESULT_OK);
         super.onBackPressed();
     }
 

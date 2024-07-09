@@ -101,6 +101,9 @@ public class EditVideoDialog extends DialogFragment {
                 video.setVideoUrl(newVideoUri.toString());
             }
             VideoManager.getInstance(requireActivity().getApplication()).updateVideo(video);
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).refreshVideoList(); //try-behave
+            }
             dismiss();
         }
     }

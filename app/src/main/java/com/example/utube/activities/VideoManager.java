@@ -32,9 +32,10 @@ public class VideoManager {
 
     public List<Video> getVideoList() {
         List<VideoEntity> entities = videoRepository.getAllVideos();
-        Log.d("VideoManager", "Number of videos in database: " + entities.size());
+        Log.d("VideoManager", "Getting video list, size: " + entities.size());
         return entities.stream().map(this::entityToVideo).collect(Collectors.toList());
     }
+
 
     public List<Video> getFilteredVideoList() {
         Log.d("VideoManager", "FilteredVideoList size: " + filteredVideoList.size());
@@ -62,24 +63,39 @@ public class VideoManager {
     }
 
     public void addVideo(Video video) {
+        Log.d("VideoManager", "Adding video: " + video.getId()); //try-behave
         videoRepository.insert(videoToEntity(video));
         filteredVideoList.add(video);
+        List<Video> updatedList = getVideoList(); //try-behave
+        Log.d("VideoManager", "After add list size: " + updatedList.size()); //try-behave
+        filteredVideoList.clear(); //try-behave
+        filteredVideoList.addAll(updatedList); //try-behave
     }
 
     public void removeVideo(String videoId) {
+        Log.d("VideoManager", "Deleting video: " + videoId); //try-behave
         VideoEntity entity = videoRepository.getVideoById(videoId);
         if (entity != null) {
             videoRepository.deleteVideo(entity);
-            filteredVideoList.removeIf(v -> v.getId().equals(videoId));
+         //   filteredVideoList.removeIf(v -> v.getId().equals(videoId));
+            List<Video> updatedList = getVideoList(); //try-behave
+            Log.d("VideoManager", "after delete list size: " + updatedList.size()); //try-behave
+            filteredVideoList.clear(); //try-behave
+            filteredVideoList.addAll(updatedList); //try-behave
         }
     }
 
     public void updateVideo(Video video) {
+        Log.d("VideoManager", "Updating video: " + video.getId()); //try-behave
         videoRepository.updateVideo(videoToEntity(video));
-        int index = filteredVideoList.indexOf(video);
-        if (index != -1) {
-            filteredVideoList.set(index, video);
-        }
+//        int index = filteredVideoList.indexOf(video);
+//        if (index != -1) {
+//            filteredVideoList.set(index, video);
+//        }
+        List<Video> updatedList = getVideoList(); //try-behave
+        Log.d("VideoManager", "Updated list size: " + updatedList.size()); //try-behave
+        filteredVideoList.clear(); //try-behave
+        filteredVideoList.addAll(updatedList); //try-behave
     }
 
     public void setVideoList(List<Video> videos) {
