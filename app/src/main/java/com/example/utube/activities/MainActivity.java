@@ -78,11 +78,20 @@ public class MainActivity extends AppCompatActivity {
 
         Button menuButton = findViewById(R.id.menu_button);
         menuButton.setOnClickListener(v -> openOptionsMenu());
-
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        videoAdapter = new VideoAdapter(VideoManager.getInstance().getFilteredVideoList(), sharedPreferences); //try90
-        recyclerView.setAdapter(videoAdapter); //try90
+//        videoAdapter = new VideoAdapter(VideoManager.getInstance(getApplication()).getFilteredVideoList(), sharedPreferences); //try90
+//        recyclerView.setAdapter(videoAdapter); //try90
+//        Log.d("MainActivity", "Number of videos in adapter: " + videoAdapter.getItemCount());
+        List<Video> allVideos = VideoManager.getInstance(getApplication()).getVideoList();
+        List<Video> filteredVideos = VideoManager.getInstance(getApplication()).getFilteredVideoList();
+
+        Log.d("MainActivity", "All videos: " + allVideos.size());
+        Log.d("MainActivity", "Filtered videos: " + filteredVideos.size());
+
+        videoAdapter = new VideoAdapter(filteredVideos, sharedPreferences);
+        recyclerView.setAdapter(videoAdapter);
+        Log.d("MainActivity", "Number of videos in adapter after setting: " + videoAdapter.getItemCount());
 
         btnLogin = findViewById(R.id.login_button);
         btnThemeSwitch = findViewById(R.id.theme_button);
@@ -120,10 +129,10 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             ArrayList<Video> videoList = savedInstanceState.getParcelableArrayList("video_list");
             if (videoList != null) {
-                VideoManager.getInstance().setVideoList(videoList);
+                VideoManager.getInstance(getApplication()).setVideoList(videoList);
             }
             recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("recycler_state"));
-        } else if (VideoManager.getInstance().getVideoList().isEmpty()) {
+        } else if (VideoManager.getInstance(getApplication()).getVideoList().isEmpty()) {
             loadVideoData();
         }
 
@@ -223,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveUserAddedVideos() { //try90
-        List<Video> videoList = VideoManager.getInstance().getVideoList();
+        List<Video> videoList = VideoManager.getInstance(getApplication()).getVideoList();
         for (Video video : videoList) {
             if (video.getId().startsWith("new_")) {
                 sharedPreferences.edit().putString(video.getId() + "_videoUrl", video.getVideoUrl()).apply();
@@ -232,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void restoreUserAddedVideos() { //try90
-        List<Video> videoList = VideoManager.getInstance().getVideoList();
+        List<Video> videoList = VideoManager.getInstance(getApplication()).getVideoList();
         for (Video video : videoList) {
             if (video.getId().startsWith("new_")) {
                 String videoUrl = sharedPreferences.getString(video.getId() + "_videoUrl", null);
@@ -245,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void reinitializeAdapter() { //try90
-        videoAdapter = new VideoAdapter(VideoManager.getInstance().getFilteredVideoList(), sharedPreferences); //try90
+        videoAdapter = new VideoAdapter(VideoManager.getInstance(getApplication()).getFilteredVideoList(), sharedPreferences); //try90
         recyclerView.setAdapter(videoAdapter); //try90
         videoAdapter.notifyDataSetChanged(); //try90
     }
@@ -253,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList("video_list", new ArrayList<>(VideoManager.getInstance().getVideoList()));
+        outState.putParcelableArrayList("video_list", new ArrayList<>(VideoManager.getInstance(getApplication()).getVideoList()));
         outState.putParcelable("recycler_state", recyclerView.getLayoutManager().onSaveInstanceState());
     }
 
@@ -263,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             ArrayList<Video> videoList = savedInstanceState.getParcelableArrayList("video_list");
             if (videoList != null) {
-                VideoManager.getInstance().setVideoList(videoList);
+                VideoManager.getInstance(getApplication()).setVideoList(videoList);
             }
             recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("recycler_state"));
         }
@@ -285,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
             String authorProfilePicUrl = Users.getInstance().getUser(loggedInUser).getProfilePic();
 
             Video video = new Video(id, title, author, views, uploadTime, previewImageUrl, authorProfilePicUrl, videoFilePath, category, likes);
-            VideoManager.getInstance().addVideo(video);
+            VideoManager.getInstance(getApplication()).addVideo(video);
             sharedPreferences.edit().putString(id + "_videoPath", videoFilePath).apply();
             videoAdapter.notifyDataSetChanged();
         });
@@ -388,11 +397,11 @@ public class MainActivity extends AppCompatActivity {
                 int updatedViews = getUpdatedViews(id, views);
                 int updatedLikes = getUpdatedLikes(id, likes);
 
-                VideoManager.getInstance().getLikesCountMap().put(id, updatedLikes);
-                VideoManager.getInstance().getLikedStateMap().put(id, sharedPreferences.getBoolean(id + "_liked", false));
+                VideoManager.getInstance(getApplication()).getLikesCountMap().put(id, updatedLikes);
+                VideoManager.getInstance(getApplication()).getLikedStateMap().put(id, sharedPreferences.getBoolean(id + "_liked", false));
 
                 Video video = new Video(id, title, author, updatedViews, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category, updatedLikes);
-                VideoManager.getInstance().addVideo(video);
+                VideoManager.getInstance(getApplication()).addVideo(video);
             }
             videoAdapter.notifyDataSetChanged();
         } catch (Exception e) {
@@ -409,9 +418,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void filterVideos(String query) {
-        List<Video> filteredVideoList = VideoManager.getInstance().getFilteredVideoList();
+        List<Video> filteredVideoList = VideoManager.getInstance(getApplication()).getFilteredVideoList();
         filteredVideoList.clear();
-        for (Video video : VideoManager.getInstance().getVideoList()) {
+        for (Video video : VideoManager.getInstance(getApplication()).getVideoList()) {
             if (video.getTitle().toLowerCase().contains(query.toLowerCase()) ||
                     video.getAuthor().toLowerCase().contains(query.toLowerCase())) {
                 filteredVideoList.add(video);
@@ -421,9 +430,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void filterVideosByCategory(String category) {
-        List<Video> filteredVideoList = VideoManager.getInstance().getFilteredVideoList();
+        List<Video> filteredVideoList = VideoManager.getInstance(getApplication()).getFilteredVideoList();
         filteredVideoList.clear();
-        for (Video video : VideoManager.getInstance().getVideoList()) {
+        for (Video video : VideoManager.getInstance(getApplication()).getVideoList()) {
             if (video.getCategory().equalsIgnoreCase(category)) {
                 filteredVideoList.add(video);
             }
@@ -461,7 +470,7 @@ public class MainActivity extends AppCompatActivity {
             if (data != null) {
                 String videoId = data.getStringExtra("VIDEO_ID");
                 int updatedViews = data.getIntExtra("UPDATED_VIEWS", 0);
-                Video video = VideoManager.getInstance().getVideoMap().get(videoId);
+                Video video = VideoManager.getInstance(getApplication()).getVideoMap().get(videoId);
                 if (video != null) {
                     video.setViews(updatedViews);
                     videoAdapter.notifyDataSetChanged();
@@ -482,6 +491,7 @@ public class MainActivity extends AppCompatActivity {
         public VideoAdapter(List<Video> videoList, SharedPreferences sharedPreferences) { //try90
             this.videoList = videoList; //try90
             this.sharedPreferences = sharedPreferences; //try90
+            Log.d("VideoAdapter", "Number of videos passed to adapter: " + (videoList != null ? videoList.size() : "null"));
         } //try90
 
         @Override
@@ -519,7 +529,7 @@ public class MainActivity extends AppCompatActivity {
                         return true; //try90
                     } else if (item.getItemId() == R.id.delete_video) {
                         if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) {
-                            VideoManager.getInstance().removeVideo(video.getId());
+                            VideoManager.getInstance(getApplication()).removeVideo(video.getId());
                             notifyDataSetChanged();
                         } else {
                             showLoginPromptDialog();
@@ -548,7 +558,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return videoList.size();
+            //return videoList.size();
+            return videoList != null ? videoList.size() : 0;
         }
 
         class VideoViewHolder extends RecyclerView.ViewHolder {

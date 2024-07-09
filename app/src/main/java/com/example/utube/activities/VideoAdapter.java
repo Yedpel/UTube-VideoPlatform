@@ -1,5 +1,6 @@
 package com.example.utube.activities;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -25,10 +26,12 @@ import java.util.List;
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
     private List<Video> videoList;
     private Context context;
+    private Application application;
 
-    public VideoAdapter(List<Video> videoList, Context context) {
+    public VideoAdapter(List<Video> videoList, Context context, Application application) {
         this.videoList = videoList;
         this.context = context;
+        this.application = application;
     }
 
     @NonNull
@@ -67,7 +70,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
                     dialog.show(((AppCompatActivity) holder.itemView.getContext()).getSupportFragmentManager(), "EditVideoDialog");
                     return true;
                 } else if (itemId == R.id.delete_video) {
-                    VideoManager.getInstance().removeVideo(video.getId());
+                    VideoManager.getInstance(application).removeVideo(video.getId());
                     notifyDataSetChanged();
                     return true;
                 } else {

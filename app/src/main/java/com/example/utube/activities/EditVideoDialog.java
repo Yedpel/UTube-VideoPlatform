@@ -64,7 +64,7 @@ public class EditVideoDialog extends DialogFragment {
         categorySpinner.setAdapter(adapter);
 
         videoId = getArguments().getString(ARG_VIDEO_ID);
-        Video video = VideoManager.getInstance().getVideoMap().get(videoId);
+        Video video = VideoManager.getInstance(requireActivity().getApplication()).getVideoMap().get(videoId);
         if (video != null) {
             titleEditText.setText(video.getTitle());
             int categoryPosition = adapter.getPosition(video.getCategory());
@@ -93,14 +93,14 @@ public class EditVideoDialog extends DialogFragment {
     private void saveChanges() {
         String newTitle = titleEditText.getText().toString();
         String newCategory = categorySpinner.getSelectedItem().toString();
-        Video video = VideoManager.getInstance().getVideoMap().get(videoId);
+        Video video = VideoManager.getInstance(requireActivity().getApplication()).getVideoMap().get(videoId);
         if (video != null) {
             video.setTitle(newTitle);
             video.setCategory(newCategory);
             if (newVideoUri != null) {
                 video.setVideoUrl(newVideoUri.toString());
             }
-            VideoManager.getInstance().updateVideo(video);
+            VideoManager.getInstance(requireActivity().getApplication()).updateVideo(video);
             dismiss();
         }
     }

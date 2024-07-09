@@ -10,11 +10,13 @@ import android.widget.Toast;
 import com.example.utube.activities.MainActivity;
 import com.example.utube.data.AppDatabase;
 import com.example.utube.data.UserRepository;
+import com.example.utube.data.VideoRepository;
 
 public class MyApplication extends Application {
 
     private static MyApplication instance;
     private UserRepository userRepository;
+    private VideoRepository videoRepository;
 
     @Override
     public void onCreate() {
@@ -23,6 +25,9 @@ public class MyApplication extends Application {
 
         // Initialize UserRepository
         userRepository = new UserRepository(this);
+
+        // Initialize VideoRepository
+        videoRepository = new VideoRepository(this);
 
         // Set the default uncaught exception handler
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
@@ -52,8 +57,11 @@ public class MyApplication extends Application {
         return userRepository;
     }
 
+    public VideoRepository getVideoRepository() {
+        return videoRepository;
+    }
+
     public static Context getAppContext() {
         return instance.getApplicationContext();
     }
-
 }

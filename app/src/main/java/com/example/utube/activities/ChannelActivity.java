@@ -16,7 +16,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.utube.R;
-import com.example.utube.activities.VideoAdapter;
 import com.example.utube.activities.VideoManager;
 import com.squareup.picasso.Picasso;
 import static com.example.utube.activities.MainActivity.PREFS_NAME;
@@ -53,7 +52,7 @@ public class ChannelActivity extends AppCompatActivity {
         channelTitle.setText(authorName + "'s Channel");
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        videoAdapter = new VideoAdapter(VideoManager.getInstance().getVideosForAuthor(authorName), this);
+        videoAdapter = new VideoAdapter(VideoManager.getInstance(getApplication()).getVideosForAuthor(authorName), this);
         recyclerView.setAdapter(videoAdapter);
 
         editUserButton.setOnClickListener(v -> {

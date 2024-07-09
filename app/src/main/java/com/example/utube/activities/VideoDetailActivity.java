@@ -98,8 +98,8 @@ public class VideoDetailActivity extends AppCompatActivity {
         viewsTextView.setText(views + " views");
 
         // Load likes state from memory
-        isLiked = VideoManager.getInstance().getLikedStateMap().getOrDefault(videoId, false);
-        likes = VideoManager.getInstance().getLikesCountMap().getOrDefault(videoId, likes);
+        isLiked = VideoManager.getInstance(getApplication()).getLikedStateMap().getOrDefault(videoId, false);
+        likes = VideoManager.getInstance(getApplication()).getLikesCountMap().getOrDefault(videoId, likes);
         likesTextView.setText(likes + " likes");
 
         // Log the URL for debugging
@@ -328,8 +328,8 @@ public class VideoDetailActivity extends AppCompatActivity {
                     likes--; //try5
                 } //try5
                 likesTextView.setText(likes + " likes"); //try5
-                VideoManager.getInstance().getLikedStateMap().put(videoId, isLiked); //try5
-                VideoManager.getInstance().getLikesCountMap().put(videoId, likes); //try5
+                VideoManager.getInstance(getApplication()).getLikedStateMap().put(videoId, isLiked); //try5
+                VideoManager.getInstance(getApplication()).getLikesCountMap().put(videoId, likes); //try5
                 ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like"); //try5
             } else { //try5
                 showLoginPromptDialog(); //try5
