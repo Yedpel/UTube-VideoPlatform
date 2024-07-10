@@ -1,5 +1,7 @@
 package com.example.utube.activities;
+//before likes
 
+import static com.example.utube.activities.MainActivity.LOGGED_IN_USER;
 import static com.example.utube.activities.MainActivity.PREFS_NAME;
 
 import android.content.SharedPreferences;
@@ -24,7 +26,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.utube.MyApplication;
 import com.example.utube.R;
+import com.example.utube.data.CommentRepository;
+import com.example.utube.models.CommentEntity;
 import com.example.utube.models.Users;
 import com.example.utube.models.Video;
 import com.squareup.picasso.Callback;
@@ -55,12 +60,15 @@ public class VideoDetailActivity extends AppCompatActivity {
     private static HashMap<String, List<Video.Comment>> commentsMap = new HashMap<>();
     private static HashMap<String, HashMap<String, Boolean>> likedCommentsStateMap = new HashMap<>();
     private int idCounter = 0;
+    private CommentRepository commentRepository;
+    private SharedPreferences sharedPreferences;
+    public static final String PREFS_NAME = "theme_prefs";
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Load theme from shared preferences
-        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         boolean isNightMode = sharedPreferences.getBoolean("isNightMode", false);
         setTheme(isNightMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light);
 
@@ -100,6 +108,8 @@ public class VideoDetailActivity extends AppCompatActivity {
         // Load likes state from memory
         isLiked = VideoManager.getInstance(getApplication()).getLikedStateMap().getOrDefault(videoId, false);
         likes = VideoManager.getInstance(getApplication()).getLikesCountMap().getOrDefault(videoId, likes);
+
+
         likesTextView.setText(likes + " likes");
 
         // Log the URL for debugging
@@ -204,14 +214,44 @@ public class VideoDetailActivity extends AppCompatActivity {
         // Set initial like button state
         updateLikeButton();
 
-        // Initialize comments section
-        comments = commentsMap.getOrDefault(videoId, new ArrayList<>());
+        commentRepository = ((MyApplication) getApplicationContext()).getCommentRepository();
+
+        // Load comments
+        List<CommentEntity> commentEntities = commentRepository.getCommentsForVideo(videoId);
+        comments = new ArrayList<>();
+        if (commentEntities != null) {
+            for (CommentEntity entity : commentEntities) {
+                comments.add(convertToVideoComment(entity));
+            }
+        }
         commentsAdapter = new CommentsAdapter(comments);
         commentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         commentsRecyclerView.setAdapter(commentsAdapter);
 
         // Add comment button click listener
         String finalAuthorProfilePicUrl = authorProfilePicUrl;
+        findViewById(R.id.add_comment_button).setOnClickListener(v -> {
+            if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) {
+                AddCommentDialog dialog = new AddCommentDialog();
+                dialog.setAddCommentListener(text -> {
+                    if (!text.trim().isEmpty()) {
+                        String currentTime = "Just now";
+                        String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
+                        String profilePicUrl = Users.getInstance().getUser(currentLoggedInUser).getProfilePic();
+                        CommentEntity commentEntity = new CommentEntity(videoId, currentLoggedInUser, text, currentTime, 0, profilePicUrl);
+                        commentRepository.insert(commentEntity);
+                        Video.Comment newComment = convertToVideoComment(commentEntity);
+                        comments.add(newComment);
+                        commentsAdapter.notifyDataSetChanged();
+                        updateCommentsCount();
+                    }
+                });
+                dialog.show(getSupportFragmentManager(), "AddCommentDialog");
+            } else {
+                showLoginPromptDialog();
+            }
+        });
+        /*
         findViewById(R.id.add_comment_button).setOnClickListener(v -> { //try6
             if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) { //try6
                 AddCommentDialog dialog = new AddCommentDialog(); //try6
@@ -231,7 +271,7 @@ public class VideoDetailActivity extends AppCompatActivity {
             } else { //try6
                 showLoginPromptDialog(); //try6
             } //try6
-        }); //try6
+        }); //try6 */
 
         // Share button click listener
         findViewById(R.id.share_button).setOnClickListener(v -> {
@@ -254,6 +294,11 @@ public class VideoDetailActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private Video.Comment convertToVideoComment(CommentEntity entity) {
+        return new Video.Comment(entity.getId(), entity.getUsername(), entity.getText(),
+                entity.getUploadTime(), entity.getLikes(), entity.getProfilePicUrl());
     }
 
     private void enterFullScreen() {
@@ -318,7 +363,37 @@ public class VideoDetailActivity extends AppCompatActivity {
         findViewById(R.id.comments_headline).setVisibility(View.VISIBLE);
     }
 
-    private void updateLikeButton() { //try5
+    private void updateLikeButton() {
+        String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
+        String likeKey = videoId + "_" + currentLoggedInUser + "_liked";
+        isLiked = sharedPreferences.getBoolean(likeKey, false);
+
+        findViewById(R.id.like_button).setOnClickListener(v -> {
+            if (sharedPreferences.getBoolean("logged_in", false)) {
+                isLiked = !isLiked;
+                if (isLiked) {
+                    likes++;
+                } else {
+                    likes--;
+                }
+                likesTextView.setText(likes + " likes");
+                sharedPreferences.edit().putBoolean(likeKey, isLiked).apply();
+
+                Video video = VideoManager.getInstance(getApplication()).getVideoById(videoId);
+                if (video != null) {
+                    video.setLikes(likes);
+                    VideoManager.getInstance(getApplication()).updateVideo(video);
+                }
+
+                ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like");
+            } else {
+                showLoginPromptDialog();
+            }
+        });
+        ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like");
+    }
+
+/*    private void updateLikeButton() { //try5
         findViewById(R.id.like_button).setOnClickListener(v -> { //try5
             if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) { //try5
                 isLiked = !isLiked; //try5
@@ -336,7 +411,7 @@ public class VideoDetailActivity extends AppCompatActivity {
             } //try5
         }); //try5
         ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like"); //try5
-    } //try5
+    } //try5 */
 
 
     private void updateCommentsCount() {
@@ -416,42 +491,69 @@ public class VideoDetailActivity extends AppCompatActivity {
                 uploadTimeTextView.setText(comment.getUploadTime());
                 commentLikesTextView.setText(comment.getLikes() + " likes");
 
-//                int profilePicResId = getResources().getIdentifier(comment.getProfilePicUrl(), "drawable", getPackageName());
-//                if (profilePicResId != 0) {
-//                    profilePicImageView.setImageResource(profilePicResId);
-//                } else {
-//                    Picasso.get().load(comment.getProfilePicUrl()).into(profilePicImageView);
-//                }
-
-                // Use the generalized loadImageView method
                 loadImageView(profilePicImageView, comment.getProfilePicUrl());
 
-                // Load comment like state
-                isCommentLiked = likedCommentsStateMap
-                        .getOrDefault(videoId, new HashMap<>())
-                        .getOrDefault(comment.getText(), false);
+                String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
+                String commentLikeKey = videoId + "_" + comment.getId() + "_" + currentLoggedInUser + "_liked";
+                isCommentLiked = sharedPreferences.getBoolean(commentLikeKey, false);
 
                 updateLikeCommentButton();
 
-                likeCommentButton.setOnClickListener(v -> { //try7
-                    if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) { //try7
-                        isCommentLiked = !isCommentLiked; //try7
-                        if (isCommentLiked) { //try7
-                            comment.setLikes(comment.getLikes() + 1); //try7
-                        } else { //try7
-                            comment.setLikes(comment.getLikes() - 1); //try7
-                        } //try7
-                        commentLikesTextView.setText(comment.getLikes() + " likes"); //try7
-                        likedCommentsStateMap //try7
-                                .computeIfAbsent(videoId, k -> new HashMap<>()) //try7
-                                .put(comment.getText(), isCommentLiked); //try7
-                        updateLikeCommentButton(); //try7
-                    } else { //try7
-                        showLoginPromptDialog(); //try7
-                    } //try7
-                }); //try7
+                likeCommentButton.setOnClickListener(v -> {
+                    if (sharedPreferences.getBoolean("logged_in", false)) {
+                        isCommentLiked = !isCommentLiked;
+                        if (isCommentLiked) {
+                            comment.setLikes(comment.getLikes() + 1);
+                        } else {
+                            comment.setLikes(comment.getLikes() - 1);
+                        }
+                        commentLikesTextView.setText(comment.getLikes() + " likes");
+                        sharedPreferences.edit().putBoolean(commentLikeKey, isCommentLiked).apply();
 
-                editCommentButton.setOnClickListener(v -> { //try7
+                        // Convert Video.Comment to CommentEntity
+                        CommentEntity commentEntity = convertToCommentEntity(comment);
+                        commentRepository.updateComment(commentEntity);
+
+                        updateLikeCommentButton();
+                    } else {
+                        showLoginPromptDialog();
+                    }
+                });
+
+                editCommentButton.setOnClickListener(v -> {
+                    if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) {
+                        AddCommentDialog dialog = new AddCommentDialog();
+                        dialog.setAddCommentListener(text -> {
+                            if (!text.trim().isEmpty()) {
+                                comment.setText(text);
+                                CommentEntity commentEntity = new CommentEntity(videoId, comment.getUsername(), text, comment.getUploadTime(), comment.getLikes(), comment.getProfilePicUrl());
+                                commentEntity.setId(comment.getId());
+                                commentRepository.updateComment(commentEntity);
+                                commentTextView.setText(text);
+                            }
+                        });
+                        dialog.show(getSupportFragmentManager(), "EditCommentDialog");
+                    } else {
+                        showLoginPromptDialog();
+                    }
+                });
+
+                deleteCommentButton.setOnClickListener(v -> {
+                    if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            Video.Comment removedComment = comments.remove(position);
+                            CommentEntity commentEntity = new CommentEntity(videoId, removedComment.getUsername(), removedComment.getText(), removedComment.getUploadTime(), removedComment.getLikes(), removedComment.getProfilePicUrl());
+                            commentEntity.setId(removedComment.getId());
+                            commentRepository.deleteComment(commentEntity);
+                            notifyItemRemoved(position);
+                            updateCommentsCount();
+                        }
+                    } else {
+                        showLoginPromptDialog();
+                    }
+                });
+               /* editCommentButton.setOnClickListener(v -> { //try7
                     if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) { //try7
                         AddCommentDialog dialog = new AddCommentDialog(); //try7
                         dialog.setAddCommentListener(text -> { //try7
@@ -477,8 +579,17 @@ public class VideoDetailActivity extends AppCompatActivity {
                     } else { //try7
                         showLoginPromptDialog(); //try7
                     } //try7
-                }); //try7
+                }); //try7 */
             }
+
+            private CommentEntity convertToCommentEntity(Video.Comment comment) {
+                CommentEntity entity = new CommentEntity(videoId, comment.getUsername(), comment.getText(),
+                        comment.getUploadTime(), comment.getLikes(),
+                        comment.getProfilePicUrl());
+                entity.setId(comment.getId());
+                return entity;
+            }
+
 
             private void loadImageView(ImageView imageView, String imageUrl) {
                 if (imageUrl != null && imageUrl.startsWith("drawable/")) {

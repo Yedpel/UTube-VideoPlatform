@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     public static final String PREFS_NAME = "theme_prefs";
     private static final String LOGGED_IN_KEY = "logged_in";
-    private static final String LOGGED_IN_USER = "logged_in_user";
+    public static final String LOGGED_IN_USER = "logged_in_user";
     private static boolean isNightMode = false; // Static variable for theme mode //try90
     private int videoIdCounter = 14;
     private Uri selectedVideoUri;
