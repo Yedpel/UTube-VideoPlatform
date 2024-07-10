@@ -1,6 +1,8 @@
 package com.example.utube.activities;
 
 import com.example.utube.models.Video;
+
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,10 +34,12 @@ public class ChannelActivity extends AppCompatActivity {
 
     private TextView channelTitle;
     private Button editUserButton;
+    private Button deleteUserButton;
     private RecyclerView recyclerView;
     private VideoAdapter videoAdapter;
     private SwipeRefreshLayout swipeRefreshLayout; //try-swip
     private String authorName; //try-swip
+    private static final int REQUEST_VIDEO_DETAIL = 1; //try-chanUpd
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +57,7 @@ public class ChannelActivity extends AppCompatActivity {
 
         channelTitle = findViewById(R.id.channel_title);
         editUserButton = findViewById(R.id.edit_user_button);
+        deleteUserButton = findViewById(R.id.delete_user_button);
         recyclerView = findViewById(R.id.channel_recycler_view);
 
         authorName = getIntent().getStringExtra("AUTHOR_NAME");
@@ -68,7 +73,27 @@ public class ChannelActivity extends AppCompatActivity {
 
         editUserButton.setOnClickListener(v -> {
             // TODO: Implement edit user functionality
+            Toast.makeText(this, "Edit User functionality not implemented yet", Toast.LENGTH_SHORT).show(); //try-chanUpd
         });
+
+        deleteUserButton.setOnClickListener(v -> {
+            // TODO: Implement delete user functionality
+            Toast.makeText(this, "Delete User functionality not implemented yet", Toast.LENGTH_SHORT).show(); //try-chanUpd
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_VIDEO_DETAIL && resultCode == RESULT_OK) {
+            refreshVideoList(); //try-chanUpd
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshVideoList(); //try-chanUpd
     }
 
     private void refreshVideoList() { //try-swip
@@ -119,7 +144,8 @@ public class ChannelActivity extends AppCompatActivity {
                 intent.putExtra("UPLOAD_TIME", video.getUploadTime());
                 intent.putExtra("AUTHOR_PROFILE_PIC_URL", video.getAuthorProfilePicUrl());
                 intent.putExtra("LIKES", video.getLikes());
-                context.startActivity(intent);
+                ((Activity) context).startActivityForResult(intent, REQUEST_VIDEO_DETAIL); //try-chanUpd
+                // context.startActivity(intent);
             });
 
             // You can keep the menu button functionality if needed, or remove it for the channel page
