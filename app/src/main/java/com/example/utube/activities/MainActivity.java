@@ -137,7 +137,10 @@ public class MainActivity extends AppCompatActivity {
             recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("recycler_state"));
         } else if (VideoManager.getInstance(getApplication()).getVideoList().isEmpty()) {
             loadVideoData();
+        } else {
+            refreshVideoList();
         }
+
 
         restoreUserAddedVideos(); //try90
 
@@ -244,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
     private void switchTheme() {
         isNightMode = !isNightMode;
         sharedPreferences.edit().putBoolean("isNightMode", isNightMode).apply(); // Save theme preference
+        VideoManager.getInstance(getApplication()).clearFilteredList(); // Clear filtered list
         applyTheme(); // Apply the new theme
         recreate(); // Restart activity to apply the new theme
     }
@@ -428,7 +432,12 @@ public class MainActivity extends AppCompatActivity {
                 VideoManager.getInstance(getApplication()).getLikedStateMap().put(id, sharedPreferences.getBoolean(id + "_liked", false));
 
                 Video video = new Video(id, title, author, updatedViews, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category, updatedLikes);
-                VideoManager.getInstance(getApplication()).addVideo(video);
+                // Check if video already exists
+                if (VideoManager.getInstance(getApplication()).getVideoById(id) != null) {
+                    VideoManager.getInstance(getApplication()).updateVideo(video);
+                } else {
+                    VideoManager.getInstance(getApplication()).addVideo(video);
+                }
             }
             videoAdapter.notifyDataSetChanged();
         } catch (Exception e) {
