@@ -32,6 +32,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.utube.R;
 import com.example.utube.models.Users;
@@ -57,11 +58,12 @@ public class MainActivity extends AppCompatActivity {
     public static final String PREFS_NAME = "theme_prefs";
     private static final String LOGGED_IN_KEY = "logged_in";
     public static final String LOGGED_IN_USER = "logged_in_user";
-    private static boolean isNightMode = false; // Static variable for theme mode //try90
+    private static boolean isNightMode = false; // Static variable for theme mode 
     private int videoIdCounter = 14;
     private Uri selectedVideoUri;
     private String loggedInUser;
-    private static boolean isFirstThemeApplication = true; // Add this line at the top of MainActivity class
+    private static boolean isFirstThemeApplication = true;
+    private SwipeRefreshLayout swipeRefreshLayout; //try-swip
 
 
     @Override
@@ -161,6 +163,12 @@ public class MainActivity extends AppCompatActivity {
                 showLoginPromptDialog(); //try90
             } //try90
         });
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout); //try-swip
+        swipeRefreshLayout.setOnRefreshListener(() -> { //try-swip
+            refreshVideoList(); //try-swip
+            swipeRefreshLayout.setRefreshing(false); //try-swip
+        }); //try-swip
 
         //if its first time application, make sure isNightMode is false
         //and set the shared preference to false
@@ -272,6 +280,9 @@ public class MainActivity extends AppCompatActivity {
         List<Video> updatedVideos = VideoManager.getInstance(getApplication()).getVideoList(); //try-behave
         videoAdapter.updateVideos(updatedVideos); //try-behave
         Log.d("MainActivity", "Refreshing video list, size: " + updatedVideos.size()); //try-behave
+        if (swipeRefreshLayout != null) { //try-swip
+            swipeRefreshLayout.setRefreshing(false); //try-swip
+        } //try-swip
     }
 
     @Override
@@ -560,7 +571,7 @@ public class MainActivity extends AppCompatActivity {
                     } else if (item.getItemId() == R.id.delete_video) {
                         if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) {
                             VideoManager.getInstance(getApplication()).removeVideo(video.getId());
-                           // notifyDataSetChanged();
+                            // notifyDataSetChanged();
                             refreshVideoList(); //try-behave
                         } else {
                             showLoginPromptDialog();
