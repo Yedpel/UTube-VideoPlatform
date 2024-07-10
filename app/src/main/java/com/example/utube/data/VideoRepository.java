@@ -39,10 +39,13 @@ public class VideoRepository {
 
     public List<VideoEntity> getVideosForAuthor(String author) {
         try {
-            return executorService.submit(() -> videoDao.getVideosForAuthor(author)).get();
+            List<VideoEntity> videos = executorService.submit(() -> videoDao.getVideosForAuthor(author)).get();
+            Log.d("VideoRepository", "Fetched " + videos.size() + " videos for author: " + author); //try-swip
+            return videos;
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            Log.e("VideoRepository", "Error fetching videos for author: " + author, e); //try-swip
+            return new ArrayList<>();
         }
     }
 

@@ -5,16 +5,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.example.utube.R;
 import com.example.utube.activities.VideoManager;
 import com.squareup.picasso.Picasso;
@@ -29,6 +34,8 @@ public class ChannelActivity extends AppCompatActivity {
     private Button editUserButton;
     private RecyclerView recyclerView;
     private VideoAdapter videoAdapter;
+    private SwipeRefreshLayout swipeRefreshLayout; //try-swip
+    private String authorName; //try-swip
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,18 +55,33 @@ public class ChannelActivity extends AppCompatActivity {
         editUserButton = findViewById(R.id.edit_user_button);
         recyclerView = findViewById(R.id.channel_recycler_view);
 
-        String authorName = getIntent().getStringExtra("AUTHOR_NAME");
+        authorName = getIntent().getStringExtra("AUTHOR_NAME");
         channelTitle.setText(authorName + "'s Channel");
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         videoAdapter = new VideoAdapter(VideoManager.getInstance(getApplication()).getVideosForAuthor(authorName), this);
         recyclerView.setAdapter(videoAdapter);
 
+        authorName = getIntent().getStringExtra("AUTHOR_NAME"); //try-swip
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout); //try-swip
+        swipeRefreshLayout.setOnRefreshListener(this::refreshVideoList); //try-swip
+
         editUserButton.setOnClickListener(v -> {
             // TODO: Implement edit user functionality
         });
     }
 
+    private void refreshVideoList() { //try-swip
+        List<Video> updatedVideos = VideoManager.getInstance(getApplication()).getVideosForAuthor(authorName);
+        if (updatedVideos != null && !updatedVideos.isEmpty()) {
+            videoAdapter.updateVideos(updatedVideos);
+        } else {
+            // If the list is empty, we might want to show a message to the user
+            Toast.makeText(this, "No videos found for this author", Toast.LENGTH_SHORT).show();
+        }
+        swipeRefreshLayout.setRefreshing(false);
+        Log.d("ChannelActivity", "Refreshed videos count: " + (updatedVideos != null ? updatedVideos.size() : 0)); //try-swip
+    } //try-swip
 
     private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
         private List<Video> videoList;
@@ -75,6 +97,12 @@ public class ChannelActivity extends AppCompatActivity {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_video, parent, false);
             return new VideoViewHolder(view);
         }
+
+        public void updateVideos(List<Video> newVideos) { //try-swip
+            this.videoList.clear(); //try-swip
+            this.videoList.addAll(newVideos); //try-swip
+            notifyDataSetChanged(); //try-swip
+        } //try-swip
 
         @Override
         public void onBindViewHolder(VideoViewHolder holder, int position) {

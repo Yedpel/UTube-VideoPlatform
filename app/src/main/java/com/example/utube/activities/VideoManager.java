@@ -109,7 +109,9 @@ public class VideoManager {
 
     public List<Video> getVideosForAuthor(String author) {
         List<VideoEntity> entities = videoRepository.getVideosForAuthor(author);
-        return entities.stream().map(this::entityToVideo).collect(Collectors.toList());
+        List<Video> videos = entities.stream().map(this::entityToVideo).collect(Collectors.toList());
+        Log.d("VideoManager", "Fetched " + videos.size() + " videos for author: " + author); //try-swip
+        return videos;
     }
 
     public Video getVideoById(String id) {
