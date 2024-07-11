@@ -28,7 +28,7 @@ public class VideoRepository {
         try {
             // return executorService.submit(videoDao::getAllVideos).get();
             List<VideoEntity> videos = executorService.submit(videoDao::getAllVideos).get();
-            Log.d("VideoRepository", "Number of videos retrieved: " + videos.size());
+            Log.d("VideoRepository", "Fetched " + videos.size() + " videos from database");
             return videos;
         } catch (Exception e) {
             e.printStackTrace();
@@ -50,7 +50,10 @@ public class VideoRepository {
     }
 
     public void updateVideo(VideoEntity video) {
-        executorService.execute(() -> videoDao.updateVideo(video));
+        executorService.execute(() -> {
+            videoDao.updateVideo(video);
+            Log.d("VideoRepository", "Updated video in database: " + video.getId() + " with views: " + video.getViews());
+        });
     }
 
     public void deleteVideo(VideoEntity video) {
@@ -64,5 +67,12 @@ public class VideoRepository {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public void incrementViews(String videoId) {
+        executorService.execute(() -> {
+            videoDao.incrementViews(videoId);
+            Log.d("VideoRepository", "Incremented views for video " + videoId);
+        });
     }
 }

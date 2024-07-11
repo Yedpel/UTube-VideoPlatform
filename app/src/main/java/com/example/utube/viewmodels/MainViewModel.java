@@ -25,6 +25,7 @@ public class MainViewModel extends AndroidViewModel {
     private MutableLiveData<List<Video>> videos;
     private VideoManager videoManager;
 
+
     public MainViewModel(Application application) {
         super(application);
         videoManager = VideoManager.getInstance(application);
@@ -41,6 +42,10 @@ public class MainViewModel extends AndroidViewModel {
 
     public void loadVideos() {
         List<Video> videoList = videoManager.getVideoList();
+        Log.d("MainViewModel", "Loaded " + videoList.size() + " videos");
+        for (Video video : videoList) {
+            Log.d("MainViewModel", "Video " + video.getId() + " has " + video.getViews() + " views");
+        }
         videos.postValue(videoList != null ? videoList : new ArrayList<>());
     }
 
@@ -180,6 +185,9 @@ public class MainViewModel extends AndroidViewModel {
         if (videoList.isEmpty()) {
             loadVideoData(getApplication(), getApplication().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE));
         } else {
+            for (Video video : videoList) {
+                Log.d("MainViewModel", "Video " + video.getId() + " has " + video.getViews() + " views");
+            }
             videos.postValue(videoList);
         }
     }

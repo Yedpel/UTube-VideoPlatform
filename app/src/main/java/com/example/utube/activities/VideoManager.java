@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 public class VideoManager {
@@ -19,6 +20,7 @@ public class VideoManager {
     private List<Video> filteredVideoList = new ArrayList<>();
     private Map<String, Boolean> likedStateMap = new HashMap<>();
     private Map<String, Integer> likesCountMap = new HashMap<>();
+    private ExecutorService executorService;
 
     private VideoManager(Application application) {
         videoRepository = new VideoRepository(application);
@@ -33,8 +35,9 @@ public class VideoManager {
 
     public List<Video> getVideoList() {
         List<VideoEntity> entities = videoRepository.getAllVideos();
-        Log.d("VideoManager", "Getting video list, size: " + entities.size());
-        return entities.stream().map(this::entityToVideo).collect(Collectors.toList());
+        List<Video> videos = entities.stream().map(this::entityToVideo).collect(Collectors.toList());
+        Log.d("VideoManager", "Fetched " + videos.size() + " videos");
+        return videos;
     }
 
 
@@ -107,6 +110,7 @@ public void addVideo(Video video) {
     public void updateVideo(Video video) {
         Log.d("VideoManager", "Updating video: " + video.getId()); //try-behave
         videoRepository.updateVideo(videoToEntity(video));
+        Log.d("VideoManager", "Updating video " + video.getId() + " with views: " + video.getViews());
 //        int index = filteredVideoList.indexOf(video);
 //        if (index != -1) {
 //            filteredVideoList.set(index, video);
@@ -161,5 +165,16 @@ public void addVideo(Video video) {
         return new VideoEntity(video.getId(), video.getTitle(), video.getAuthor(), video.getViews(),
                 video.getUploadTime(), video.getThumbnailUrl(), video.getAuthorProfilePicUrl(),
                 video.getVideoUrl(), video.getCategory(), video.getLikes());
+    }
+
+    public void incrementViews(String videoId) {
+        executorService.execute(() -> {
+            VideoEntity entity = videoRepository.getVideoById(videoId);
+            if (entity != null) {
+                entity.setViews(entity.getViews() + 1);
+                videoRepository.updateVideo(entity);
+                Log.d("VideoManager", "Incremented views for video " + videoId + ": " + entity.getViews());
+            }
+        });
     }
 }

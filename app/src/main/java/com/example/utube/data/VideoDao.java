@@ -24,4 +24,7 @@ public interface VideoDao {
 
     @Query("SELECT * FROM videos WHERE id = :id")
     VideoEntity getVideoById(String id);
+
+    @Query("UPDATE videos SET views = views + 1 WHERE id = :videoId")
+    void incrementViews(String videoId);
 }

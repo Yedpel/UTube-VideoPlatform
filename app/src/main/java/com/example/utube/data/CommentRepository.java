@@ -36,4 +36,15 @@ public class CommentRepository {
     public void deleteComment(CommentEntity comment) {
         executorService.execute(() -> commentDao.deleteComment(comment));
     }
+
+    public CommentEntity getCommentById(int commentId) {
+        try {
+            return executorService.submit(() -> commentDao.getCommentById(commentId)).get();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
 }

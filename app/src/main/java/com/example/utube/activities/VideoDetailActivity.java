@@ -23,6 +23,7 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,6 +33,7 @@ import com.example.utube.data.CommentRepository;
 import com.example.utube.models.CommentEntity;
 import com.example.utube.models.Users;
 import com.example.utube.models.Video;
+import com.example.utube.viewmodels.VideoDetailViewModel;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -63,6 +65,7 @@ public class VideoDetailActivity extends AppCompatActivity {
     private CommentRepository commentRepository;
     private SharedPreferences sharedPreferences;
     public static final String PREFS_NAME = "theme_prefs";
+    private VideoDetailViewModel viewModel; //mvvm-change
 
 
     @Override
@@ -84,7 +87,13 @@ public class VideoDetailActivity extends AppCompatActivity {
         likesTextView = findViewById(R.id.likes_count);
         commentsCountTextView = findViewById(R.id.comments_count);
         commentsRecyclerView = findViewById(R.id.comments_recycler_view);
+        commentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         btnFullScreen = findViewById(R.id.btn_full_screen);
+
+        viewModel = new ViewModelProvider(this).get(VideoDetailViewModel.class); //mvvm-change
+
+        commentsAdapter = new CommentsAdapter(new ArrayList<>());
+        commentsRecyclerView.setAdapter(commentsAdapter);
 
         // Initialize media controller
         MediaController mediaController = new MediaController(this);
@@ -99,18 +108,33 @@ public class VideoDetailActivity extends AppCompatActivity {
         views = getIntent().getIntExtra("VIEWS", 0);
         String uploadTime = getIntent().getStringExtra("UPLOAD_TIME");
         String authorProfilePicUrl = getIntent().getStringExtra("AUTHOR_PROFILE_PIC_URL");
-        likes = getIntent().getIntExtra("LIKES", 0);
+        // likes = getIntent().getIntExtra("LIKES", 0);
 
         // Increment the views count
-        views++;
-        viewsTextView.setText(views + " views");
+          views++;
+         // viewsTextView.setText(views + " views");
 
         // Load likes state from memory
         isLiked = VideoManager.getInstance(getApplication()).getLikedStateMap().getOrDefault(videoId, false);
-        likes = VideoManager.getInstance(getApplication()).getLikesCountMap().getOrDefault(videoId, likes);
+        // likes = VideoManager.getInstance(getApplication()).getLikesCountMap().getOrDefault(videoId, likes);
 
 
-        likesTextView.setText(likes + " likes");
+        //  likesTextView.setText(likes + " likes");
+
+        // MVVM changes
+        viewModel.loadVideo(videoId); //mvvm-change
+        viewModel.loadComments(videoId); //mvvm-change
+        viewModel.incrementViews(); //mvvm-change
+
+        // Observe only the changing parts of the video data
+        viewModel.getVideo().observe(this, video -> { //mvvm-change
+            if (video != null) {
+                viewsTextView.setText(video.getViews() + " views");
+                likesTextView.setText(video.getLikes() + " likes");
+                titleTextView.setText(video.getTitle());
+                authorTextView.setText(video.getAuthor());
+            }
+        }); //mvvm-change
 
         // Log the URL for debugging
         Log.d("VideoDetailActivity", "Video URL: " + videoUrl);
@@ -216,17 +240,14 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         commentRepository = ((MyApplication) getApplicationContext()).getCommentRepository();
 
-        // Load comments
-        List<CommentEntity> commentEntities = commentRepository.getCommentsForVideo(videoId);
-        comments = new ArrayList<>();
-        if (commentEntities != null) {
-            for (CommentEntity entity : commentEntities) {
-                comments.add(convertToVideoComment(entity));
+        viewModel.getComments().observe(this, commentsList -> { //mvvm-change
+            if (commentsList != null) {
+                comments = commentsList;
+                comments = commentsList;
+                commentsAdapter.updateComments(comments);
+                updateCommentsCount();
             }
-        }
-        commentsAdapter = new CommentsAdapter(comments);
-        commentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        commentsRecyclerView.setAdapter(commentsAdapter);
+        }); //mvvm-change
 
         // Add comment button click listener
         String finalAuthorProfilePicUrl = authorProfilePicUrl;
@@ -235,15 +256,9 @@ public class VideoDetailActivity extends AppCompatActivity {
                 AddCommentDialog dialog = new AddCommentDialog();
                 dialog.setAddCommentListener(text -> {
                     if (!text.trim().isEmpty()) {
-                        String currentTime = "Just now";
                         String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
                         String profilePicUrl = Users.getInstance().getUser(currentLoggedInUser).getProfilePic();
-                        CommentEntity commentEntity = new CommentEntity(videoId, currentLoggedInUser, text, currentTime, 0, profilePicUrl);
-                        commentRepository.insert(commentEntity);
-                        Video.Comment newComment = convertToVideoComment(commentEntity);
-                        comments.add(newComment);
-                        commentsAdapter.notifyDataSetChanged();
-                        updateCommentsCount();
+                        viewModel.addComment(videoId, currentLoggedInUser, text, profilePicUrl); //mvvm-change
                     }
                 });
                 dialog.show(getSupportFragmentManager(), "AddCommentDialog");
@@ -282,7 +297,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         });
 
         // Update comments count
-        updateCommentsCount();
+       // updateCommentsCount();
 
         btnFullScreen.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -365,27 +380,17 @@ public class VideoDetailActivity extends AppCompatActivity {
 
     private void updateLikeButton() {
         String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
-        String likeKey = videoId + "_" + currentLoggedInUser + "_liked";
-        isLiked = sharedPreferences.getBoolean(likeKey, false);
+        isLiked = viewModel.isVideoLiked(videoId, currentLoggedInUser); //mvvm-change
+
+        viewModel.getIsLiked().observe(this, liked -> { //mvvm-change
+            isLiked = liked;
+            ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like");
+        }); //mvvm-change
 
         findViewById(R.id.like_button).setOnClickListener(v -> {
             if (sharedPreferences.getBoolean("logged_in", false)) {
-                isLiked = !isLiked;
-                if (isLiked) {
-                    likes++;
-                } else {
-                    likes--;
-                }
-                likesTextView.setText(likes + " likes");
-                sharedPreferences.edit().putBoolean(likeKey, isLiked).apply();
-
-                Video video = VideoManager.getInstance(getApplication()).getVideoById(videoId);
-                if (video != null) {
-                    video.setLikes(likes);
-                    VideoManager.getInstance(getApplication()).updateVideo(video);
-                }
-
-                ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like");
+                boolean newLikeStatus = !isLiked;
+                viewModel.updateLikeStatus(videoId, currentLoggedInUser, newLikeStatus); //mvvm-change
             } else {
                 showLoginPromptDialog();
             }
@@ -450,6 +455,10 @@ public class VideoDetailActivity extends AppCompatActivity {
             this.commentList = commentList;
         }
 
+        public void updateComments(List<Video.Comment> newComments) {
+            this.commentList = newComments;
+            notifyDataSetChanged();
+        }
         @Override
         public CommentViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_comment, parent, false);
@@ -494,31 +503,32 @@ public class VideoDetailActivity extends AppCompatActivity {
                 loadImageView(profilePicImageView, comment.getProfilePicUrl());
 
                 String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
-                String commentLikeKey = videoId + "_" + comment.getId() + "_" + currentLoggedInUser + "_liked";
-                isCommentLiked = sharedPreferences.getBoolean(commentLikeKey, false);
+               // String commentLikeKey = videoId + "_" + comment.getId() + "_" + currentLoggedInUser + "_liked";
+                //isCommentLiked = sharedPreferences.getBoolean(commentLikeKey, false);
+                isCommentLiked = viewModel.isCommentLiked(videoId, comment.getId(), currentLoggedInUser);
+
 
                 updateLikeCommentButton();
 
+//                likeCommentButton.setOnClickListener(v -> {
+//                    if (sharedPreferences.getBoolean("logged_in", false)) {
+//                        boolean newLikeStatus = !isCommentLiked;
+//                        viewModel.updateCommentLikeStatus(videoId, comment, newLikeStatus);
+//                    } else {
+//                        showLoginPromptDialog();
+//                    }
+//                });
                 likeCommentButton.setOnClickListener(v -> {
                     if (sharedPreferences.getBoolean("logged_in", false)) {
                         isCommentLiked = !isCommentLiked;
-                        if (isCommentLiked) {
-                            comment.setLikes(comment.getLikes() + 1);
-                        } else {
-                            comment.setLikes(comment.getLikes() - 1);
-                        }
-                        commentLikesTextView.setText(comment.getLikes() + " likes");
-                        sharedPreferences.edit().putBoolean(commentLikeKey, isCommentLiked).apply();
-
-                        // Convert Video.Comment to CommentEntity
-                        CommentEntity commentEntity = convertToCommentEntity(comment);
-                        commentRepository.updateComment(commentEntity);
-
+                        viewModel.updateCommentLikeStatus(videoId, comment.getId(), currentLoggedInUser, isCommentLiked);
                         updateLikeCommentButton();
                     } else {
                         showLoginPromptDialog();
                     }
                 });
+
+
 
                 editCommentButton.setOnClickListener(v -> {
                     if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) {
@@ -526,10 +536,8 @@ public class VideoDetailActivity extends AppCompatActivity {
                         dialog.setAddCommentListener(text -> {
                             if (!text.trim().isEmpty()) {
                                 comment.setText(text);
-                                CommentEntity commentEntity = new CommentEntity(videoId, comment.getUsername(), text, comment.getUploadTime(), comment.getLikes(), comment.getProfilePicUrl());
-                                commentEntity.setId(comment.getId());
-                                commentRepository.updateComment(commentEntity);
-                                commentTextView.setText(text);
+                                CommentEntity commentEntity = convertToCommentEntity(comment);
+                                viewModel.updateComment(commentEntity); //mvvm-change
                             }
                         });
                         dialog.show(getSupportFragmentManager(), "EditCommentDialog");
@@ -540,15 +548,8 @@ public class VideoDetailActivity extends AppCompatActivity {
 
                 deleteCommentButton.setOnClickListener(v -> {
                     if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) {
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION) {
-                            Video.Comment removedComment = comments.remove(position);
-                            CommentEntity commentEntity = new CommentEntity(videoId, removedComment.getUsername(), removedComment.getText(), removedComment.getUploadTime(), removedComment.getLikes(), removedComment.getProfilePicUrl());
-                            commentEntity.setId(removedComment.getId());
-                            commentRepository.deleteComment(commentEntity);
-                            notifyItemRemoved(position);
-                            updateCommentsCount();
-                        }
+                        CommentEntity commentEntity = convertToCommentEntity(comment);
+                        viewModel.deleteComment(commentEntity); //mvvm-change
                     } else {
                         showLoginPromptDialog();
                     }
@@ -611,12 +612,15 @@ public class VideoDetailActivity extends AppCompatActivity {
                 }
             }
 
+//            private void updateLikeCommentButton() {
+//                if (isCommentLiked) {
+//                    likeCommentButton.setText("Unlike");
+//                } else {
+//                    likeCommentButton.setText("Like");
+//                }
+//            }
             private void updateLikeCommentButton() {
-                if (isCommentLiked) {
-                    likeCommentButton.setText("Unlike");
-                } else {
-                    likeCommentButton.setText("Like");
-                }
+                likeCommentButton.setText(isCommentLiked ? "Unlike" : "Like");
             }
         }
 

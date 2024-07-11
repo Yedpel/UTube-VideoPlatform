@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.SpannableString;
@@ -190,8 +191,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("MainActivity", "onResume called"); //try-behave
-        refreshVideoList();
+        viewModel.loadVideos(); //try-behave
+      //  new Handler().postDelayed(() -> viewModel.loadVideos(), 100); // 100ms delay
+        Log.d("MainActivity", "onResume called, reloading videos after delay");
     }
 
 
