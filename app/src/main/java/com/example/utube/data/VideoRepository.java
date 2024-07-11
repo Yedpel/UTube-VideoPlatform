@@ -26,7 +26,7 @@ public class VideoRepository {
 
     public List<VideoEntity> getAllVideos() {
         try {
-           // return executorService.submit(videoDao::getAllVideos).get();
+            // return executorService.submit(videoDao::getAllVideos).get();
             List<VideoEntity> videos = executorService.submit(videoDao::getAllVideos).get();
             Log.d("VideoRepository", "Number of videos retrieved: " + videos.size());
             return videos;

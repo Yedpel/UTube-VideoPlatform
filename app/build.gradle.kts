@@ -48,4 +48,7 @@ dependencies {
     implementation("androidx.room:room-ktx:$roomVersion")
 
     implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0") //try-swip
+
+    implementation ("androidx.lifecycle:lifecycle-viewmodel:2.3.1")
+    implementation ("androidx.lifecycle:lifecycle-livedata:2.3.1")
 }
