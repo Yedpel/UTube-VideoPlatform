@@ -16,8 +16,13 @@ public class CommentRepository {
         executorService = Executors.newSingleThreadExecutor();
     }
 
-    public void insert(CommentEntity comment) {
-        executorService.execute(() -> commentDao.insert(comment));
+    public long insert(CommentEntity comment) {
+        try {
+            return executorService.submit(() -> commentDao.insert(comment)).get();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 
     public List<CommentEntity> getCommentsForVideo(String videoId) {

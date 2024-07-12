@@ -51,4 +51,6 @@ dependencies {
 
     implementation ("androidx.lifecycle:lifecycle-viewmodel:2.3.1")
     implementation ("androidx.lifecycle:lifecycle-livedata:2.3.1")
+
+    implementation ("androidx.recyclerview:recyclerview:1.2.1")
 }

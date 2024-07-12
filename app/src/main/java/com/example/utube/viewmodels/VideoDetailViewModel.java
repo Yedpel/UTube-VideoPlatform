@@ -44,25 +44,78 @@ public class VideoDetailViewModel extends AndroidViewModel {
             Log.d("VideoDetailViewModel", "Updated views for video " + videoId + ": " + loadedVideo.getViews());
         }
     }
+    //bla bla
 
     public void addComment(String videoId, String username, String text, String profilePicUrl) {
-        String currentTime = "Just now"; // You might want to use a proper timestamp
+        String currentTime = "Just now";
         CommentEntity newComment = new CommentEntity(videoId, username, text, currentTime, 0, profilePicUrl);
-        commentRepository.insert(newComment);
+        long commentId = commentRepository.insert(newComment);
 
-        // Update the LiveData directly instead of reloading all comments
-        List<Video.Comment> currentComments = comments.getValue();
-        if (currentComments == null) {
-            currentComments = new ArrayList<>();
+        if (commentId != -1) {
+            newComment.setId((int) commentId); // Assuming your ID is an int
+            List<Video.Comment> currentComments = comments.getValue();
+            if (currentComments == null) {
+                currentComments = new ArrayList<>();
+            }
+            Video.Comment addedComment = convertToVideoComment(newComment);
+            currentComments.add(addedComment);
+            comments.postValue(new ArrayList<>(currentComments)); // Create a new list to trigger update
+            Log.d("VideoDetailViewModel", "Added comment: " + addedComment.getId() + ", " + addedComment.getText());
+        } else {
+            Log.e("VideoDetailViewModel", "Failed to add comment");
         }
-        currentComments.add(convertToVideoComment(newComment));
-        comments.postValue(currentComments);
     }
 
-    public void updateComment(CommentEntity comment) {
-        commentRepository.updateComment(comment);
-        loadComments(comment.getVideoId()); // Reload comments after updating
+    public void updateComment(CommentEntity updatedComment) {
+        commentRepository.updateComment(updatedComment);
+
+        List<Video.Comment> currentComments = comments.getValue();
+        if (currentComments != null) {
+            List<Video.Comment> newComments = new ArrayList<>(currentComments);
+            for (int i = 0; i < newComments.size(); i++) {
+                if (newComments.get(i).getId() == updatedComment.getId()) {
+                    Video.Comment updated = convertToVideoComment(updatedComment);
+                    newComments.set(i, updated);
+                    Log.d("VideoDetailViewModel", "Updated comment: " + updated.getId() + ", " + updated.getText());
+                    break;
+                }
+            }
+            comments.postValue(newComments);
+        }
     }
+//    public void addComment(String videoId, String username, String text, String profilePicUrl) {
+//        String currentTime = "Just now"; // You might want to use a proper timestamp
+//        CommentEntity newComment = new CommentEntity(videoId, username, text, currentTime, 0, profilePicUrl);
+//        commentRepository.insert(newComment);
+//
+//        // Update the LiveData directly instead of reloading all comments
+//        List<Video.Comment> currentComments = comments.getValue();
+//        if (currentComments == null) {
+//            currentComments = new ArrayList<>();
+//        }
+//        currentComments.add(convertToVideoComment(newComment));
+//        comments.postValue(currentComments);
+//    }
+//
+//    //    public void updateComment(CommentEntity comment) {
+////        commentRepository.updateComment(comment);
+////        loadComments(comment.getVideoId()); // Reload comments after updating
+////    }
+//    public void updateComment(CommentEntity updatedComment) {
+//        commentRepository.updateComment(updatedComment);
+//
+//        // Update the comment in the current list
+//        List<Video.Comment> currentComments = comments.getValue();
+//        if (currentComments != null) {
+//            for (int i = 0; i < currentComments.size(); i++) {
+//                if (currentComments.get(i).getId() == updatedComment.getId()) {
+//                    currentComments.set(i, convertToVideoComment(updatedComment));
+//                    break;
+//                }
+//            }
+//            comments.postValue(currentComments);
+//        }
+//    }
 
     public void deleteComment(CommentEntity comment) {
         commentRepository.deleteComment(comment);

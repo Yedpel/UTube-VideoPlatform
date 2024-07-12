@@ -7,7 +7,7 @@ import java.util.List;
 @Dao
 public interface CommentDao {
     @Insert
-    void insert(CommentEntity comment);
+    long insert(CommentEntity comment);
 
     @Query("SELECT * FROM comments WHERE videoId = :videoId")
     List<CommentEntity> getCommentsForVideo(String videoId);
