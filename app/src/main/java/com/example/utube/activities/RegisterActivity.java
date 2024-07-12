@@ -128,8 +128,8 @@ public class RegisterActivity extends AppCompatActivity {
             return false;
         }
 
+        //TODO: remove the comment below before submit to validate password length and complexity
         /*
-        put out of // before the submit
         //if the password less 8 characters, and not have both letters and numbers mark it red and return false
         if (password.length() < 8 || !password.matches(".*[a-zA-Z].*") || !password.matches(".*[0-9].*")) {
             passwordEditText.setError("Password must be at least 8 characters long and contain both english letters and numbers");
