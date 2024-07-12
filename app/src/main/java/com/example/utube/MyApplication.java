@@ -20,6 +20,8 @@ public class MyApplication extends Application {
     private VideoRepository videoRepository;
     private CommentRepository commentRepository;
 
+    public static Context context;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -33,6 +35,9 @@ public class MyApplication extends Application {
 
         // Initialize CommentRepository
         commentRepository = new CommentRepository(this);
+
+        // Initialize Context
+        context = getApplicationContext();
 
         // Set the default uncaught exception handler
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
