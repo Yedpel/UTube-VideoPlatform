@@ -18,16 +18,20 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.utube.R;
 import com.example.utube.activities.VideoManager;
+import com.example.utube.viewmodels.ChannelViewModel;
 import com.squareup.picasso.Picasso;
+
 import static com.example.utube.activities.MainActivity.PREFS_NAME;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ChannelActivity extends AppCompatActivity {
@@ -41,6 +45,8 @@ public class ChannelActivity extends AppCompatActivity {
     private String authorName; //try-swip
     private static final int REQUEST_VIDEO_DETAIL = 1; //try-chanUpd
 
+    private ChannelViewModel viewModel; //try-ch-mvvm
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Load theme from shared preferences
@@ -51,9 +57,11 @@ public class ChannelActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_channel);
 
+        viewModel = new ViewModelProvider(this).get(ChannelViewModel.class); //try-ch-mvvm
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-      //  getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //  getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         channelTitle = findViewById(R.id.channel_title);
         editUserButton = findViewById(R.id.edit_user_button);
@@ -64,12 +72,18 @@ public class ChannelActivity extends AppCompatActivity {
         channelTitle.setText(authorName + "'s Channel");
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        videoAdapter = new VideoAdapter(VideoManager.getInstance(getApplication()).getVideosForAuthor(authorName), this);
+        videoAdapter = new VideoAdapter(new ArrayList<>(), this); //try-ch-mvvm
+        //videoAdapter = new VideoAdapter(VideoManager.getInstance(getApplication()).getVideosForAuthor(authorName), this);
         recyclerView.setAdapter(videoAdapter);
 
-        authorName = getIntent().getStringExtra("AUTHOR_NAME"); //try-swip
+        // authorName = getIntent().getStringExtra("AUTHOR_NAME"); //try-swip
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout); //try-swip
         swipeRefreshLayout.setOnRefreshListener(this::refreshVideoList); //try-swip
+
+        viewModel.getVideos().observe(this, videos -> { //try-ch-mvvm
+            videoAdapter.updateVideos(videos);
+            swipeRefreshLayout.setRefreshing(false);
+        });
 
         editUserButton.setOnClickListener(v -> {
             // TODO: Implement edit user functionality
@@ -80,6 +94,8 @@ public class ChannelActivity extends AppCompatActivity {
             // TODO: Implement delete user functionality
             Toast.makeText(this, "Delete User functionality not implemented yet", Toast.LENGTH_SHORT).show(); //try-chanUpd
         });
+
+        loadVideos(); //try-ch-mvvm
     }
 
     @Override
@@ -96,24 +112,33 @@ public class ChannelActivity extends AppCompatActivity {
         refreshVideoList(); //try-chanUpd
     }
 
-    private void refreshVideoList() { //try-swip
-        List<Video> updatedVideos = VideoManager.getInstance(getApplication()).getVideosForAuthor(authorName);
-        if (updatedVideos != null && !updatedVideos.isEmpty()) {
-            videoAdapter.updateVideos(updatedVideos);
-        } else {
-            // If the list is empty, we might want to show a message to the user
-            Toast.makeText(this, "No videos found for this author", Toast.LENGTH_SHORT).show();
-        }
-        swipeRefreshLayout.setRefreshing(false);
-        Log.d("ChannelActivity", "Refreshed videos count: " + (updatedVideos != null ? updatedVideos.size() : 0)); //try-swip
-    } //try-swip
+    private void refreshVideoList() { //try-ch-mvvm
+        viewModel.loadVideosForAuthor(authorName);
+    }
+
+    private void loadVideos() { //try-ch-mvvm
+        viewModel.loadVideosForAuthor(authorName);
+    }
+
+//    private void refreshVideoList() { //try-swip
+//        List<Video> updatedVideos = VideoManager.getInstance(getApplication()).getVideosForAuthor(authorName);
+//        if (updatedVideos != null && !updatedVideos.isEmpty()) {
+//            videoAdapter.updateVideos(updatedVideos);
+//        } else {
+//            // If the list is empty, we might want to show a message to the user
+//            Toast.makeText(this, "No videos found for this author", Toast.LENGTH_SHORT).show();
+//        }
+//        swipeRefreshLayout.setRefreshing(false);
+//        Log.d("ChannelActivity", "Refreshed videos count: " + (updatedVideos != null ? updatedVideos.size() : 0)); //try-swip
+//    } //try-swip
 
     private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
         private List<Video> videoList;
         private Context context;
 
         public VideoAdapter(List<Video> videoList, Context context) {
-            this.videoList = videoList;
+            //this.videoList = videoList;
+            this.videoList = videoList != null ? videoList : new ArrayList<>(); //try-ch-mvvm
             this.context = context;
         }
 
@@ -123,11 +148,22 @@ public class ChannelActivity extends AppCompatActivity {
             return new VideoViewHolder(view);
         }
 
-        public void updateVideos(List<Video> newVideos) { //try-swip
-            this.videoList.clear(); //try-swip
-            this.videoList.addAll(newVideos); //try-swip
-            notifyDataSetChanged(); //try-swip
-        } //try-swip
+//        public void updateVideos(List<Video> newVideos) { //try-swip
+//            this.videoList.clear(); //try-swip
+//            this.videoList.addAll(newVideos); //try-swip
+//            notifyDataSetChanged(); //try-swip
+//        } //try-swip
+
+        public void updateVideos(List<Video> newVideos) {
+            if (this.videoList == null) { //try-ch-mvvm
+                this.videoList = new ArrayList<>(); //try-ch-mvvm
+            } //try-ch-mvvm
+            this.videoList.clear();
+            if (newVideos != null) { //try-ch-mvvm
+                this.videoList.addAll(newVideos);
+            } //try-ch-mvvm
+            notifyDataSetChanged();
+        }
 
         @Override
         public void onBindViewHolder(VideoViewHolder holder, int position) {
