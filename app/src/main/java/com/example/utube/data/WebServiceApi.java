@@ -15,8 +15,6 @@ public interface WebServiceApi {
     Call<LoginResponse> checkUserNameAndPassword(@Body LoginRequest loginRequest);
 
     @GET("users/{id}")
-    :q!
-:
     Call<UserDetails> getUser(@Path("id") String id);
 
 
