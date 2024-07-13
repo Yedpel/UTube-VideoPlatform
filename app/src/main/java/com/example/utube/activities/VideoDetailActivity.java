@@ -138,34 +138,80 @@ public class VideoDetailActivity extends AppCompatActivity {
         // Log the URL for debugging
         Log.d("VideoDetailActivity", "Video URL: " + videoUrl);
 
+//        // Set video details
+//        // Log and handle video file path or URL
+//        if (videoUrl != null && !videoUrl.isEmpty()) {
+//            //  Toast.makeText(this, "the video url isn't null", Toast.LENGTH_SHORT).show(); //try22
+//            if (videoUrl.startsWith("content://") || videoUrl.startsWith("file://")) {
+//                try {
+//                    // Verify the URI is accessible by querying it
+//                    InputStream inputStream = getContentResolver().openInputStream(Uri.parse(videoUrl)); //try22
+//                    if (inputStream != null) {
+//                        inputStream.close(); //try22
+//                        videoView.setVideoURI(Uri.parse(videoUrl)); //try22
+//                    } else {
+//                        throw new Exception("Input stream is null"); //try22
+//                    }
+//                } catch (Exception e) {
+//                    Toast.makeText(this, "Can't play this video. Error accessing URI: " + e.getMessage(), Toast.LENGTH_SHORT).show(); //try22
+//                    Log.e("VideoDetailActivity", "Error accessing URI: " + e.getMessage(), e); //try22
+//                    return;
+//                }
+//            } else if (videoUrl.startsWith("http")) {
+//                videoView.setVideoURI(Uri.parse(videoUrl)); //try22
+//            } else if (videoUrl.startsWith("raw/") || videoUrl.startsWith("drawable/")) {
+//                int videoResId = getResources().getIdentifier(videoUrl, "raw", getPackageName());
+//                if (videoResId == 0) {
+//                    videoResId = getResources().getIdentifier(videoUrl, "drawable", getPackageName());
+//                }
+//                if (videoResId != 0) {
+//                    videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + videoResId));
+//                } else {
+//                    Toast.makeText(this, "Can't play this video. Resource not found.", Toast.LENGTH_SHORT).show();
+//                    Log.e("VideoDetailActivity", "Error: Resource not found");
+//                    return;
+//                }
+//            } else {
+//                File videoFile = new File(videoUrl);
+//                if (videoFile.exists()) {
+//                    videoView.setVideoPath(videoFile.getAbsolutePath());
+//                } else {
+//                    Toast.makeText(this, "Can't play this video. File not found.", Toast.LENGTH_SHORT).show(); //try22
+//                    Log.e("VideoDetailActivity", "Error: video file not found");
+//                    return;
+//                }
+//            }
+//            videoView.setOnPreparedListener(mp -> mp.setOnVideoSizeChangedListener((mp1, width, height) -> { // Ensure video is prepared
+//                if (width == 0 || height == 0) {
+//                    Toast.makeText(this, "Can't play this video. Invalid video resolution.", Toast.LENGTH_SHORT).show(); //try22
+//                }
+//            }));
+//            videoView.setOnErrorListener((mp, what, extra) -> {
+//                Toast.makeText(VideoDetailActivity.this, "Can't play this video. Error code: " + what, Toast.LENGTH_SHORT).show(); //try22
+//                return true;
+//            });
+//            videoView.start();
+//        } else {
+//            Log.e("VideoDetailActivity", "Error: videoUrl is null or empty");
+//            Toast.makeText(this, "Can't play this video", Toast.LENGTH_SHORT).show();
+//        }
         // Set video details
-        // Log and handle video file path or URL
         if (videoUrl != null && !videoUrl.isEmpty()) {
-            //  Toast.makeText(this, "the video url isn't null", Toast.LENGTH_SHORT).show(); //try22
+            Uri videoUri;
             if (videoUrl.startsWith("content://") || videoUrl.startsWith("file://")) {
-                try {
-                    // Verify the URI is accessible by querying it
-                    InputStream inputStream = getContentResolver().openInputStream(Uri.parse(videoUrl)); //try22
-                    if (inputStream != null) {
-                        inputStream.close(); //try22
-                        videoView.setVideoURI(Uri.parse(videoUrl)); //try22
-                    } else {
-                        throw new Exception("Input stream is null"); //try22
-                    }
-                } catch (Exception e) {
-                    Toast.makeText(this, "Can't play this video. Error accessing URI: " + e.getMessage(), Toast.LENGTH_SHORT).show(); //try22
-                    Log.e("VideoDetailActivity", "Error accessing URI: " + e.getMessage(), e); //try22
-                    return;
-                }
+                videoUri = Uri.parse(videoUrl);
             } else if (videoUrl.startsWith("http")) {
-                videoView.setVideoURI(Uri.parse(videoUrl)); //try22
+                videoUri = Uri.parse(videoUrl);
+            } else if (videoUrl.startsWith("/media/")) {
+                // This is the new case for server videos
+                videoUri = Uri.parse("http://10.0.2.2:12345" + videoUrl);
             } else if (videoUrl.startsWith("raw/") || videoUrl.startsWith("drawable/")) {
                 int videoResId = getResources().getIdentifier(videoUrl, "raw", getPackageName());
                 if (videoResId == 0) {
                     videoResId = getResources().getIdentifier(videoUrl, "drawable", getPackageName());
                 }
                 if (videoResId != 0) {
-                    videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + videoResId));
+                    videoUri = Uri.parse("android.resource://" + getPackageName() + "/" + videoResId);
                 } else {
                     Toast.makeText(this, "Can't play this video. Resource not found.", Toast.LENGTH_SHORT).show();
                     Log.e("VideoDetailActivity", "Error: Resource not found");
@@ -174,23 +220,30 @@ public class VideoDetailActivity extends AppCompatActivity {
             } else {
                 File videoFile = new File(videoUrl);
                 if (videoFile.exists()) {
-                    videoView.setVideoPath(videoFile.getAbsolutePath());
+                    videoUri = Uri.fromFile(videoFile);
                 } else {
-                    Toast.makeText(this, "Can't play this video. File not found.", Toast.LENGTH_SHORT).show(); //try22
+                    Toast.makeText(this, "Can't play this video. File not found.", Toast.LENGTH_SHORT).show();
                     Log.e("VideoDetailActivity", "Error: video file not found");
                     return;
                 }
             }
-            videoView.setOnPreparedListener(mp -> mp.setOnVideoSizeChangedListener((mp1, width, height) -> { // Ensure video is prepared
-                if (width == 0 || height == 0) {
-                    Toast.makeText(this, "Can't play this video. Invalid video resolution.", Toast.LENGTH_SHORT).show(); //try22
-                }
-            }));
-            videoView.setOnErrorListener((mp, what, extra) -> {
-                Toast.makeText(VideoDetailActivity.this, "Can't play this video. Error code: " + what, Toast.LENGTH_SHORT).show(); //try22
-                return true;
-            });
-            videoView.start();
+
+            try {
+                videoView.setVideoURI(videoUri);
+                videoView.setOnPreparedListener(mp -> mp.setOnVideoSizeChangedListener((mp1, width, height) -> {
+                    if (width == 0 || height == 0) {
+                        Toast.makeText(this, "Can't play this video. Invalid video resolution.", Toast.LENGTH_SHORT).show();
+                    }
+                }));
+                videoView.setOnErrorListener((mp, what, extra) -> {
+                    Toast.makeText(VideoDetailActivity.this, "Can't play this video. Error code: " + what, Toast.LENGTH_SHORT).show();
+                    return true;
+                });
+                videoView.start();
+            } catch (Exception e) {
+                Toast.makeText(this, "Can't play this video. Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("VideoDetailActivity", "Error setting video URI: " + e.getMessage(), e);
+            }
         } else {
             Log.e("VideoDetailActivity", "Error: videoUrl is null or empty");
             Toast.makeText(this, "Can't play this video", Toast.LENGTH_SHORT).show();

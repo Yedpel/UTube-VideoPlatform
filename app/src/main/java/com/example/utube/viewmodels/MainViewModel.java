@@ -112,7 +112,8 @@ public class MainViewModel extends AndroidViewModel {
                     response.getUploadTime(),
                     response.getThumbnailUrl(),
                     response.getAuthorProfilePic(),
-                    "",  // videoUrl
+                    response.getVideoUrl() != null ? response.getVideoUrl() : "",
+                    //"",  // videoUrl
                     response.getCategory(),
                     0  // likes
             );

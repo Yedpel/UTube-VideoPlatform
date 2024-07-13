@@ -13,7 +13,12 @@ public class VideoResponse {
     private String uploadTime;
     private String category;
     private String authorId;  // Changed to Author object
-   // private Author authorId;  // Changed from String to Author object
+    private String videoUrl;
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+    // private Author authorId;  // Changed from String to Author object
 
     public static class Author {
         private String _id;
