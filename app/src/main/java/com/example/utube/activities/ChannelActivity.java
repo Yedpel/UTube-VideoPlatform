@@ -218,18 +218,35 @@ public class ChannelActivity extends AppCompatActivity {
                 loadImageView(authorProfilePic, video.getAuthorProfilePicUrl());
             }
 
+            //            private void loadImageView(ImageView imageView, String imageUrl) {
+//                if (imageUrl.startsWith("drawable/")) {
+//                    int imageResId = context.getResources().getIdentifier(imageUrl, null, context.getPackageName());
+//                    if (imageResId != 0) {
+//                        imageView.setImageResource(imageResId);
+//                    } else {
+//                        imageView.setImageResource(R.drawable.policy);
+//                    }
+//                } else if (imageUrl != null) {
+//                    Picasso.get().load(imageUrl).error(R.drawable.policy).into(imageView);
+//                } else {
+//                    imageView.setImageResource(R.drawable.policy);
+//                }
+//            }
             private void loadImageView(ImageView imageView, String imageUrl) {
-                if (imageUrl.startsWith("drawable/")) {
-                    int imageResId = context.getResources().getIdentifier(imageUrl, null, context.getPackageName());
+                if (imageUrl == null || imageUrl.isEmpty()) {
+                    imageView.setImageResource(R.drawable.policy);
+                } else if (imageUrl.startsWith("drawable/")) {
+                    // Handle drawable resources
+                    int imageResId = getResources().getIdentifier(imageUrl, null, getPackageName());
                     if (imageResId != 0) {
                         imageView.setImageResource(imageResId);
                     } else {
                         imageView.setImageResource(R.drawable.policy);
                     }
-                } else if (imageUrl != null) {
-                    Picasso.get().load(imageUrl).error(R.drawable.policy).into(imageView);
                 } else {
-                    imageView.setImageResource(R.drawable.policy);
+                    // Handle remote images
+                    String fullUrl = "http://10.0.2.2:12345" + imageUrl; // Adjust the base URL as needed
+                    Picasso.get().load(fullUrl).error(R.drawable.policy).into(imageView);
                 }
             }
         }

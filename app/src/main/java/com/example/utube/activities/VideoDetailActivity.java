@@ -120,7 +120,6 @@ public class VideoDetailActivity extends AppCompatActivity {
         // likes = VideoManager.getInstance(getApplication()).getLikesCountMap().getOrDefault(videoId, likes);
 
 
-
         // MVVM changes
         viewModel.loadVideo(videoId); //mvvm-change
         viewModel.loadComments(videoId); //mvvm-change
@@ -204,34 +203,68 @@ public class VideoDetailActivity extends AppCompatActivity {
         // Load author's profile picture with Picasso, set placeholder and error image
         authorProfilePicUrl = getIntent().getStringExtra("AUTHOR_PROFILE_PIC_URL"); // Make sure this is correctly passed in the intent
 
+//        // Attempt to load the image from a URL first if it's not null
+//        if (authorProfilePicUrl != null && !authorProfilePicUrl.startsWith("drawable/")) {
+//            // URL is not a drawable resource, attempt to load it with Picasso
+//            Picasso.get()
+//                    .load(authorProfilePicUrl)
+//                    .placeholder(R.drawable.policy) // Use a placeholder image while loading
+//                    .error(R.drawable.policy) // Fallback to error image if loading fails
+//                    .into(authorProfilePic, new Callback() {
+//                        @Override
+//                        public void onSuccess() {
+//                            Log.d("Picasso", "Image loaded successfully");
+//                        }
+//
+//                        @Override
+//                        public void onError(Exception e) {
+//                            Log.e("Picasso", "Error loading image", e);
+//                            authorProfilePic.setImageResource(R.drawable.policy); // Set error image directly in case of failure
+//                        }
+//                    });
+//        } else {
+//            // Handle drawable resources or null URLs
+//            int authorProfilePicResId = getResources().getIdentifier(authorProfilePicUrl, "drawable", getPackageName());
+//            if (authorProfilePicResId != 0) {
+//                authorProfilePic.setImageResource(authorProfilePicResId);
+//            } else {
+//                // If resource ID is not found or URL is null, set to default error image
+//                authorProfilePic.setImageResource(R.drawable.policy);
+//            }
+//        }
         // Attempt to load the image from a URL first if it's not null
-        if (authorProfilePicUrl != null && !authorProfilePicUrl.startsWith("drawable/")) {
-            // URL is not a drawable resource, attempt to load it with Picasso
-            Picasso.get()
-                    .load(authorProfilePicUrl)
-                    .placeholder(R.drawable.policy) // Use a placeholder image while loading
-                    .error(R.drawable.policy) // Fallback to error image if loading fails
-                    .into(authorProfilePic, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            Log.d("Picasso", "Image loaded successfully");
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                            Log.e("Picasso", "Error loading image", e);
-                            authorProfilePic.setImageResource(R.drawable.policy); // Set error image directly in case of failure
-                        }
-                    });
-        } else {
-            // Handle drawable resources or null URLs
-            int authorProfilePicResId = getResources().getIdentifier(authorProfilePicUrl, "drawable", getPackageName());
-            if (authorProfilePicResId != 0) {
-                authorProfilePic.setImageResource(authorProfilePicResId);
+        if (authorProfilePicUrl != null && !authorProfilePicUrl.isEmpty()) {
+            if (authorProfilePicUrl.startsWith("drawable/")) {
+                // Handle drawable resources
+                int authorProfilePicResId = getResources().getIdentifier(authorProfilePicUrl, "drawable", getPackageName());
+                if (authorProfilePicResId != 0) {
+                    authorProfilePic.setImageResource(authorProfilePicResId);
+                } else {
+                    authorProfilePic.setImageResource(R.drawable.policy);
+                }
             } else {
-                // If resource ID is not found or URL is null, set to default error image
-                authorProfilePic.setImageResource(R.drawable.policy);
+                // Handle remote images
+                String fullUrl = "http://10.0.2.2:12345" + authorProfilePicUrl; // Adjust the base URL as needed
+                Picasso.get()
+                        .load(fullUrl)
+                        .placeholder(R.drawable.policy) // Use a placeholder image while loading
+                        .error(R.drawable.policy) // Fallback to error image if loading fails
+                        .into(authorProfilePic, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                Log.d("Picasso", "Image loaded successfully");
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                Log.e("Picasso", "Error loading image", e);
+                                authorProfilePic.setImageResource(R.drawable.policy); // Set error image directly in case of failure
+                            }
+                        });
             }
+        } else {
+            // If URL is null or empty, set to default error image
+            authorProfilePic.setImageResource(R.drawable.policy);
         }
 
 
@@ -517,23 +550,40 @@ public class VideoDetailActivity extends AppCompatActivity {
             }
 
 
+            //            private void loadImageView(ImageView imageView, String imageUrl) {
+//                if (imageUrl != null && imageUrl.startsWith("drawable/")) {
+//                    // Handle drawable resources
+//                    int imageResId = getResources().getIdentifier(imageUrl, null, getPackageName());
+//                    if (imageResId != 0) {
+//                        imageView.setImageResource(imageResId);
+//                    } else {
+//                        imageView.setImageResource(R.drawable.policy); // Fallback to policy image if resource not found
+//                    }
+//                } else if (imageUrl != null) {
+//                    // Handle remote images or local file URIs
+//                    Picasso.get().load(imageUrl)
+//                            .error(R.drawable.policy) // Use a policy image as the error fallback
+//                            .into(imageView);
+//                } else {
+//                    // Fallback for null or unexpected image URL formats
+//                    imageView.setImageResource(R.drawable.policy);
+//                }
+//            }
             private void loadImageView(ImageView imageView, String imageUrl) {
-                if (imageUrl != null && imageUrl.startsWith("drawable/")) {
+                if (imageUrl == null || imageUrl.isEmpty()) {
+                    imageView.setImageResource(R.drawable.policy);
+                } else if (imageUrl.startsWith("drawable/")) {
                     // Handle drawable resources
                     int imageResId = getResources().getIdentifier(imageUrl, null, getPackageName());
                     if (imageResId != 0) {
                         imageView.setImageResource(imageResId);
                     } else {
-                        imageView.setImageResource(R.drawable.policy); // Fallback to policy image if resource not found
+                        imageView.setImageResource(R.drawable.policy);
                     }
-                } else if (imageUrl != null) {
-                    // Handle remote images or local file URIs
-                    Picasso.get().load(imageUrl)
-                            .error(R.drawable.policy) // Use a policy image as the error fallback
-                            .into(imageView);
                 } else {
-                    // Fallback for null or unexpected image URL formats
-                    imageView.setImageResource(R.drawable.policy);
+                    // Handle remote images
+                    String fullUrl = "http://10.0.2.2:12345" + imageUrl; // Adjust the base URL as needed
+                    Picasso.get().load(fullUrl).error(R.drawable.policy).into(imageView);
                 }
             }
 
