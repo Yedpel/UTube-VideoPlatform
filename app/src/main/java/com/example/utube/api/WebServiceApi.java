@@ -1,4 +1,4 @@
-package com.example.utube.data;
+package com.example.utube.api;
 
 import com.example.utube.models.UserDetails;
 import com.example.utube.utils.LoginRequest;

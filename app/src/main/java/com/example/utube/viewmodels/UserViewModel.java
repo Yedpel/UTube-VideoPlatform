@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.utube.data.UserApi;
+import com.example.utube.api.UserApi;
 import com.example.utube.models.UserDetails;
 
 public class UserViewModel extends ViewModel {

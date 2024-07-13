@@ -1,4 +1,4 @@
-package com.example.utube.data;
+package com.example.utube.api;
 
 import android.util.Log;
 import android.widget.Toast;
@@ -66,9 +66,11 @@ public class UserApi {
     }
 
     public void fetchUserDetails(String username) {
+        //TODO: Implement this method
         //send a request to the server to get user details, by send token and id
         //in the route, and then set the user details in the userDetails object
     }
+}
 //        Call<UserDetails> call = webApi.getUser(username);
 //        call.enqueue(new Callback<UserDetails>() {
 //            @Override
@@ -87,5 +89,5 @@ public class UserApi {
 //                userData.setValue(null);
 //            }
 //        });
-}
+
 
