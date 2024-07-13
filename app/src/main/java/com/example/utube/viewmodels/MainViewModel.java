@@ -12,7 +12,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.utube.activities.VideoManager;
+import com.example.utube.data.VideoRepository;
 import com.example.utube.models.Video;
+import com.example.utube.utils.VideoResponse;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -21,32 +23,110 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MainViewModel extends AndroidViewModel {
     private MutableLiveData<List<Video>> videos;
     private VideoManager videoManager;
-
+    private VideoRepository videoRepository;
+    private MutableLiveData<Boolean> isLoading;
+    private MutableLiveData<String> error = new MutableLiveData<>();
 
     public MainViewModel(Application application) {
         super(application);
         videoManager = VideoManager.getInstance(application);
         videos = new MutableLiveData<>();
         //  loadVideos();  // Load videos immediately on ViewModel creation
+        videoRepository = new VideoRepository(application);
+        isLoading = new MutableLiveData<>(false);
+    }
+
+    public LiveData<String> getError() {
+        return error;
     }
 
     public LiveData<List<Video>> getVideos() {
-        if (videos.getValue() == null) {
-            loadVideos();
-        }
+//        if (videos.getValue() == null) {
+//            loadVideos();
+//        }
         return videos;
     }
 
+    //    public void loadVideos() {
+//        List<Video> videoList = videoManager.getVideoList();
+//        Log.d("MainViewModel", "Loaded " + videoList.size() + " videos");
+//        for (Video video : videoList) {
+//            Log.d("MainViewModel", "Video " + video.getId() + " has " + video.getViews() + " views");
+//        }
+//        videos.postValue(videoList != null ? videoList : new ArrayList<>());
+//    }
     public void loadVideos() {
+        isLoading.setValue(true);
         List<Video> videoList = videoManager.getVideoList();
-        Log.d("MainViewModel", "Loaded " + videoList.size() + " videos");
-        for (Video video : videoList) {
-            Log.d("MainViewModel", "Video " + video.getId() + " has " + video.getViews() + " views");
+        if (videoList.isEmpty()) {
+            fetchVideosFromServer();
+        } else {
+            videos.postValue(videoList);
+            isLoading.postValue(false);
+            fetchVideosFromServer(); // Fetch in background to update
         }
-        videos.postValue(videoList != null ? videoList : new ArrayList<>());
+    }
+
+    private void fetchVideosFromServer() {
+        isLoading.setValue(true);
+        videoRepository.fetchVideosFromServer(new Callback<List<VideoResponse>>() {
+            @Override
+            public void onResponse(Call<List<VideoResponse>> call, Response<List<VideoResponse>> response) {
+                Log.d("MainViewModel", "onResponse called. isSuccessful: " + response.isSuccessful());
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Video> newVideos = convertToVideoList(response.body());
+                    Log.d("MainViewModel", "Received " + newVideos.size() + " videos from server");
+                    videoManager.setVideoList(newVideos);
+                    videos.postValue(newVideos);
+                } else {
+                    Log.e("MainViewModel", "Response not successful. Code: " + response.code() + ", Message: " + response.message());
+                    error.postValue("Failed to load videos. Please try again.");
+                }
+                isLoading.postValue(false);
+            }
+
+            @Override
+            public void onFailure(Call<List<VideoResponse>> call, Throwable t) {
+                Log.e("MainViewModel", "Network request failed", t);
+                error.postValue("Network error. Please check your connection and try again.");
+                isLoading.postValue(false);
+            }
+        });
+    }
+
+    private List<Video> convertToVideoList(List<VideoResponse> videoResponses) {
+        List<Video> videoList = new ArrayList<>();
+        for (VideoResponse response : videoResponses) {
+            Video video = new Video(
+                    response.getId(),
+                    response.getTitle(),
+                    response.getAuthor(),
+                    response.getViews(),
+                    response.getUploadTime(),
+                    response.getThumbnailUrl(),
+                    response.getAuthorProfilePic(),
+                    "",  // videoUrl
+                    response.getCategory(),
+                    0  // likes
+            );
+            videoList.add(video);
+        }
+        return videoList;
+    }
+
+    public LiveData<Boolean> getIsLoading() {
+        return isLoading;
+    }
+
+    public void refreshVideos() {
+        fetchVideosFromServer();
     }
 
     public void addVideo(Video video) {
@@ -180,15 +260,24 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
+    //    public void loadVideosFromDatabase() {
+//        List<Video> videoList = videoManager.getVideoList();
+//        if (videoList.isEmpty()) {
+//            loadVideoData(getApplication(), getApplication().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE));
+//        } else {
+//            for (Video video : videoList) {
+//                Log.d("MainViewModel", "Video " + video.getId() + " has " + video.getViews() + " views");
+//            }
+//            videos.postValue(videoList);
+//        }
+//    }
     public void loadVideosFromDatabase() {
         List<Video> videoList = videoManager.getVideoList();
         if (videoList.isEmpty()) {
-            loadVideoData(getApplication(), getApplication().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE));
+            fetchVideosFromServer();
         } else {
-            for (Video video : videoList) {
-                Log.d("MainViewModel", "Video " + video.getId() + " has " + video.getViews() + " views");
-            }
             videos.postValue(videoList);
+            fetchVideosFromServer(); // Fetch in background to update
         }
     }
 

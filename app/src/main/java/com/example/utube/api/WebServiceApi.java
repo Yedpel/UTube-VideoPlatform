@@ -1,8 +1,12 @@
 package com.example.utube.api;
 
 import com.example.utube.models.UserDetails;
+import com.example.utube.models.Video;
 import com.example.utube.utils.LoginRequest;
 import com.example.utube.utils.LoginResponse;
+import com.example.utube.utils.VideoResponse;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -17,6 +21,8 @@ public interface WebServiceApi {
     @GET("users/{id}")
     Call<UserDetails> getUser(@Path("id") String id);
 
+    @GET("videos")
+    Call<List<VideoResponse>> getVideos();
 
 
 }

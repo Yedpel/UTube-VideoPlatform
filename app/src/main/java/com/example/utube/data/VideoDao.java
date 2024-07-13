@@ -1,13 +1,18 @@
 package com.example.utube.data;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.*;
+
 import com.example.utube.models.VideoEntity;
+
 import java.util.List;
 
 
 @Dao
 public interface VideoDao {
-    @Insert
+
+    //@Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(VideoEntity video);
 
     @Query("SELECT * FROM videos")
@@ -27,4 +32,10 @@ public interface VideoDao {
 
     @Query("UPDATE videos SET views = views + 1 WHERE id = :videoId")
     void incrementViews(String videoId);
+
+    @Query("SELECT * FROM videos")
+    LiveData<List<VideoEntity>> getAllVideosLive();
+
+    @Query("SELECT COUNT(*) FROM videos")
+    int getCount();
 }

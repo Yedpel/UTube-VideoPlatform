@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefreshLayout; //try-swip
 
     private MainViewModel viewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -82,6 +83,12 @@ public class MainActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
+        viewModel.getError().observe(this, errorMessage -> {
+            if (errorMessage != null) {
+                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+            }
+        });
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -90,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-     //   videoAdapter = new VideoAdapter(new ArrayList<>(), sharedPreferences);
+        //   videoAdapter = new VideoAdapter(new ArrayList<>(), sharedPreferences);
         videoAdapter = new VideoAdapter(viewModel.getVideos().getValue() != null ? viewModel.getVideos().getValue() : new ArrayList<>(), sharedPreferences);
         recyclerView.setAdapter(videoAdapter);
 
@@ -99,7 +106,19 @@ public class MainActivity extends AppCompatActivity {
             Log.d("MainActivity", "Number of videos in adapter after setting: " + videoAdapter.getItemCount());
         });
 
-        viewModel.loadVideos();
+        viewModel.getIsLoading().observe(this, isLoading -> {
+            swipeRefreshLayout.setRefreshing(isLoading);
+        }); //try-server
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            // viewModel.loadVideos();
+            /// viewModel.loadVideosFromDatabase();
+            ///  swipeRefreshLayout.setRefreshing(false);
+            viewModel.refreshVideos(); //try-server
+        });
+
+        // viewModel.loadVideos();
 
         btnLogin = findViewById(R.id.login_button);
         btnThemeSwitch = findViewById(R.id.theme_button);
@@ -169,13 +188,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-           // viewModel.loadVideos();
-            viewModel.loadVideosFromDatabase();
-            swipeRefreshLayout.setRefreshing(false);
-        });
-
         if (isFirstThemeApplication) {
             isNightMode = false;
             sharedPreferences.edit().putBoolean("isNightMode", isNightMode).apply();
@@ -192,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         viewModel.loadVideos(); //try-behave
-      //  new Handler().postDelayed(() -> viewModel.loadVideos(), 100); // 100ms delay
+        //  new Handler().postDelayed(() -> viewModel.loadVideos(), 100); // 100ms delay
         Log.d("MainActivity", "onResume called, reloading videos after delay");
     }
 
@@ -268,10 +280,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void refreshVideoList() {
-        viewModel.loadVideos(); //try-behave
-        if (swipeRefreshLayout != null) {
-            swipeRefreshLayout.setRefreshing(false);
-        }
+        viewModel.refreshVideos(); //try-server
+//        viewModel.loadVideos(); //try-behave
+//        if (swipeRefreshLayout != null) {
+//            swipeRefreshLayout.setRefreshing(false);
+//        }
     }
 
     @Override
@@ -574,21 +587,38 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
+            //            private void loadImageView(ImageView imageView, String imageUrl) {
+//                if (imageUrl.startsWith("drawable/")) {
+//                    // Handle drawable resources
+//                    int imageResId = getResources().getIdentifier(imageUrl, null, getPackageName());
+//                    if (imageResId != 0) {
+//                        imageView.setImageResource(imageResId);
+//                    } else {
+//                        imageView.setImageResource(R.drawable.policy); // Fallback to error image if resource not found
+//                    }
+//                } else if (imageUrl != null) {
+//                    // Handle remote images or local file URIs
+//                    Picasso.get().load(imageUrl).error(R.drawable.policy).into(imageView);
+//                } else {
+//                    // Fallback for unexpected image URL formats
+//                    imageView.setImageResource(R.drawable.policy);
+//                }
+//            }
             private void loadImageView(ImageView imageView, String imageUrl) {
-                if (imageUrl.startsWith("drawable/")) {
+                if (imageUrl == null || imageUrl.isEmpty()) {
+                    imageView.setImageResource(R.drawable.policy);
+                } else if (imageUrl.startsWith("drawable/")) {
                     // Handle drawable resources
                     int imageResId = getResources().getIdentifier(imageUrl, null, getPackageName());
                     if (imageResId != 0) {
                         imageView.setImageResource(imageResId);
                     } else {
-                        imageView.setImageResource(R.drawable.policy); // Fallback to error image if resource not found
+                        imageView.setImageResource(R.drawable.policy);
                     }
-                } else if (imageUrl != null) {
-                    // Handle remote images or local file URIs
-                    Picasso.get().load(imageUrl).error(R.drawable.policy).into(imageView);
                 } else {
-                    // Fallback for unexpected image URL formats
-                    imageView.setImageResource(R.drawable.policy);
+                    // Handle remote images
+                    String fullUrl = "http://10.0.2.2:12345" + imageUrl; // Adjust the base URL as needed
+                    Picasso.get().load(fullUrl).error(R.drawable.policy).into(imageView);
                 }
             }
 

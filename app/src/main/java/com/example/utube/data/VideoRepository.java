@@ -3,12 +3,23 @@ package com.example.utube.data;
 import android.app.Application;
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
+import com.example.utube.api.RetrofitClient;
+import com.example.utube.api.WebServiceApi;
 import com.example.utube.models.VideoEntity;
+import com.example.utube.utils.VideoResponse;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class VideoRepository {
     private VideoDao videoDao;
@@ -75,4 +86,73 @@ public class VideoRepository {
             Log.d("VideoRepository", "Incremented views for video " + videoId);
         });
     }
+
+    public void fetchVideosFromServer(Callback<List<VideoResponse>> callback) {
+        try {
+            WebServiceApi webServiceApi = RetrofitClient.getInstance().create(WebServiceApi.class);
+            Call<List<VideoResponse>> call = webServiceApi.getVideos();
+            Log.d("VideoRepository", "Sending request to server");
+            call.enqueue(new Callback<List<VideoResponse>>() {
+                @Override
+                public void onResponse(Call<List<VideoResponse>> call, Response<List<VideoResponse>> response) {
+                    Log.d("VideoRepository", "Received response from server. isSuccessful: " + response.isSuccessful());
+                    if (response.isSuccessful() && response.body() != null) {
+                        List<VideoResponse> videos = response.body();
+                        Log.d("VideoRepository", "Raw JSON response: " + new Gson().toJson(videos));
+                        Log.d("VideoRepository", "Received " + videos.size() + " videos from server");
+                        insertVideosFromServer(videos);
+                        callback.onResponse(call, response);
+                    } else {
+                        Log.e("VideoRepository", "Response not successful. Code: " + response.code() + ", Message: " + response.message());
+                        callback.onFailure(call, new Throwable("Error fetching videos"));
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<List<VideoResponse>> call, Throwable t) {
+                    Log.e("VideoRepository", "Network request failed", t);
+                    callback.onFailure(call, t);
+                }
+            });
+        } catch (Exception e) {
+            Log.e("VideoRepository", "Error creating network request", e);
+            callback.onFailure(null, new Throwable("Error creating network request: " + e.getMessage()));
+        }
+    }
+
+    private void insertVideosFromServer(List<VideoResponse> videos) {
+        executorService.execute(() -> {
+            List<VideoEntity> entities = new ArrayList<>();
+            for (VideoResponse video : videos) {
+                VideoEntity videoEntity = new VideoEntity(
+                        video.getId(),
+                        video.getTitle(),
+                        video.getAuthor(),
+                        video.getViews(),
+                        video.getUploadTime(),
+                        video.getThumbnailUrl(),
+                        video.getAuthorProfilePic(),
+                        "",
+                        video.getCategory(),
+                        0
+                );
+                videoDao.insert(videoEntity);
+                entities.add(videoEntity);
+            }
+        });
+    }
+
+    public LiveData<List<VideoEntity>> getVideosFromRoom() {
+        return videoDao.getAllVideosLive();
+    }
+
+    public boolean isLocalDataEmpty() {
+        try {
+            return executorService.submit(() -> videoDao.getCount() == 0).get();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return true;
+        }
+    }
+
 }
