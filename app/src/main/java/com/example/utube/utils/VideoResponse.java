@@ -14,6 +14,11 @@ public class VideoResponse {
     private String category;
     private String authorId;  // Changed to Author object
     private String videoUrl;
+    private int likes;
+
+    public int getLikes() {
+        return likes;
+    }
 
     public String getVideoUrl() {
         return videoUrl;
@@ -50,7 +55,7 @@ public class VideoResponse {
         return author;
     }
 
-        public String getAuthorId() {
+    public String getAuthorId() {
         return authorId;
     }
 //    public Author getAuthorId() {

@@ -68,7 +68,6 @@ public class VideoDetailActivity extends AppCompatActivity {
     public static final String PREFS_NAME = "theme_prefs";
     private VideoDetailViewModel viewModel; //mvvm-change
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Load theme from shared preferences
@@ -112,7 +111,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         // likes = getIntent().getIntExtra("LIKES", 0);
 
         // Increment the views count
-        views++;
+       // views++;
         // viewsTextView.setText(views + " views");
 
         // Load likes state from memory
@@ -123,12 +122,12 @@ public class VideoDetailActivity extends AppCompatActivity {
         // MVVM changes
         viewModel.loadVideo(videoId); //mvvm-change
         viewModel.loadComments(videoId); //mvvm-change
-        viewModel.incrementViews(); //mvvm-change
+       // viewModel.incrementViews(); //mvvm-change
 
         // Observe only the changing parts of the video data
         viewModel.getVideo().observe(this, video -> { //mvvm-change
             if (video != null) {
-                viewsTextView.setText(video.getViews() + " views");
+                viewsTextView.setText(video.getViews()-1 + " views");
                 likesTextView.setText(video.getLikes() + " likes");
                 titleTextView.setText(video.getTitle());
                 authorTextView.setText(video.getAuthor());
@@ -137,64 +136,6 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         // Log the URL for debugging
         Log.d("VideoDetailActivity", "Video URL: " + videoUrl);
-
-//        // Set video details
-//        // Log and handle video file path or URL
-//        if (videoUrl != null && !videoUrl.isEmpty()) {
-//            //  Toast.makeText(this, "the video url isn't null", Toast.LENGTH_SHORT).show(); //try22
-//            if (videoUrl.startsWith("content://") || videoUrl.startsWith("file://")) {
-//                try {
-//                    // Verify the URI is accessible by querying it
-//                    InputStream inputStream = getContentResolver().openInputStream(Uri.parse(videoUrl)); //try22
-//                    if (inputStream != null) {
-//                        inputStream.close(); //try22
-//                        videoView.setVideoURI(Uri.parse(videoUrl)); //try22
-//                    } else {
-//                        throw new Exception("Input stream is null"); //try22
-//                    }
-//                } catch (Exception e) {
-//                    Toast.makeText(this, "Can't play this video. Error accessing URI: " + e.getMessage(), Toast.LENGTH_SHORT).show(); //try22
-//                    Log.e("VideoDetailActivity", "Error accessing URI: " + e.getMessage(), e); //try22
-//                    return;
-//                }
-//            } else if (videoUrl.startsWith("http")) {
-//                videoView.setVideoURI(Uri.parse(videoUrl)); //try22
-//            } else if (videoUrl.startsWith("raw/") || videoUrl.startsWith("drawable/")) {
-//                int videoResId = getResources().getIdentifier(videoUrl, "raw", getPackageName());
-//                if (videoResId == 0) {
-//                    videoResId = getResources().getIdentifier(videoUrl, "drawable", getPackageName());
-//                }
-//                if (videoResId != 0) {
-//                    videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + videoResId));
-//                } else {
-//                    Toast.makeText(this, "Can't play this video. Resource not found.", Toast.LENGTH_SHORT).show();
-//                    Log.e("VideoDetailActivity", "Error: Resource not found");
-//                    return;
-//                }
-//            } else {
-//                File videoFile = new File(videoUrl);
-//                if (videoFile.exists()) {
-//                    videoView.setVideoPath(videoFile.getAbsolutePath());
-//                } else {
-//                    Toast.makeText(this, "Can't play this video. File not found.", Toast.LENGTH_SHORT).show(); //try22
-//                    Log.e("VideoDetailActivity", "Error: video file not found");
-//                    return;
-//                }
-//            }
-//            videoView.setOnPreparedListener(mp -> mp.setOnVideoSizeChangedListener((mp1, width, height) -> { // Ensure video is prepared
-//                if (width == 0 || height == 0) {
-//                    Toast.makeText(this, "Can't play this video. Invalid video resolution.", Toast.LENGTH_SHORT).show(); //try22
-//                }
-//            }));
-//            videoView.setOnErrorListener((mp, what, extra) -> {
-//                Toast.makeText(VideoDetailActivity.this, "Can't play this video. Error code: " + what, Toast.LENGTH_SHORT).show(); //try22
-//                return true;
-//            });
-//            videoView.start();
-//        } else {
-//            Log.e("VideoDetailActivity", "Error: videoUrl is null or empty");
-//            Toast.makeText(this, "Can't play this video", Toast.LENGTH_SHORT).show();
-//        }
         // Set video details
         if (videoUrl != null && !videoUrl.isEmpty()) {
             Uri videoUri;
@@ -256,35 +197,6 @@ public class VideoDetailActivity extends AppCompatActivity {
         // Load author's profile picture with Picasso, set placeholder and error image
         authorProfilePicUrl = getIntent().getStringExtra("AUTHOR_PROFILE_PIC_URL"); // Make sure this is correctly passed in the intent
 
-//        // Attempt to load the image from a URL first if it's not null
-//        if (authorProfilePicUrl != null && !authorProfilePicUrl.startsWith("drawable/")) {
-//            // URL is not a drawable resource, attempt to load it with Picasso
-//            Picasso.get()
-//                    .load(authorProfilePicUrl)
-//                    .placeholder(R.drawable.policy) // Use a placeholder image while loading
-//                    .error(R.drawable.policy) // Fallback to error image if loading fails
-//                    .into(authorProfilePic, new Callback() {
-//                        @Override
-//                        public void onSuccess() {
-//                            Log.d("Picasso", "Image loaded successfully");
-//                        }
-//
-//                        @Override
-//                        public void onError(Exception e) {
-//                            Log.e("Picasso", "Error loading image", e);
-//                            authorProfilePic.setImageResource(R.drawable.policy); // Set error image directly in case of failure
-//                        }
-//                    });
-//        } else {
-//            // Handle drawable resources or null URLs
-//            int authorProfilePicResId = getResources().getIdentifier(authorProfilePicUrl, "drawable", getPackageName());
-//            if (authorProfilePicResId != 0) {
-//                authorProfilePic.setImageResource(authorProfilePicResId);
-//            } else {
-//                // If resource ID is not found or URL is null, set to default error image
-//                authorProfilePic.setImageResource(R.drawable.policy);
-//            }
-//        }
         // Attempt to load the image from a URL first if it's not null
         if (authorProfilePicUrl != null && !authorProfilePicUrl.isEmpty()) {
             if (authorProfilePicUrl.startsWith("drawable/")) {

@@ -7,19 +7,6 @@ import java.util.List;
 
 public class Video implements Parcelable {
     private String id;
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setVideoUrl(String videoUrl) {
-        this.videoUrl = videoUrl;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
     private String title;
     private String author;
     private int views;
@@ -29,56 +16,6 @@ public class Video implements Parcelable {
     private String videoUrl;
     private String category;
     private int likes;
-
-    public static class Comment {
-        private int id;
-        private String username;
-        private String text;
-        private String uploadTime;
-        private int likes;
-        private String profilePicUrl;
-
-        public Comment(int id, String username, String text, String uploadTime, int likes, String profilePicUrl) {
-            this.id = id;
-            this.username = username;
-            this.text = text;
-            this.uploadTime = uploadTime;
-            this.likes = likes;
-            this.profilePicUrl = profilePicUrl;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public String getText() {
-            return text;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-        }
-
-        public String getUploadTime() {
-            return uploadTime;
-        }
-
-        public int getLikes() {
-            return likes;
-        }
-
-        public void setLikes(int likes) {
-            this.likes = likes;
-        }
-
-        public String getProfilePicUrl() {
-            return profilePicUrl;
-        }
-    }
 
     public Video(String id, String title, String author, int views, String uploadTime, String thumbnailUrl, String authorProfilePicUrl, String videoUrl, String category, int likes) {
         this.id = id;
@@ -142,6 +79,18 @@ public class Video implements Parcelable {
         this.likes = likes;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     // Parcelable implementation
     protected Video(Parcel in) {
         id = in.readString();
@@ -186,4 +135,55 @@ public class Video implements Parcelable {
             return new Video[size];
         }
     };
+
+    public static class Comment {
+        private int id;
+        private String username;
+        private String text;
+        private String uploadTime;
+        private int likes;
+        private String profilePicUrl;
+
+        public Comment(int id, String username, String text, String uploadTime, int likes, String profilePicUrl) {
+            this.id = id;
+            this.username = username;
+            this.text = text;
+            this.uploadTime = uploadTime;
+            this.likes = likes;
+            this.profilePicUrl = profilePicUrl;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+
+        public String getUploadTime() {
+            return uploadTime;
+        }
+
+        public int getLikes() {
+            return likes;
+        }
+
+        public void setLikes(int likes) {
+            this.likes = likes;
+        }
+
+        public String getProfilePicUrl() {
+            return profilePicUrl;
+        }
+    }
+
 }

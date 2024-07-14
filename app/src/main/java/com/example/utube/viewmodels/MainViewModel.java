@@ -261,17 +261,6 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
-    //    public void loadVideosFromDatabase() {
-//        List<Video> videoList = videoManager.getVideoList();
-//        if (videoList.isEmpty()) {
-//            loadVideoData(getApplication(), getApplication().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE));
-//        } else {
-//            for (Video video : videoList) {
-//                Log.d("MainViewModel", "Video " + video.getId() + " has " + video.getViews() + " views");
-//            }
-//            videos.postValue(videoList);
-//        }
-//    }
     public void loadVideosFromDatabase() {
         List<Video> videoList = videoManager.getVideoList();
         if (videoList.isEmpty()) {
@@ -280,6 +269,30 @@ public class MainViewModel extends AndroidViewModel {
             videos.postValue(videoList);
             fetchVideosFromServer(); // Fetch in background to update
         }
+    }
+
+    public void fetchVideoDetailsFromServer(String videoId, Callback<VideoResponse> callback) {
+        videoRepository.fetchVideoDetailsFromServer(videoId, callback);
+    }
+
+    public void updateVideoInRoom(VideoResponse videoResponse) {
+        Video video = convertVideoResponseToVideo(videoResponse);
+        videoRepository.updateVideoFromModel(video);
+    }
+
+    private Video convertVideoResponseToVideo(VideoResponse videoResponse) {
+        return new Video(
+                videoResponse.getId(),
+                videoResponse.getTitle(),
+                videoResponse.getAuthor(),
+                videoResponse.getViews(),
+                videoResponse.getUploadTime(),
+                videoResponse.getThumbnailUrl(),
+                videoResponse.getAuthorProfilePic(),
+                videoResponse.getVideoUrl(),
+                videoResponse.getCategory(),
+                videoResponse.getLikes()
+        );
     }
 
 

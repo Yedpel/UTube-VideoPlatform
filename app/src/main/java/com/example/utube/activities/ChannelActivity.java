@@ -113,6 +113,7 @@ public class ChannelActivity extends AppCompatActivity {
     }
 
     private void refreshVideoList() { //try-ch-mvvm
+        //TODO: change this to use the server data
         viewModel.loadVideosForAuthor(authorName);
     }
 

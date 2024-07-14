@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.utube.api.RetrofitClient;
 import com.example.utube.api.WebServiceApi;
+import com.example.utube.models.Video;
 import com.example.utube.models.VideoEntity;
 import com.example.utube.utils.VideoResponse;
 import com.google.gson.Gson;
@@ -66,6 +67,30 @@ public class VideoRepository {
             Log.d("VideoRepository", "Updated video in database: " + video.getId() + " with views: " + video.getViews());
         });
     }
+
+    public void updateVideoFromModel(Video video) {
+        executorService.execute(() -> {
+            VideoEntity videoEntity = convertVideoToEntity(video);
+            videoDao.updateVideo(videoEntity);
+            Log.d("VideoRepository", "Updated video in database from model: " + video.getId() + " with views: " + video.getViews());
+        });
+    }
+
+    private VideoEntity convertVideoToEntity(Video video) {
+        return new VideoEntity(
+                video.getId(),
+                video.getTitle(),
+                video.getAuthor(),
+                video.getViews(),
+                video.getUploadTime(),
+                video.getThumbnailUrl(),
+                video.getAuthorProfilePicUrl(),
+                video.getVideoUrl(),
+                video.getCategory(),
+                video.getLikes()
+        );
+    }
+
 
     public void deleteVideo(VideoEntity video) {
         executorService.execute(() -> videoDao.deleteVideo(video));
@@ -153,6 +178,12 @@ public class VideoRepository {
             e.printStackTrace();
             return true;
         }
+    }
+
+    public void fetchVideoDetailsFromServer(String videoId, Callback<VideoResponse> callback) {
+        WebServiceApi webServiceApi = RetrofitClient.getInstance().create(WebServiceApi.class);
+        Call<VideoResponse> call = webServiceApi.getVideo(videoId);
+        call.enqueue(callback);
     }
 
 }
