@@ -32,14 +32,6 @@ export async function getVideo(req, res) {
     }
 }
 
-// export async function createVideo(req, res) {
-//     try {
-//         await createVideoModel(req.body);
-//         res.redirect('/videoPlay');
-//     } catch (error) {
-//         res.status(500).send('Failed to create video');
-//     }
-// }
 export async function createVideo(req, res) {
     console.log("createVideo");
     console.log("the details are", req.body);
@@ -57,35 +49,6 @@ export async function createVideo(req, res) {
     }
 }
 
-// export async function createVideo(req, res) {
-//     console.log("createVideo");
-//     console.log("the deatisls are",req.body);
-//     try {
-//         const videoData = {
-//             ...req.body,
-//             videoUrl: req.files.video[0].path.replace('/media/', ''),  // Adjust the path stripping 'public/'
-//             thumbnailUrl: req.files.thumbnail[0].path.replace('/media/', '')
-//         };
-//         await createVideoModel(videoData);
-//         res.json({ message: 'Video created successfully', data: videoData });
-//     } catch (error) {
-//         res.status(500).send('Failed to create video');
-//     }
-// }
-
-/*
-export async function updateVideo(req, res) {
-    try {
-        const updatedVideo = await updateVideoModel(req.params.id, req.body);
-        if (updatedVideo) {
-            res.send('Video updated successfully');
-        } else {
-            res.status(404).send('Video not found');
-        }
-    } catch (error) {
-        res.status(500).send('Failed to update video');
-    }
-} */
 
 export async function updateVideo(req, res) {
     console.log("updateVideo");
@@ -109,24 +72,6 @@ export async function updateVideo(req, res) {
     }
 }
 
-// export async function updateVideo(req, res) {
-//     console.log("updateVideo");
-//     try {
-//         const updateData = {
-//             ...req.body,
-//             videoUrl: req.files.video ? req.files.video[0].path.replace('public/', '') : undefined,
-//             thumbnailUrl: req.files.thumbnail ? req.files.thumbnail[0].path.replace('public/', '') : undefined
-//         };
-//         const updatedVideo = await updateVideoModel(req.params.pid, updateData);
-//         if (updatedVideo) {
-//             res.json({ message: 'Video updated successfully', data: updatedVideo });
-//         } else {
-//             res.status(404).send('Video not found');
-//         }
-//     } catch (error) {
-//         res.status(500).send('Failed to update video');
-//     }
-// }
 
 
 export async function deleteVideo(req, res) {
