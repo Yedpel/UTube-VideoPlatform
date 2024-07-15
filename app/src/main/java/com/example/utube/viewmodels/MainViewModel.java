@@ -15,12 +15,14 @@ import com.example.utube.activities.VideoManager;
 import com.example.utube.data.VideoRepository;
 import com.example.utube.models.Video;
 import com.example.utube.utils.VideoResponse;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -28,10 +30,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainViewModel extends AndroidViewModel {
-    private MutableLiveData<List<Video>> videos;
+    private MutableLiveData<List<Video>> videos = new MutableLiveData<>();
     private VideoManager videoManager;
     private VideoRepository videoRepository;
-    private MutableLiveData<Boolean> isLoading;
+    private MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
     private MutableLiveData<String> error = new MutableLiveData<>();
 
     public MainViewModel(Application application) {
@@ -231,11 +233,29 @@ public class MainViewModel extends AndroidViewModel {
         return sharedPreferences.getInt(videoId + "_likes", defaultLikes);
     }
 
+    //    public void filterVideos(String query) {
+//        List<Video> filteredList = new ArrayList<>();
+//        for (Video video : videoManager.getVideoList()) {
+//            if (video.getTitle().toLowerCase().contains(query.toLowerCase()) ||
+//                    video.getAuthor().toLowerCase().contains(query.toLowerCase())) {
+//                filteredList.add(video);
+//            }
+//        }
+//        videos.postValue(filteredList);
+//    }
     public void filterVideos(String query) {
+        if (query == null) {
+            videos.postValue(videoManager.getVideoList());
+            return;
+        }
+
+        String lowercaseQuery = query.toLowerCase();
         List<Video> filteredList = new ArrayList<>();
         for (Video video : videoManager.getVideoList()) {
-            if (video.getTitle().toLowerCase().contains(query.toLowerCase()) ||
-                    video.getAuthor().toLowerCase().contains(query.toLowerCase())) {
+            String title = video.getTitle();
+            String author = video.getAuthor();
+            if ((title != null && title.toLowerCase().contains(lowercaseQuery)) ||
+                    (author != null && author.toLowerCase().contains(lowercaseQuery))) {
                 filteredList.add(video);
             }
         }
@@ -271,14 +291,34 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
+    //    public void fetchVideoDetailsFromServer(String videoId, Callback<VideoResponse> callback) {
+//        videoRepository.fetchVideoDetailsFromServer(videoId, callback);
+//    }
     public void fetchVideoDetailsFromServer(String videoId, Callback<VideoResponse> callback) {
-        videoRepository.fetchVideoDetailsFromServer(videoId, callback);
+        videoRepository.fetchVideoDetailsFromServer(videoId, new Callback<VideoResponse>() {
+            @Override
+            public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    VideoResponse videoResponse = response.body();
+                    Log.d("MainViewModel", "Received video details: " + new Gson().toJson(videoResponse));
+                    Video video = convertVideoResponseToVideo(videoResponse);
+                    videoRepository.updateVideoFromModel(video);
+                }
+                callback.onResponse(call, response);
+            }
+
+            @Override
+            public void onFailure(Call<VideoResponse> call, Throwable t) {
+                Log.e("MainViewModel", "Error fetching video details", t);
+                callback.onFailure(call, t);
+            }
+        });
     }
 
-    public void updateVideoInRoom(VideoResponse videoResponse) {
-        Video video = convertVideoResponseToVideo(videoResponse);
-        videoRepository.updateVideoFromModel(video);
-    }
+//    public void updateVideoInRoom(VideoResponse videoResponse) {
+//        Video video = convertVideoResponseToVideo(videoResponse);
+//        videoRepository.updateVideoFromModel(video);
+//    }
 
     private Video convertVideoResponseToVideo(VideoResponse videoResponse) {
         return new Video(

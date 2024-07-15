@@ -555,6 +555,48 @@ public class MainActivity extends AppCompatActivity {
 //                intent.putExtra("LIKES", video.getLikes());
 //                startActivityForResult(intent, 1);
 //            });
+
+//            holder.itemView.setOnClickListener(v -> {
+//                // Show loading indicator
+//                showLoadingDialog();
+//
+//                // Fetch latest video details from server
+//                viewModel.fetchVideoDetailsFromServer(video.getId(), new Callback<VideoResponse>() {
+//                    @Override
+//                    public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
+//                        hideLoadingDialog();
+//                        if (response.isSuccessful() && response.body() != null) {
+//                            VideoResponse updatedVideo = response.body();
+//                            // Update ROOM
+//                            viewModel.updateVideoInRoom(updatedVideo);
+//
+//                            // Start VideoDetailActivity
+//                            Intent intent = new Intent(MainActivity.this, VideoDetailActivity.class);
+//                            intent.putExtra("VIDEO_ID", updatedVideo.getId());
+//                            intent.putExtra("VIDEO_URL", updatedVideo.getVideoUrl());
+//                            intent.putExtra("TITLE", updatedVideo.getTitle());
+//                            intent.putExtra("AUTHOR", updatedVideo.getAuthor());
+//                            Log.d("MainActivity", "Updated video author: " + updatedVideo.getAuthor());
+//                            intent.putExtra("VIEWS", updatedVideo.getViews());
+//                            intent.putExtra("UPLOAD_TIME", updatedVideo.getUploadTime());
+//                            intent.putExtra("AUTHOR_PROFILE_PIC_URL", updatedVideo.getAuthorProfilePic());
+//                            intent.putExtra("LIKES", updatedVideo.getLikes());
+//                            startActivityForResult(intent, 1);
+//                        } else {
+//                            // Show error message
+//                            Toast.makeText(MainActivity.this, "Failed to fetch latest video details", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<VideoResponse> call, Throwable t) {
+//                        hideLoadingDialog();
+//                        // Show error message
+//                        Toast.makeText(MainActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//            });
+
             holder.itemView.setOnClickListener(v -> {
                 // Show loading indicator
                 showLoadingDialog();
@@ -566,8 +608,6 @@ public class MainActivity extends AppCompatActivity {
                         hideLoadingDialog();
                         if (response.isSuccessful() && response.body() != null) {
                             VideoResponse updatedVideo = response.body();
-                            // Update ROOM
-                            viewModel.updateVideoInRoom(updatedVideo);
 
                             // Start VideoDetailActivity
                             Intent intent = new Intent(MainActivity.this, VideoDetailActivity.class);
@@ -575,6 +615,7 @@ public class MainActivity extends AppCompatActivity {
                             intent.putExtra("VIDEO_URL", updatedVideo.getVideoUrl());
                             intent.putExtra("TITLE", updatedVideo.getTitle());
                             intent.putExtra("AUTHOR", updatedVideo.getAuthor());
+                            Log.d("MainActivity", "Updated video author: " + updatedVideo.getAuthor());
                             intent.putExtra("VIEWS", updatedVideo.getViews());
                             intent.putExtra("UPLOAD_TIME", updatedVideo.getUploadTime());
                             intent.putExtra("AUTHOR_PROFILE_PIC_URL", updatedVideo.getAuthorProfilePic());
@@ -673,6 +714,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
     private void showLoadingDialog() {
         if (loadingDialog == null) {
             loadingDialog = new ProgressDialog(this);

@@ -180,10 +180,39 @@ public class VideoRepository {
         }
     }
 
+//    public void fetchVideoDetailsFromServer(String videoId, Callback<VideoResponse> callback) {
+//        WebServiceApi webServiceApi = RetrofitClient.getInstance().create(WebServiceApi.class);
+//        Call<VideoResponse> call = webServiceApi.getVideo(videoId);
+//        call.enqueue(callback);
+//    }
+
     public void fetchVideoDetailsFromServer(String videoId, Callback<VideoResponse> callback) {
-        WebServiceApi webServiceApi = RetrofitClient.getInstance().create(WebServiceApi.class);
-        Call<VideoResponse> call = webServiceApi.getVideo(videoId);
-        call.enqueue(callback);
+        try {
+            WebServiceApi webServiceApi = RetrofitClient.getInstance().create(WebServiceApi.class);
+            Call<VideoResponse> call = webServiceApi.getVideo(videoId);
+            call.enqueue(new Callback<VideoResponse>() {
+                @Override
+                public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        VideoResponse video = response.body();
+                        Log.d("VideoRepository", "Raw JSON response for video " + videoId + ": " + new Gson().toJson(video));
+                        callback.onResponse(call, response);
+                    } else {
+                        Log.e("VideoRepository", "Response not successful. Code: " + response.code() + ", Message: " + response.message());
+                        callback.onFailure(call, new Throwable("Error fetching video details"));
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<VideoResponse> call, Throwable t) {
+                    Log.e("VideoRepository", "Network request failed", t);
+                    callback.onFailure(call, t);
+                }
+            });
+        } catch (Exception e) {
+            Log.e("VideoRepository", "Error creating network request", e);
+            callback.onFailure(null, new Throwable("Error creating network request: " + e.getMessage()));
+        }
     }
 
 }

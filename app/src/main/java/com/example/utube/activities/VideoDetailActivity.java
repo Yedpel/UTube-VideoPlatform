@@ -111,7 +111,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         // likes = getIntent().getIntExtra("LIKES", 0);
 
         // Increment the views count
-       // views++;
+        // views++;
         // viewsTextView.setText(views + " views");
 
         // Load likes state from memory
@@ -122,15 +122,26 @@ public class VideoDetailActivity extends AppCompatActivity {
         // MVVM changes
         viewModel.loadVideo(videoId); //mvvm-change
         viewModel.loadComments(videoId); //mvvm-change
-       // viewModel.incrementViews(); //mvvm-change
+        // viewModel.incrementViews(); //mvvm-change
 
         // Observe only the changing parts of the video data
+//        viewModel.getVideo().observe(this, video -> { //mvvm-change
+//            if (video != null) {
+//                viewsTextView.setText(video.getViews()-1 + " views");
+//                likesTextView.setText(video.getLikes() + " likes");
+//                titleTextView.setText(video.getTitle());
+//                authorTextView.setText(video.getAuthor());
+//            }
+//        }); //mvvm-change
         viewModel.getVideo().observe(this, video -> { //mvvm-change
             if (video != null) {
-                viewsTextView.setText(video.getViews()-1 + " views");
+                viewsTextView.setText(video.getViews() - 1 + " views");
                 likesTextView.setText(video.getLikes() + " likes");
                 titleTextView.setText(video.getTitle());
                 authorTextView.setText(video.getAuthor());
+                uploadTimeTextView.setText(video.getUploadTime());
+                loadAuthorProfilePic(video.getAuthorProfilePicUrl());
+                setupVideoPlayer(video.getVideoUrl());
             }
         }); //mvvm-change
 
@@ -283,6 +294,69 @@ public class VideoDetailActivity extends AppCompatActivity {
                 }
             }
         });
+    }//end onCreate
+
+    private void loadAuthorProfilePic(String authorProfilePicUrl) {
+        if (authorProfilePicUrl != null && !authorProfilePicUrl.isEmpty()) {
+            if (authorProfilePicUrl.startsWith("drawable/")) {
+                int authorProfilePicResId = getResources().getIdentifier(authorProfilePicUrl, "drawable", getPackageName());
+                if (authorProfilePicResId != 0) {
+                    authorProfilePic.setImageResource(authorProfilePicResId);
+                } else {
+                    authorProfilePic.setImageResource(R.drawable.policy);
+                }
+            } else {
+                String fullUrl = "http://10.0.2.2:12345" + authorProfilePicUrl;
+                Picasso.get()
+                        .load(fullUrl)
+                        .placeholder(R.drawable.policy)
+                        .error(R.drawable.policy)
+                        .into(authorProfilePic);
+            }
+        } else {
+            authorProfilePic.setImageResource(R.drawable.policy);
+        }
+    }
+
+    private void setupVideoPlayer(String videoUrl) {
+        if (videoUrl != null && !videoUrl.isEmpty()) {
+            Uri videoUri;
+            if (videoUrl.startsWith("content://") || videoUrl.startsWith("file://")) {
+                videoUri = Uri.parse(videoUrl);
+            } else if (videoUrl.startsWith("http")) {
+                videoUri = Uri.parse(videoUrl);
+            } else if (videoUrl.startsWith("/media/")) {
+                videoUri = Uri.parse("http://10.0.2.2:12345" + videoUrl);
+            } else if (videoUrl.startsWith("raw/") || videoUrl.startsWith("drawable/")) {
+                int videoResId = getResources().getIdentifier(videoUrl, "raw", getPackageName());
+                if (videoResId == 0) {
+                    videoResId = getResources().getIdentifier(videoUrl, "drawable", getPackageName());
+                }
+                if (videoResId != 0) {
+                    videoUri = Uri.parse("android.resource://" + getPackageName() + "/" + videoResId);
+                } else {
+                    Toast.makeText(this, "Can't play this video. Resource not found.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } else {
+                File videoFile = new File(videoUrl);
+                if (videoFile.exists()) {
+                    videoUri = Uri.fromFile(videoFile);
+                } else {
+                    Toast.makeText(this, "Can't play this video. File not found.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+
+            try {
+                videoView.setVideoURI(videoUri);
+                videoView.start();
+            } catch (Exception e) {
+                Toast.makeText(this, "Can't play this video. Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Can't play this video. No video URL provided.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private Video.Comment convertToVideoComment(CommentEntity entity) {
