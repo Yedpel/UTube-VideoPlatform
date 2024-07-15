@@ -16,7 +16,10 @@ import com.example.utube.api.WebServiceApi;
 import com.example.utube.models.CommentEntity;
 import com.example.utube.models.Video;
 import com.example.utube.data.CommentRepository;
+import com.example.utube.utils.CommentRequest;
+import com.example.utube.utils.CommentResponse;
 import com.example.utube.utils.VideoResponse;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,8 +56,8 @@ public class VideoDetailViewModel extends AndroidViewModel {
     }
     //bla bla
 
-    public void addComment(String videoId, String username, String text, String profilePicUrl) {
-        String currentTime = "Just now";
+    public void addComment(String videoId, String username, String text, String profilePicUrl, String date) {
+        String currentTime = date;
         CommentEntity newComment = new CommentEntity(videoId, username, text, currentTime, 0, profilePicUrl);
         long commentId = commentRepository.insert(newComment);
 
@@ -224,8 +227,6 @@ public class VideoDetailViewModel extends AndroidViewModel {
         return entity;
     }
 
-    // Add getter methods for LiveData objects
-
     public VideoManager getVideoManager() {
         return videoManager;
     }
@@ -277,5 +278,36 @@ public class VideoDetailViewModel extends AndroidViewModel {
                 callback.onError("Network error. Please check your connection and try again.");
             }
         });
+    }
+
+    public void addCommentToServer(String videoId, String userId, String text, String token, AddCommentCallback callback) {
+        WebServiceApi api = RetrofitClient.getInstance().create(WebServiceApi.class);
+        CommentRequest request = new CommentRequest(text);
+        Call<CommentResponse> call = api.addComment(userId, videoId, request, "Bearer " + token);
+
+        call.enqueue(new Callback<CommentResponse>() {
+            @Override
+            public void onResponse(Call<CommentResponse> call, Response<CommentResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Gson gson = new Gson();
+                    String jsonResponse = gson.toJson(response.body());
+                    Log.d("AddComment", "Server Response: " + jsonResponse);
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to add comment");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CommentResponse> call, Throwable t) {
+                callback.onError("Network error: " + t.getMessage());
+            }
+        });
+    }
+
+    public interface AddCommentCallback {
+        void onSuccess(CommentResponse comment);
+
+        void onError(String message);
     }
 }

@@ -2,6 +2,8 @@ package com.example.utube.api;
 
 import com.example.utube.models.UserDetails;
 import com.example.utube.models.Video;
+import com.example.utube.utils.CommentRequest;
+import com.example.utube.utils.CommentResponse;
 import com.example.utube.utils.LoginRequest;
 import com.example.utube.utils.LoginResponse;
 import com.example.utube.utils.VideoResponse;
@@ -55,5 +57,11 @@ public interface WebServiceApi {
     @PUT("users/{userId}/videos/{videoId}/unlikes")
     Call<VideoResponse> unlikeVideo(@Path("userId") String userId, @Path("videoId") String videoId, @Header("Authorization") String token);
 
-
+    @POST("users/{userId}/videos/{videoId}/comments")
+    Call<CommentResponse> addComment(
+            @Path("userId") String userId,
+            @Path("videoId") String videoId,
+            @Body CommentRequest commentRequest,
+            @Header("Authorization") String token
+    );
 }

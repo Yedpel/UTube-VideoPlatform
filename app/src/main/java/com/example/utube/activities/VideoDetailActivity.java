@@ -36,6 +36,7 @@ import com.example.utube.models.CommentEntity;
 import com.example.utube.models.UserDetails;
 import com.example.utube.models.Users;
 import com.example.utube.models.Video;
+import com.example.utube.utils.CommentResponse;
 import com.example.utube.viewmodels.VideoDetailViewModel;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -70,6 +71,8 @@ public class VideoDetailActivity extends AppCompatActivity {
     public static final String PREFS_NAME = "theme_prefs";
     private VideoDetailViewModel viewModel; //mvvm-change
     private ProgressBar likeProgressBar;//try-com-ui-like
+    private ProgressBar commentProgressBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,7 +147,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                 authorTextView.setText(video.getAuthor());
                 uploadTimeTextView.setText(video.getUploadTime());
                 loadAuthorProfilePic(video.getAuthorProfilePicUrl());
-               // setupVideoPlayer(video.getVideoUrl());
+                // setupVideoPlayer(video.getVideoUrl());
             }
         }); //mvvm-change
 
@@ -263,16 +266,52 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         // Add comment button click listener
         String finalAuthorProfilePicUrl = authorProfilePicUrl;
+
+//        findViewById(R.id.add_comment_button).setOnClickListener(v -> {
+//            if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) {
+//                AddCommentDialog dialog = new AddCommentDialog();
+//                dialog.setAddCommentListener(text -> {
+//                    if (!text.trim().isEmpty()) {
+//                        String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
+//                        //get the profile pic of the current user from user details
+//                        String profilePicUrl = UserDetails.getInstance().getProfilePic();
+//                    //    String profilePicUrl = Users.getInstance().getUser(currentLoggedInUser).getProfilePic();
+//                        viewModel.addComment(videoId, currentLoggedInUser, text, profilePicUrl); //mvvm-change
+//                    }
+//                });
+//                dialog.show(getSupportFragmentManager(), "AddCommentDialog");
+//            } else {
+//                showLoginPromptDialog();
+//            }
+//        });
         findViewById(R.id.add_comment_button).setOnClickListener(v -> {
-            if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) {
+            if (sharedPreferences.getBoolean("logged_in", false)) {
                 AddCommentDialog dialog = new AddCommentDialog();
                 dialog.setAddCommentListener(text -> {
                     if (!text.trim().isEmpty()) {
                         String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
-                        //get the profile pic of the current user from user details
+                        String token = UserDetails.getInstance().getToken();
                         String profilePicUrl = UserDetails.getInstance().getProfilePic();
-                    //    String profilePicUrl = Users.getInstance().getUser(currentLoggedInUser).getProfilePic();
-                        viewModel.addComment(videoId, currentLoggedInUser, text, profilePicUrl); //mvvm-change
+                        Log.d("VideoDetailActivity", "Adding comment: " + text + ", User: " + currentLoggedInUser + ", Profile pic: " + profilePicUrl);
+
+                        showCommentProgressBar();
+
+                        viewModel.addCommentToServer(videoId, currentLoggedInUser, text, token, new VideoDetailViewModel.AddCommentCallback() {
+                            @Override
+                            public void onSuccess(CommentResponse commentResponse) {
+                                hideCommentProgressBar();
+                                CommentEntity newComment = convertResponseToEntity(commentResponse);
+                                //String videoId, String username, String text, String profilePicUrl
+                                viewModel.addComment(newComment.videoId, newComment.username, newComment.text, profilePicUrl, newComment.uploadTime);
+                                Log.d("VideoDetailActivity", "Comment added successfully: newComment.ProfilePic " + newComment.profilePicUrl);
+                            }
+
+                            @Override
+                            public void onError(String message) {
+                                hideCommentProgressBar();
+                                Toast.makeText(VideoDetailActivity.this, message, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
                 });
                 dialog.show(getSupportFragmentManager(), "AddCommentDialog");
@@ -606,6 +645,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                 commentLikesTextView.setText(comment.getLikes() + " likes");
 
                 loadImageView(profilePicImageView, comment.getProfilePicUrl());
+                Log.d("VideoDetailActivity", "Comment.profile pic URL: " + comment.getProfilePicUrl());
 
                 String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
                 isCommentLiked = viewModel.isCommentLiked(videoId, comment.getId(), currentLoggedInUser);
@@ -739,5 +779,31 @@ public class VideoDetailActivity extends AppCompatActivity {
             }
         }
 
+    }//end CommentsAdapter
+
+    private void showCommentProgressBar() {
+        if (commentProgressBar == null) {
+            commentProgressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleSmall);
+            commentProgressBar.setIndeterminate(true);
+            // Add the ProgressBar to your layout, possibly above the comments RecyclerView
+        }
+        commentProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void hideCommentProgressBar() {
+        if (commentProgressBar != null) {
+            commentProgressBar.setVisibility(View.GONE);
+        }
+    }
+
+    private CommentEntity convertResponseToEntity(CommentResponse response) {
+        return new CommentEntity(
+                videoId,
+                response.getUsername(),
+                response.getText(),
+                response.getUploadTime(),
+                response.getLikes(),
+                response.getProfilePicUrl()
+        );
     }
 }
