@@ -11,12 +11,19 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.utube.activities.MainActivity;
 import com.example.utube.activities.VideoManager;
+import com.example.utube.api.RetrofitClient;
+import com.example.utube.api.WebServiceApi;
 import com.example.utube.models.CommentEntity;
 import com.example.utube.models.Video;
 import com.example.utube.data.CommentRepository;
+import com.example.utube.utils.VideoResponse;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class VideoDetailViewModel extends AndroidViewModel {
     private VideoManager videoManager;
@@ -26,7 +33,7 @@ public class VideoDetailViewModel extends AndroidViewModel {
     private MutableLiveData<Boolean> isLiked = new MutableLiveData<>();
 
     private SharedPreferences sharedPreferences;
-
+    private MutableLiveData<String> error = new MutableLiveData<>();
 
     public VideoDetailViewModel(Application application) {
         super(application);
@@ -237,5 +244,38 @@ public class VideoDetailViewModel extends AndroidViewModel {
 
     public LiveData<Boolean> getIsLiked() {
         return isLiked;
+    }
+
+    public interface ToggleLikeCallback {
+        void onSuccess();
+
+        void onError(String errorMessage);
+    }
+
+    public void toggleLikeOnServer(String videoId, String userId, String token, boolean isLiking, ToggleLikeCallback callback) {
+        WebServiceApi api = RetrofitClient.getInstance().create(WebServiceApi.class);
+        Call<VideoResponse> call = isLiking ?
+                api.likeVideo(userId, videoId, "Bearer " + token) :
+                api.unlikeVideo(userId, videoId, "Bearer " + token);
+
+        call.enqueue(new Callback<VideoResponse>() {
+            @Override
+            public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    VideoResponse updatedVideo = response.body();
+                    Log.d("VideoDetailViewModel", "Like toggled successfully on server. New like count: " + updatedVideo.getLikes());
+                    callback.onSuccess();
+                } else {
+                    Log.e("VideoDetailViewModel", "Error toggling like on server. Response code: " + response.code());
+                    callback.onError("Failed to update like status on server. Please try again.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<VideoResponse> call, Throwable t) {
+                Log.e("VideoDetailViewModel", "Network error when toggling like", t);
+                callback.onError("Network error. Please check your connection and try again.");
+            }
+        });
     }
 }

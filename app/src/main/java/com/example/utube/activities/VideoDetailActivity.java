@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -32,6 +33,7 @@ import com.example.utube.MyApplication;
 import com.example.utube.R;
 import com.example.utube.data.CommentRepository;
 import com.example.utube.models.CommentEntity;
+import com.example.utube.models.UserDetails;
 import com.example.utube.models.Users;
 import com.example.utube.models.Video;
 import com.example.utube.viewmodels.VideoDetailViewModel;
@@ -67,6 +69,7 @@ public class VideoDetailActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     public static final String PREFS_NAME = "theme_prefs";
     private VideoDetailViewModel viewModel; //mvvm-change
+    private ProgressBar likeProgressBar;//try-com-ui-like
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -294,6 +297,8 @@ public class VideoDetailActivity extends AppCompatActivity {
                 }
             }
         });
+
+        likeProgressBar = findViewById(R.id.like_progress_bar);//try-com-ui-like
     }//end onCreate
 
     private void loadAuthorProfilePic(String authorProfilePicUrl) {
@@ -426,25 +431,89 @@ public class VideoDetailActivity extends AppCompatActivity {
         findViewById(R.id.comments_headline).setVisibility(View.VISIBLE);
     }
 
+    //    private void updateLikeButton() {
+//        String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
+//        isLiked = viewModel.isVideoLiked(videoId, currentLoggedInUser); //mvvm-change
+//
+//        viewModel.getIsLiked().observe(this, liked -> { //mvvm-change
+//            isLiked = liked;
+//            ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like");
+//        }); //mvvm-change
+//
+//        findViewById(R.id.like_button).setOnClickListener(v -> {
+//            if (sharedPreferences.getBoolean("logged_in", false)) {
+//                boolean newLikeStatus = !isLiked;
+//                viewModel.updateLikeStatus(videoId, currentLoggedInUser, newLikeStatus); //mvvm-change
+//            } else {
+//                showLoginPromptDialog();
+//            }
+//        });
+//        ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like");
+//    }
     private void updateLikeButton() {
         String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
-        isLiked = viewModel.isVideoLiked(videoId, currentLoggedInUser); //mvvm-change
+        isLiked = viewModel.isVideoLiked(videoId, currentLoggedInUser);
 
-        viewModel.getIsLiked().observe(this, liked -> { //mvvm-change
+        viewModel.getIsLiked().observe(this, liked -> {
             isLiked = liked;
             ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like");
-        }); //mvvm-change
+        });
 
+//        findViewById(R.id.like_button).setOnClickListener(v -> {
+//            if (sharedPreferences.getBoolean("logged_in", false)) {
+//                String userId = sharedPreferences.getString(LOGGED_IN_USER, "");
+//                String token = UserDetails.getInstance().getToken();
+//                boolean newLikeStatus = !isLiked;
+//
+//                // Call server to update like status
+//                viewModel.toggleLikeOnServer(videoId, userId, token, newLikeStatus, new VideoDetailViewModel.ToggleLikeCallback() {
+//                    @Override
+//                    public void onSuccess() {
+//                        // Existing local update logic
+//                        viewModel.updateLikeStatus(videoId, userId, newLikeStatus);
+//                    }
+//
+//                    @Override
+//                    public void onError(String errorMessage) {
+//                        Toast.makeText(VideoDetailActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//            } else {
+//                showLoginPromptDialog();
+//            }
+//        });
         findViewById(R.id.like_button).setOnClickListener(v -> {
             if (sharedPreferences.getBoolean("logged_in", false)) {
+                String userId = sharedPreferences.getString(LOGGED_IN_USER, "");
+                String token = UserDetails.getInstance().getToken();
                 boolean newLikeStatus = !isLiked;
-                viewModel.updateLikeStatus(videoId, currentLoggedInUser, newLikeStatus); //mvvm-change
+
+                likeProgressBar.setVisibility(View.VISIBLE); // Show loading indicator
+
+                viewModel.toggleLikeOnServer(videoId, userId, token, newLikeStatus, new VideoDetailViewModel.ToggleLikeCallback() {
+                    @Override
+                    public void onSuccess() {
+                        runOnUiThread(() -> {
+                            likeProgressBar.setVisibility(View.GONE); // Hide loading indicator
+                            viewModel.updateLikeStatus(videoId, userId, newLikeStatus);
+                        });
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        runOnUiThread(() -> {
+                            likeProgressBar.setVisibility(View.GONE); // Hide loading indicator
+                            Toast.makeText(VideoDetailActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                });
             } else {
                 showLoginPromptDialog();
             }
         });
         ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like");
     }
+
 
     private void updateCommentsCount() {
         commentsCountTextView.setText("(" + comments.size() + ")");

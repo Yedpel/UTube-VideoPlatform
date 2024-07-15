@@ -16,6 +16,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 
@@ -46,5 +47,13 @@ public interface WebServiceApi {
 
     @GET("users/{userId}/videos/{videoId}")
     Call<VideoResponse> getVideo(@Path("videoId") String videoId);
+    //start like server 21:43
+
+    @PUT("users/{userId}/videos/{videoId}/likes")
+    Call<VideoResponse> likeVideo(@Path("userId") String userId, @Path("videoId") String videoId, @Header("Authorization") String token);
+
+    @PUT("users/{userId}/videos/{videoId}/unlikes")
+    Call<VideoResponse> unlikeVideo(@Path("userId") String userId, @Path("videoId") String videoId, @Header("Authorization") String token);
+
 
 }
