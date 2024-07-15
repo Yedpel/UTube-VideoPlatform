@@ -144,7 +144,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                 authorTextView.setText(video.getAuthor());
                 uploadTimeTextView.setText(video.getUploadTime());
                 loadAuthorProfilePic(video.getAuthorProfilePicUrl());
-                setupVideoPlayer(video.getVideoUrl());
+               // setupVideoPlayer(video.getVideoUrl());
             }
         }); //mvvm-change
 
@@ -269,7 +269,9 @@ public class VideoDetailActivity extends AppCompatActivity {
                 dialog.setAddCommentListener(text -> {
                     if (!text.trim().isEmpty()) {
                         String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
-                        String profilePicUrl = Users.getInstance().getUser(currentLoggedInUser).getProfilePic();
+                        //get the profile pic of the current user from user details
+                        String profilePicUrl = UserDetails.getInstance().getProfilePic();
+                    //    String profilePicUrl = Users.getInstance().getUser(currentLoggedInUser).getProfilePic();
                         viewModel.addComment(videoId, currentLoggedInUser, text, profilePicUrl); //mvvm-change
                     }
                 });
