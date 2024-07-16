@@ -695,15 +695,56 @@ public class VideoDetailActivity extends AppCompatActivity {
                     }
                 });
 
+//                editCommentButton.setOnClickListener(v -> {
+//                    if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) {
+//                        AddCommentDialog dialog = AddCommentDialog.newInstance(comment.getText());
+//                        dialog.setAddCommentListener(text -> {
+//                            if (!text.trim().isEmpty()) {
+//                                Log.d("VideoDetailActivity", "Editing comment: " + comment.getId() + ", New text: " + text);
+//                                CommentEntity updatedComment = new CommentEntity(videoId, comment.getUsername(), text, comment.getUploadTime(), comment.getLikes(), comment.getProfilePicUrl(), comment.getServerId());
+//                                updatedComment.setId(comment.getId());
+//                                viewModel.updateComment(updatedComment);
+//                            }
+//                        });
+//                        dialog.show(getSupportFragmentManager(), "EditCommentDialog");
+//                    } else {
+//                        showLoginPromptDialog();
+//                    }
+//                });
                 editCommentButton.setOnClickListener(v -> {
-                    if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) {
+                    if (sharedPreferences.getBoolean("logged_in", false)) {
                         AddCommentDialog dialog = AddCommentDialog.newInstance(comment.getText());
-                        dialog.setAddCommentListener(text -> {
-                            if (!text.trim().isEmpty()) {
-                                Log.d("VideoDetailActivity", "Editing comment: " + comment.getId() + ", New text: " + text);
-                                CommentEntity updatedComment = new CommentEntity(videoId, comment.getUsername(), text, comment.getUploadTime(), comment.getLikes(), comment.getProfilePicUrl(), comment.getServerId());
-                                updatedComment.setId(comment.getId());
-                                viewModel.updateComment(updatedComment);
+                        dialog.setAddCommentListener(newText -> {
+                            if (!newText.trim().isEmpty()) {
+                                String userId = sharedPreferences.getString(LOGGED_IN_USER, "");
+                                String token = UserDetails.getInstance().getToken();
+
+                                showCommentProgressBar();
+
+                                viewModel.updateCommentOnServer(videoId, comment.getServerId(), userId, newText, token, new VideoDetailViewModel.UpdateCommentCallback() {
+                                    @Override
+                                    public void onSuccess(CommentResponse updatedComment) {
+                                        hideCommentProgressBar();
+                                        CommentEntity updatedCommentEntity = new CommentEntity(
+                                                videoId,
+                                                comment.getUsername(),
+                                                newText,  // Use the new text from the edit dialog
+                                                comment.getUploadTime(),
+                                                comment.getLikes(),
+                                                comment.getProfilePicUrl(),
+                                                comment.getServerId()
+                                        );
+                                        updatedCommentEntity.setId(comment.getId());
+                                        viewModel.updateComment(updatedCommentEntity);
+                                        Toast.makeText(VideoDetailActivity.this, "Comment updated successfully", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                    @Override
+                                    public void onError(String message) {
+                                        hideCommentProgressBar();
+                                        Toast.makeText(VideoDetailActivity.this, message, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                             }
                         });
                         dialog.show(getSupportFragmentManager(), "EditCommentDialog");

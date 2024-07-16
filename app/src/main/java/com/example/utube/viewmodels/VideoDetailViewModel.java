@@ -75,24 +75,24 @@ public class VideoDetailViewModel extends AndroidViewModel {
             Log.e("VideoDetailViewModel", "Failed to add comment");
         }
     }
-
-    public void updateComment(CommentEntity updatedComment) {
-        commentRepository.updateComment(updatedComment);
-
-        List<Video.Comment> currentComments = comments.getValue();
-        if (currentComments != null) {
-            List<Video.Comment> newComments = new ArrayList<>(currentComments);
-            for (int i = 0; i < newComments.size(); i++) {
-                if (newComments.get(i).getId() == updatedComment.getId()) {
-                    Video.Comment updated = convertToVideoComment(updatedComment);
-                    newComments.set(i, updated);
-                    Log.d("VideoDetailViewModel", "Updated comment: " + updated.getId() + ", " + updated.getText());
-                    break;
-                }
-            }
-            comments.postValue(newComments);
-        }
-    }
+//try to stay calm
+//    public void updateComment(CommentEntity updatedComment) {
+//        commentRepository.updateComment(updatedComment);
+//
+//        List<Video.Comment> currentComments = comments.getValue();
+//        if (currentComments != null) {
+//            List<Video.Comment> newComments = new ArrayList<>(currentComments);
+//            for (int i = 0; i < newComments.size(); i++) {
+//                if (newComments.get(i).getId() == updatedComment.getId()) {
+//                    Video.Comment updated = convertToVideoComment(updatedComment);
+//                    newComments.set(i, updated);
+//                    Log.d("VideoDetailViewModel", "Updated comment: " + updated.getId() + ", " + updated.getText());
+//                    break;
+//                }
+//            }
+//            comments.postValue(newComments);
+//        }
+//    }
 //    public void addComment(String videoId, String username, String text, String profilePicUrl) {
 //        String currentTime = "Just now"; // You might want to use a proper timestamp
 //        CommentEntity newComment = new CommentEntity(videoId, username, text, currentTime, 0, profilePicUrl);
@@ -343,4 +343,55 @@ public class VideoDetailViewModel extends AndroidViewModel {
             }
         });
     }
+
+    public interface UpdateCommentCallback {
+        void onSuccess(CommentResponse updatedComment);
+
+        void onError(String message);
+    }
+
+    public void updateCommentOnServer(String videoId, String commentId, String userId, String text, String token, UpdateCommentCallback callback) {
+        WebServiceApi api = RetrofitClient.getInstance().create(WebServiceApi.class);
+        CommentRequest request = new CommentRequest(text);
+        Call<CommentResponse> call = api.updateComment(userId, videoId, commentId, request, "Bearer " + token);
+
+        call.enqueue(new Callback<CommentResponse>() {
+            @Override
+            public void onResponse(Call<CommentResponse> call, Response<CommentResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d("VideoDetailViewModel", "Comment updated successfully on server.");
+                    callback.onSuccess(response.body());
+                } else {
+                    Log.e("VideoDetailViewModel", "Error updating comment on server. Response code: " + response.code());
+                    callback.onError("Failed to update comment on server. Please try again.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CommentResponse> call, Throwable t) {
+                Log.e("VideoDetailViewModel", "Network error when updating comment", t);
+                callback.onError("Network error. Please check your connection and try again.");
+            }
+        });
+    }
+
+    public void updateComment(CommentEntity updatedComment) {
+        commentRepository.updateComment(updatedComment);
+
+        List<Video.Comment> currentComments = comments.getValue();
+        if (currentComments != null) {
+            List<Video.Comment> newComments = new ArrayList<>(currentComments);
+            for (int i = 0; i < newComments.size(); i++) {
+                if (newComments.get(i).getId() == updatedComment.getId()) {
+                    Video.Comment updated = convertToVideoComment(updatedComment);
+                    newComments.set(i, updated);
+                    Log.d("VideoDetailViewModel", "Updated comment: " + updated.getId() + ", " + updated.getText());
+                    break;
+                }
+            }
+            comments.postValue(newComments);
+        }
+    }
+
+
 }
