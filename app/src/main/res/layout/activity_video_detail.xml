@@ -164,14 +164,29 @@
                     android:textSize="16sp" />
             </LinearLayout>
 
-            <Button
-                android:id="@+id/add_comment_button"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"
-                android:text="Add Comment" />
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/add_comment_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Add Comment" />
+
+                <ProgressBar
+                    android:id="@+id/comment_progress_bar"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="8dp"
+                    android:visibility="gone" />
+
+            </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/comments_recycler_view"

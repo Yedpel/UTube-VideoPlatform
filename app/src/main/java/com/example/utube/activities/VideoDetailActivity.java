@@ -95,6 +95,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         commentsRecyclerView = findViewById(R.id.comments_recycler_view);
         commentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         btnFullScreen = findViewById(R.id.btn_full_screen);
+        commentProgressBar = findViewById(R.id.comment_progress_bar);
 
         viewModel = new ViewModelProvider(this).get(VideoDetailViewModel.class); //mvvm-change
 
@@ -782,18 +783,13 @@ public class VideoDetailActivity extends AppCompatActivity {
     }//end CommentsAdapter
 
     private void showCommentProgressBar() {
-        if (commentProgressBar == null) {
-            commentProgressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleSmall);
-            commentProgressBar.setIndeterminate(true);
-            // Add the ProgressBar to your layout, possibly above the comments RecyclerView
-        }
         commentProgressBar.setVisibility(View.VISIBLE);
+        findViewById(R.id.add_comment_button).setEnabled(false);
     }
 
     private void hideCommentProgressBar() {
-        if (commentProgressBar != null) {
-            commentProgressBar.setVisibility(View.GONE);
-        }
+        commentProgressBar.setVisibility(View.GONE);
+        findViewById(R.id.add_comment_button).setEnabled(true);
     }
 
     private CommentEntity convertResponseToEntity(CommentResponse response) {
