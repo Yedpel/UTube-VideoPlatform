@@ -1,5 +1,4 @@
 package com.example.utube.activities;
-//before likes
 
 import static com.example.utube.activities.MainActivity.LOGGED_IN_USER;
 import static com.example.utube.activities.MainActivity.PREFS_NAME;
@@ -303,7 +302,9 @@ public class VideoDetailActivity extends AppCompatActivity {
                                 hideCommentProgressBar();
                                 CommentEntity newComment = convertResponseToEntity(commentResponse);
                                 //String videoId, String username, String text, String profilePicUrl
-                                viewModel.addComment(newComment.videoId, newComment.username, newComment.text, profilePicUrl, newComment.uploadTime, newComment.serverId);
+                                //make the username be the current logged in user
+                                String username = UserDetails.getInstance().getUsername();
+                                viewModel.addComment(newComment.videoId, username, newComment.text, profilePicUrl, newComment.uploadTime, newComment.serverId);
                                 Log.d("VideoDetailActivity", "Comment added successfully: newComment.ProfilePic " + newComment.profilePicUrl);
                             }
 
@@ -653,6 +654,17 @@ public class VideoDetailActivity extends AppCompatActivity {
                 String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
                 isCommentLiked = viewModel.isCommentLiked(videoId, comment.getId(), currentLoggedInUser);
 
+                boolean isAuthor = currentLoggedInUser.equals(comment.getUsername());
+                Log.d("VideoDetailActivity", "Current user: " + currentLoggedInUser + ", Comment author: " + comment.getUsername() + ", Is author: " + isAuthor);
+                boolean isLoggedIn = sharedPreferences.getBoolean("logged_in", false);
+
+                if (isLoggedIn && isAuthor) {
+                    editCommentButton.setVisibility(View.VISIBLE);
+                    deleteCommentButton.setVisibility(View.VISIBLE);
+                } else {
+                    editCommentButton.setVisibility(View.GONE);
+                    deleteCommentButton.setVisibility(View.GONE);
+                }
 
                 updateLikeCommentButton();
 
