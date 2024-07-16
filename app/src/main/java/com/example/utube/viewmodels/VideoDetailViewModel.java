@@ -310,4 +310,37 @@ public class VideoDetailViewModel extends AndroidViewModel {
 
         void onError(String message);
     }
+
+    public interface ToggleCommentLikeCallback {
+        void onSuccess(CommentResponse updatedComment);
+
+        void onError(String message);
+    }
+
+    public void toggleCommentLikeOnServer(String videoId, String commentId, String userId, String token, boolean isLiking, ToggleCommentLikeCallback callback) {
+        WebServiceApi api = RetrofitClient.getInstance().create(WebServiceApi.class);
+        Call<CommentResponse> call = isLiking ?
+                api.likeComment(userId, videoId, commentId, "Bearer " + token) :
+                api.unlikeComment(userId, videoId, commentId, "Bearer " + token);
+
+        call.enqueue(new Callback<CommentResponse>() {
+            @Override
+            public void onResponse(Call<CommentResponse> call, Response<CommentResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    CommentResponse updatedComment = response.body();
+                    Log.d("VideoDetailViewModel", "Comment like toggled successfully on server. New like count: " + updatedComment.getLikes());
+                    callback.onSuccess(updatedComment);
+                } else {
+                    Log.e("VideoDetailViewModel", "Error toggling comment like on server. Response code: " + response.code());
+                    callback.onError("Failed to update comment like status on server. Please try again.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CommentResponse> call, Throwable t) {
+                Log.e("VideoDetailViewModel", "Network error when toggling comment like", t);
+                callback.onError("Network error. Please check your connection and try again.");
+            }
+        });
+    }
 }

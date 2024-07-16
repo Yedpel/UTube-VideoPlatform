@@ -656,12 +656,40 @@ public class VideoDetailActivity extends AppCompatActivity {
 
                 updateLikeCommentButton();
 
+//                likeCommentButton.setOnClickListener(v -> {
+//                    if (sharedPreferences.getBoolean("logged_in", false)) {
+//                        isCommentLiked = !isCommentLiked;
+//                        viewModel.updateCommentLikeStatus(videoId, comment.getId(), currentLoggedInUser, isCommentLiked);
+//                        updateLikeCommentButton();
+//                        updateLikeCount(comment); //try-com-ui-like
+//                    } else {
+//                        showLoginPromptDialog();
+//                    }
+//                });
                 likeCommentButton.setOnClickListener(v -> {
                     if (sharedPreferences.getBoolean("logged_in", false)) {
-                        isCommentLiked = !isCommentLiked;
-                        viewModel.updateCommentLikeStatus(videoId, comment.getId(), currentLoggedInUser, isCommentLiked);
-                        updateLikeCommentButton();
-                        updateLikeCount(comment); //try-com-ui-like
+                        String userId = sharedPreferences.getString(LOGGED_IN_USER, "");
+                        String token = UserDetails.getInstance().getToken();
+                        boolean newLikeStatus = !isCommentLiked;
+
+                        showCommentProgressBar();
+
+                        viewModel.toggleCommentLikeOnServer(videoId, comment.getServerId(), userId, token, newLikeStatus, new VideoDetailViewModel.ToggleCommentLikeCallback() {
+                            @Override
+                            public void onSuccess(CommentResponse updatedComment) {
+                                hideCommentProgressBar();
+                                isCommentLiked = newLikeStatus;
+                                viewModel.updateCommentLikeStatus(videoId, comment.getId(), userId, isCommentLiked);
+                                updateLikeCommentButton();
+                                updateLikeCount(convertResponseToComment(updatedComment));
+                            }
+
+                            @Override
+                            public void onError(String message) {
+                                hideCommentProgressBar();
+                                Toast.makeText(VideoDetailActivity.this, message, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     } else {
                         showLoginPromptDialog();
                     }
@@ -797,6 +825,18 @@ public class VideoDetailActivity extends AppCompatActivity {
     private CommentEntity convertResponseToEntity(CommentResponse response) {
         return new CommentEntity(
                 videoId,
+                response.getUsername(),
+                response.getText(),
+                response.getUploadTime(),
+                response.getLikes(),
+                response.getProfilePicUrl(),
+                response.getServerId()
+        );
+    }
+
+    private Video.Comment convertResponseToComment(CommentResponse response) {
+        return new Video.Comment(
+                response.getId(),
                 response.getUsername(),
                 response.getText(),
                 response.getUploadTime(),

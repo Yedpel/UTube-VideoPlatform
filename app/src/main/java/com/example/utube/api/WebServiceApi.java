@@ -64,4 +64,11 @@ public interface WebServiceApi {
             @Body CommentRequest commentRequest,
             @Header("Authorization") String token
     );
+
+    @PUT("users/{userId}/videos/{videoId}/comments/{commentId}/like")
+    Call<CommentResponse> likeComment(@Path("userId") String userId, @Path("videoId") String videoId, @Path("commentId") String commentId, @Header("Authorization") String token);
+
+    @PUT("users/{userId}/videos/{videoId}/comments/{commentId}/unLike")
+    Call<CommentResponse> unlikeComment(@Path("userId") String userId, @Path("videoId") String videoId, @Path("commentId") String commentId, @Header("Authorization") String token);
+
 }
