@@ -14,6 +14,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Multipart;
@@ -79,5 +80,14 @@ public interface WebServiceApi {
             @Body CommentRequest commentRequest,
             @Header("Authorization") String token
     );
+
+        @DELETE("users/{userId}/videos/{videoId}/comments/{commentId}")
+        Call<Void> deleteComment(
+                @Path("userId") String userId,
+                @Path("videoId") String videoId,
+                @Path("commentId") String commentId,
+                @Header("Authorization") String token
+        );
+
 
 }

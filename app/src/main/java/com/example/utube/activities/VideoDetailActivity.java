@@ -753,14 +753,42 @@ public class VideoDetailActivity extends AppCompatActivity {
                     }
                 });
 
+//                deleteCommentButton.setOnClickListener(v -> {
+//                    if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) {
+//                        CommentEntity commentEntity = convertToCommentEntity(comment);
+//                        viewModel.deleteComment(commentEntity); //mvvm-change
+//                    } else {
+//                        showLoginPromptDialog();
+//                    }
+//                });
                 deleteCommentButton.setOnClickListener(v -> {
-                    if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) {
-                        CommentEntity commentEntity = convertToCommentEntity(comment);
-                        viewModel.deleteComment(commentEntity); //mvvm-change
+                    if (sharedPreferences.getBoolean("logged_in", false)) {
+                        String userId = sharedPreferences.getString(LOGGED_IN_USER, "");
+                        String token = UserDetails.getInstance().getToken();
+
+                        showCommentProgressBar();
+
+                        viewModel.deleteCommentOnServer(videoId, comment.getServerId(), userId, token, new VideoDetailViewModel.DeleteCommentCallback() {
+                            @Override
+                            public void onSuccess() {
+                                hideCommentProgressBar();
+                                CommentEntity commentEntity = convertToCommentEntity(comment);
+                                viewModel.deleteComment(commentEntity);
+                                Toast.makeText(VideoDetailActivity.this, "Comment deleted successfully", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onError(String message) {
+                                hideCommentProgressBar();
+                                Toast.makeText(VideoDetailActivity.this, message, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     } else {
                         showLoginPromptDialog();
                     }
                 });
+
+
             }
 
             private CommentEntity convertToCommentEntity(Video.Comment comment) {

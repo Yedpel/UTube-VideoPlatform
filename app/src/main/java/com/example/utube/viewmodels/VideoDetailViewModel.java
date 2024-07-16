@@ -127,10 +127,6 @@ public class VideoDetailViewModel extends AndroidViewModel {
 //        }
 //    }
 
-    public void deleteComment(CommentEntity comment) {
-        commentRepository.deleteComment(comment);
-        loadComments(comment.getVideoId()); // Reload comments after deleting
-    }
 
     public void updateLikesCount(boolean isLiked) {
         Video currentVideo = video.getValue();
@@ -391,6 +387,41 @@ public class VideoDetailViewModel extends AndroidViewModel {
             }
             comments.postValue(newComments);
         }
+    }
+
+    public interface DeleteCommentCallback {
+        void onSuccess();
+
+        void onError(String message);
+    }
+
+    public void deleteCommentOnServer(String videoId, String commentId, String userId, String token, DeleteCommentCallback callback) {
+        WebServiceApi api = RetrofitClient.getInstance().create(WebServiceApi.class);
+        Call<Void> call = api.deleteComment(userId, videoId, commentId, "Bearer " + token);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Log.d("VideoDetailViewModel", "Comment deleted successfully on server.");
+                    callback.onSuccess();
+                } else {
+                    Log.e("VideoDetailViewModel", "Error deleting comment on server. Response code: " + response.code());
+                    callback.onError("Failed to delete comment on server. Please try again.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e("VideoDetailViewModel", "Network error when deleting comment", t);
+                callback.onError("Network error. Please check your connection and try again.");
+            }
+        });
+    }
+
+    public void deleteComment(CommentEntity comment) {
+        commentRepository.deleteComment(comment);
+        loadComments(comment.getVideoId()); // Reload comments after deleting
     }
 
 
