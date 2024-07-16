@@ -303,7 +303,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                                 hideCommentProgressBar();
                                 CommentEntity newComment = convertResponseToEntity(commentResponse);
                                 //String videoId, String username, String text, String profilePicUrl
-                                viewModel.addComment(newComment.videoId, newComment.username, newComment.text, profilePicUrl, newComment.uploadTime);
+                                viewModel.addComment(newComment.videoId, newComment.username, newComment.text, profilePicUrl, newComment.uploadTime, newComment.serverId);
                                 Log.d("VideoDetailActivity", "Comment added successfully: newComment.ProfilePic " + newComment.profilePicUrl);
                             }
 
@@ -406,10 +406,10 @@ public class VideoDetailActivity extends AppCompatActivity {
         }
     }
 
-    private Video.Comment convertToVideoComment(CommentEntity entity) {
-        return new Video.Comment(entity.getId(), entity.getUsername(), entity.getText(),
-                entity.getUploadTime(), entity.getLikes(), entity.getProfilePicUrl());
-    }
+//    private Video.Comment convertToVideoComment(CommentEntity entity) {
+//        return new Video.Comment(entity.getId(), entity.getUsername(), entity.getText(),
+//                entity.getUploadTime(), entity.getLikes(), entity.getProfilePicUrl(), entity.getVideoId());
+//    }
 
     private void enterFullScreen() {
         isFullScreen = true;
@@ -592,6 +592,8 @@ public class VideoDetailActivity extends AppCompatActivity {
             Log.d("VideoDetailActivity", "Updated comments list. Size: " + commentList.size());
             for (Video.Comment comment : commentList) {
                 Log.d("VideoDetailActivity", "Comment in list: ID=" + comment.getId() + ", Text=" + comment.getText());
+                //log the server id
+                Log.d("VideoDetailActivity", "Comment in list: Server ID=" + comment.getServerId());
             }
         }
 
@@ -671,7 +673,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                         dialog.setAddCommentListener(text -> {
                             if (!text.trim().isEmpty()) {
                                 Log.d("VideoDetailActivity", "Editing comment: " + comment.getId() + ", New text: " + text);
-                                CommentEntity updatedComment = new CommentEntity(videoId, comment.getUsername(), text, comment.getUploadTime(), comment.getLikes(), comment.getProfilePicUrl());
+                                CommentEntity updatedComment = new CommentEntity(videoId, comment.getUsername(), text, comment.getUploadTime(), comment.getLikes(), comment.getProfilePicUrl(), comment.getServerId());
                                 updatedComment.setId(comment.getId());
                                 viewModel.updateComment(updatedComment);
                             }
@@ -695,7 +697,7 @@ public class VideoDetailActivity extends AppCompatActivity {
             private CommentEntity convertToCommentEntity(Video.Comment comment) {
                 CommentEntity entity = new CommentEntity(videoId, comment.getUsername(), comment.getText(),
                         comment.getUploadTime(), comment.getLikes(),
-                        comment.getProfilePicUrl());
+                        comment.getProfilePicUrl(), comment.getServerId());
                 entity.setId(comment.getId());
                 return entity;
             }
@@ -799,7 +801,8 @@ public class VideoDetailActivity extends AppCompatActivity {
                 response.getText(),
                 response.getUploadTime(),
                 response.getLikes(),
-                response.getProfilePicUrl()
+                response.getProfilePicUrl(),
+                response.getServerId()
         );
     }
 }

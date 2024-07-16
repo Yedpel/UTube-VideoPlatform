@@ -14,16 +14,24 @@ public class CommentEntity {
     public String uploadTime;
     public int likes;
     public String profilePicUrl;
+    public String serverId; //try-com-id
 
     // Constructor
     public CommentEntity(String videoId, String username, String text, String uploadTime,
-                         int likes, String profilePicUrl) {
+                         int likes, String profilePicUrl, String serverId) {
         this.videoId = videoId;
         this.username = username;
         this.text = text;
         this.uploadTime = uploadTime;
         this.likes = likes;
         this.profilePicUrl = profilePicUrl;
+        this.serverId = serverId;
+    }
+    public String getServerId() {
+        return serverId;
+    }
+    public void setServerId(String serverId) {
+        this.serverId = serverId;
     }
 
     public int getId() {

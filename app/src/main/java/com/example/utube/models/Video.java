@@ -143,14 +143,19 @@ public class Video implements Parcelable {
         private String uploadTime;
         private int likes;
         private String profilePicUrl;
+        private String serverId;
 
-        public Comment(int id, String username, String text, String uploadTime, int likes, String profilePicUrl) {
+        public Comment(int id, String username, String text, String uploadTime, int likes, String profilePicUrl, String serverId) {
             this.id = id;
             this.username = username;
             this.text = text;
             this.uploadTime = uploadTime;
             this.likes = likes;
             this.profilePicUrl = profilePicUrl;
+            this.serverId = serverId;
+        }
+        public String getServerId() {
+            return serverId;
         }
 
         public int getId() {

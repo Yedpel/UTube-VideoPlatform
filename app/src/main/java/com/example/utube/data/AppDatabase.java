@@ -8,7 +8,7 @@ import com.example.utube.models.UserEntity;
 import com.example.utube.models.VideoEntity;
 import com.example.utube.models.CommentEntity;
 
-@Database(entities = {UserEntity.class, VideoEntity.class, CommentEntity.class}, version = 2, exportSchema = false)
+@Database(entities = {UserEntity.class, VideoEntity.class, CommentEntity.class}, version = 3, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase instance;
 

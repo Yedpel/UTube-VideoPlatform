@@ -56,9 +56,9 @@ public class VideoDetailViewModel extends AndroidViewModel {
     }
     //bla bla
 
-    public void addComment(String videoId, String username, String text, String profilePicUrl, String date) {
+    public void addComment(String videoId, String username, String text, String profilePicUrl, String date, String serverId) {
         String currentTime = date;
-        CommentEntity newComment = new CommentEntity(videoId, username, text, currentTime, 0, profilePicUrl);
+        CommentEntity newComment = new CommentEntity(videoId, username, text, currentTime, 0, profilePicUrl, serverId);
         long commentId = commentRepository.insert(newComment);
 
         if (commentId != -1) {
@@ -144,7 +144,7 @@ public class VideoDetailViewModel extends AndroidViewModel {
 
     private Video.Comment convertToVideoComment(CommentEntity entity) {
         return new Video.Comment(entity.getId(), entity.getUsername(), entity.getText(),
-                entity.getUploadTime(), entity.getLikes(), entity.getProfilePicUrl());
+                entity.getUploadTime(), entity.getLikes(), entity.getProfilePicUrl(), entity.getServerId());
     }
 
     public void loadComments(String videoId) {
@@ -220,12 +220,12 @@ public class VideoDetailViewModel extends AndroidViewModel {
         return sharedPreferences.getBoolean(likeKey, false);
     }
 
-    private CommentEntity convertToCommentEntity(String videoId, Video.Comment comment) {
-        CommentEntity entity = new CommentEntity(videoId, comment.getUsername(), comment.getText(),
-                comment.getUploadTime(), comment.getLikes(), comment.getProfilePicUrl());
-        entity.setId(comment.getId());
-        return entity;
-    }
+//    private CommentEntity convertToCommentEntity(String videoId, Video.Comment comment) {
+//        CommentEntity entity = new CommentEntity(videoId, comment.getUsername(), comment.getText(),
+//                comment.getUploadTime(), comment.getLikes(), comment.getProfilePicUrl());
+//        entity.setId(comment.getId());
+//        return entity;
+//    }
 
     public VideoManager getVideoManager() {
         return videoManager;
