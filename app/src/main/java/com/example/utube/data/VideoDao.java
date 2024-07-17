@@ -38,4 +38,7 @@ public interface VideoDao {
 
     @Query("SELECT COUNT(*) FROM videos")
     int getCount();
+
+    @Query("DELETE FROM videos WHERE author = :author")
+    void deleteAllVideosByAuthor(String author);
 }

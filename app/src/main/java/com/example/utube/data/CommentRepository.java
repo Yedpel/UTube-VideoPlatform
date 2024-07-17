@@ -51,5 +51,9 @@ public class CommentRepository {
         }
     }
 
+    public void deleteAllCommentsByUsername(String username) {
+        executorService.execute(() -> commentDao.deleteAllCommentsByUsername(username));
+    }
+
 
 }

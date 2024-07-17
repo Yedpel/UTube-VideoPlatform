@@ -5,6 +5,7 @@ import com.example.utube.models.UserDetails;
 import com.example.utube.models.Video;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +32,7 @@ import com.example.utube.R;
 import com.example.utube.activities.VideoManager;
 import com.example.utube.utils.VideoResponse;
 import com.example.utube.viewmodels.ChannelViewModel;
+import com.example.utube.viewmodels.UserViewModel;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
@@ -67,6 +69,7 @@ public class ChannelActivity extends AppCompatActivity {
     private final UserDetails userDetails = UserDetails.getInstance();
     private UserEditDialog userEditDialog;
     private ChannelViewModel channelViewModel;
+    private UserViewModel userViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +80,8 @@ public class ChannelActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_channel);
+
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         viewModel = new ViewModelProvider(this).get(ChannelViewModel.class); //try-ch-mvvm
         loggedInUser = sharedPreferences.getString(LOGGED_IN_USER, null);
@@ -120,8 +125,32 @@ public class ChannelActivity extends AppCompatActivity {
         checkUserStatus();
 
         deleteUserButton.setOnClickListener(v -> {
-            // TODO: Implement delete user functionality
-            Toast.makeText(this, "Delete User functionality not implemented yet", Toast.LENGTH_SHORT).show(); //try-chanUpd
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Delete User")
+                    .setMessage("Are you sure you want to delete your account? This action cannot be undone.")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        String userId = UserDetails.getInstance().get_id();
+                        String token = UserDetails.getInstance().getToken();
+                        userViewModel.deleteUser(userId, token);
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+        });
+        userViewModel.getDeleteUserResult().observe(this, isSuccess -> {
+            if (isSuccess) {
+                Toast.makeText(this, "User deleted successfully", Toast.LENGTH_SHORT).show();
+                // Delete local data
+                userViewModel.deleteUserLocalData(UserDetails.getInstance().getUsername());
+                // Clear user data
+                UserDetails.getInstance().clear();
+                // Return to MainActivity
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Failed to delete user", Toast.LENGTH_SHORT).show();
+            }
         });
 
         loadVideos(); //try-ch-mvvm

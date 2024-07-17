@@ -19,4 +19,7 @@ public interface CommentDao {
     void deleteComment(CommentEntity comment);
     @Query("SELECT * FROM comments WHERE id = :commentId")
     CommentEntity getCommentById(int commentId);
+
+    @Query("DELETE FROM comments WHERE username = :username")
+    void deleteAllCommentsByUsername(String username);
 }

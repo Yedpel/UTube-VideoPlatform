@@ -114,5 +114,8 @@ public interface WebServiceApi {
             @Header("Authorization") String token
     );
 
+    @DELETE("users/{id}")
+    Call<Void> deleteUser(@Path("id") String id, @Header("Authorization") String token);
+
 
 }

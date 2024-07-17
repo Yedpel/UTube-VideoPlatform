@@ -4,21 +4,29 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.utube.MyApplication;
 import com.example.utube.api.UserApi;
+import com.example.utube.data.CommentRepository;
+import com.example.utube.data.VideoRepository;
 import com.example.utube.models.UserDetails;
 
 public class UserViewModel extends ViewModel {
     private UserApi userApi;
     private MutableLiveData<Boolean> authenticateResult;
     private MutableLiveData<UserDetails> userDetails;
-
     private MutableLiveData<Boolean> registrationStatus; // Add this field
+    private MutableLiveData<Boolean> deleteUserResult;
 
     public UserViewModel() {
         authenticateResult = new MutableLiveData<>();
         userDetails = new MutableLiveData<>();
-        registrationStatus = new MutableLiveData<>(); // Add this line
-        userApi = new UserApi(authenticateResult, userDetails, registrationStatus); // Change this line
+        registrationStatus = new MutableLiveData<>();
+        deleteUserResult = new MutableLiveData<>();
+        userApi = new UserApi(authenticateResult, userDetails, registrationStatus, deleteUserResult);
+    }
+
+    public LiveData<Boolean> getDeleteUserResult() {
+        return deleteUserResult;
     }
 
     public MutableLiveData<Boolean> getRegistrationStatus() {
@@ -31,6 +39,18 @@ public class UserViewModel extends ViewModel {
 
     public LiveData<UserDetails> getUserDetails() {
         return userDetails;
+    }
+
+    public void deleteUser(String userId, String token) {
+        userApi.deleteUser(userId, token);
+    }
+    public void deleteUserLocalData(String username) {
+        new Thread(() -> {
+            VideoRepository videoRepository = new VideoRepository(MyApplication.getInstance());
+            CommentRepository commentRepository = new CommentRepository(MyApplication.getInstance());
+            videoRepository.deleteAllVideosByAuthor(username);
+            commentRepository.deleteAllCommentsByUsername(username);
+        }).start();
     }
 
     public void authenticate(String username, String password) {
@@ -48,40 +68,7 @@ public class UserViewModel extends ViewModel {
     public void updateUserDetails(UserDetails user) {
         userApi.updateUserDetails(user);
     }
+
+
+
 }
-//package com.example.utube.viewmodels;
-//
-//import androidx.lifecycle.LiveData;
-//import androidx.lifecycle.MutableLiveData;
-//import androidx.lifecycle.ViewModel;
-//
-//import com.example.utube.api.UserApi;
-//import com.example.utube.models.UserDetails;
-//
-//public class UserViewModel extends ViewModel {
-//    private UserApi userApi;
-//    private MutableLiveData<Boolean> authenticateResult;
-//    private MutableLiveData<UserDetails> userDetails;
-//
-//    public UserViewModel() {
-//        authenticateResult = new MutableLiveData<>();
-//        userDetails = new MutableLiveData<>();
-//        userApi = new UserApi(authenticateResult, userDetails);
-//    }
-//
-//    public LiveData<Boolean> getAuthenticateResult() {
-//        return authenticateResult;
-//    }
-//
-//    public LiveData<UserDetails> getUserDetails() {
-//        return userDetails;
-//    }
-//
-//    public void authenticate(String username, String password) {
-//        userApi.authenticate(username, password);
-//    }
-//
-//    public void fetchUserDetails(String username) {
-//        userApi.fetchUserDetails(username);
-//    }
-//}

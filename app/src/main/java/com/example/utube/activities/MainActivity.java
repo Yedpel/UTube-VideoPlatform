@@ -353,6 +353,7 @@ public class MainActivity extends AppCompatActivity {
         btnLogout.setOnClickListener(v -> {
             sharedPreferences.edit().putBoolean(LOGGED_IN_KEY, false).remove(LOGGED_IN_USER).apply();
             Toast.makeText(MainActivity.this, "Logged out", Toast.LENGTH_SHORT).show();
+            UserDetails.getInstance().clear();
             reloadMainActivity();
         });
         btnMyChannel.setOnClickListener(v -> {

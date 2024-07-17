@@ -249,4 +249,8 @@ public class VideoRepository {
         }
     }
 
+    public void deleteAllVideosByAuthor(String author) {
+        executorService.execute(() -> videoDao.deleteAllVideosByAuthor(author));
+    }
+
 }
