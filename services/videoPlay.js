@@ -1,5 +1,6 @@
 import Video from '../models/videoPlay.js'; // Import the Mongoose model
 import Comment from '../models/comments.js';
+import User from '../models/users.js';
 
 // Fetch all!!!! videos from the database - just in case we need it
 // we use mixed videos funciton down the page
@@ -34,6 +35,7 @@ export async function getVideoModel(id) {
             _id: video._id,
             thumbnailUrl: video.thumbnailUrl,
             title: video.title,
+            author: video.authorId.username,
             authorId: video.authorId._id,
             authorName: video.authorId.username, // Use the populated username
             authorProfilePic: video.authorId.profilePic, // Add the profile picture
@@ -138,7 +140,7 @@ export async function getVideosbyUserId(userId) {
     try {
         const userVideos = await Video.find({ authorId: userId })
             .populate('authorId', 'username profilePic')
-            .select('thumbnailUrl title views uploadTime');
+            .select('thumbnailUrl title views uploadTime category videoUrl');
 
         // Check if userVideos is an array and not empty
         if (Array.isArray(userVideos) && userVideos.length > 0) {
@@ -151,7 +153,9 @@ export async function getVideosbyUserId(userId) {
                 authorProfilePic: video.authorId.profilePic,
                 title: video.title,
                 views: video.views,
-                uploadTime: video.uploadTime
+                uploadTime: video.uploadTime,
+                category: video.category,
+                videoUrl: video.videoUrl
             }));
             return transformedVideos;
         } else {
@@ -161,6 +165,20 @@ export async function getVideosbyUserId(userId) {
         }
     } catch (error) {
         console.error('Failed to fetch videos by user ID:', error);
+        throw error;
+    }
+}
+
+// get videos by username
+export async function getVideosByUsernameService(username) {
+    try {
+        const user = await User.findOne({ username: username });
+        if (!user) {
+            return [];
+        }
+        return await getVideosbyUserId(user._id);
+    } catch (error) {
+        console.error('Failed to fetch videos by username:', error);
         throw error;
     }
 }

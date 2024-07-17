@@ -3,7 +3,7 @@ import { upload } from './mediaRoutes.js';
 import {
   getVideos, getVideo, createVideo, fetchComments, fetchCommentCount, fetchMixedVideos, fetchVideosByCategory
   , updateVideo, deleteVideo, likeVideo, UnlikeVideo, getVideosByUserId,
-  getUserLikedVideo, addView, getWatchPageData
+  getUserLikedVideo, addView, getWatchPageData, getVideosByUsername
 } from '../controllers/videoPlay.js'
 //import { isLoggedIn } from '../controllers/tokens.js';
 import { addComment, deleteComment, likeComment, unlikeComment, updateComment } from '../controllers/comments.js';
@@ -18,8 +18,11 @@ const router = express.Router();
 // Route to get a mix of 20 videos (or less if there are less than 20) from the database
 router.get('/videos', fetchMixedVideos);
 
-//get user videos
+//get user videos by id
 router.get('/users/:id/videos', getVideosByUserId);
+
+// get user videos by username
+router.get('/users/name/:username/videos', getVideosByUsername)
 
 // Route to get videos by category (can implement also on client side, from the videos list page he got)
 // need to update the real adress, depand on how the button will be on client side//

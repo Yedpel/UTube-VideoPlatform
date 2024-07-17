@@ -1,7 +1,7 @@
 import {
     getVideoModel, createVideoModel, getVideosModel, updateVideoModel, deleteVideoModel,
     getVideosWithAuthorDetails, getMixedVideos, getVideosByCategory,
-    unlikeVideo, getVideosbyUserId, isUserLikedVideo, incrementVideoViews
+    unlikeVideo, getVideosbyUserId, isUserLikedVideo, incrementVideoViews, getVideosByUsernameService
 } from '../services/videoPlay.js';
 //import { getCommentsByVideoId, countCommentsByVideoId } from '../services/comments.js';
 import { LikeVideo as toggleLikeVideo } from '../services/videoPlay.js';
@@ -162,6 +162,16 @@ export async function getVideosByUserId(req, res) {
     try {
         const userId = req.params.id;
         const videos = await getVideosbyUserId(userId);
+        res.json(videos);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+}
+//deal getVideosByUsername in services/videoPlay.js
+export async function getVideosByUsername(req, res) {
+    try {
+        const username = req.params.username;
+        const videos = await getVideosByUsernameService(username);
         res.json(videos);
     } catch (error) {
         res.status(500).send(error.message);
