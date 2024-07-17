@@ -215,4 +215,38 @@ public class VideoRepository {
         }
     }
 
+    //try-channle-server
+    public void fetchVideosByUsernameFromServer(String username, Callback<List<VideoResponse>> callback) {
+        try {
+            WebServiceApi webServiceApi = RetrofitClient.getInstance().create(WebServiceApi.class);
+            Call<List<VideoResponse>> call = webServiceApi.getVideosByUsername(username);
+            Log.d("VideoRepository", "Sending request to server for user: " + username);
+            call.enqueue(new Callback<List<VideoResponse>>() {
+                @Override
+                public void onResponse(Call<List<VideoResponse>> call, Response<List<VideoResponse>> response) {
+                    Log.d("VideoRepository", "Received response from server for user: " + username + ". isSuccessful: " + response.isSuccessful());
+                    if (response.isSuccessful() && response.body() != null) {
+                        List<VideoResponse> videos = response.body();
+                        Log.d("VideoRepository", "Raw JSON response for user " + username + ": " + new Gson().toJson(videos));
+                        Log.d("VideoRepository", "Received " + videos.size() + " videos from server for user: " + username);
+                        insertVideosFromServer(videos);
+                        callback.onResponse(call, response);
+                    } else {
+                        Log.e("VideoRepository", "Response not successful for user: " + username + ". Code: " + response.code() + ", Message: " + response.message());
+                        callback.onFailure(call, new Throwable("Error fetching videos for user: " + username));
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<List<VideoResponse>> call, Throwable t) {
+                    Log.e("VideoRepository", "Network request failed for user: " + username, t);
+                    callback.onFailure(call, t);
+                }
+            });
+        } catch (Exception e) {
+            Log.e("VideoRepository", "Error creating network request for user: " + username, e);
+            callback.onFailure(null, new Throwable("Error creating network request: " + e.getMessage()));
+        }
+    }
+
 }

@@ -89,5 +89,9 @@ public interface WebServiceApi {
                 @Header("Authorization") String token
         );
 
+    //try-channle-server
+    @GET("users/name/{username}/videos")
+    Call<List<VideoResponse>> getVideosByUsername(@Path("username") String username);
+
 
 }

@@ -1,8 +1,10 @@
 package com.example.utube.activities;
 
+import com.example.utube.data.VideoRepository;
 import com.example.utube.models.Video;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -25,7 +27,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.utube.R;
 import com.example.utube.activities.VideoManager;
+import com.example.utube.utils.VideoResponse;
 import com.example.utube.viewmodels.ChannelViewModel;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import static com.example.utube.activities.MainActivity.PREFS_NAME;
@@ -33,6 +37,10 @@ import static com.example.utube.activities.MainActivity.PREFS_NAME;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ChannelActivity extends AppCompatActivity {
 
@@ -46,6 +54,10 @@ public class ChannelActivity extends AppCompatActivity {
     private static final int REQUEST_VIDEO_DETAIL = 1; //try-chanUpd
 
     private ChannelViewModel viewModel; //try-ch-mvvm
+
+    private VideoRepository videoRepository = new VideoRepository(getApplication()); //try-channle-server
+
+    private ProgressDialog loadingDialog; //try-channle-server
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,10 +92,14 @@ public class ChannelActivity extends AppCompatActivity {
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout); //try-swip
         swipeRefreshLayout.setOnRefreshListener(this::refreshVideoList); //try-swip
 
-        viewModel.getVideos().observe(this, videos -> { //try-ch-mvvm
-            videoAdapter.updateVideos(videos);
-            swipeRefreshLayout.setRefreshing(false);
-        });
+        //try-channle-server
+        setupObservers();
+
+
+//        viewModel.getVideos().observe(this, videos -> { //try-ch-mvvm
+//            videoAdapter.updateVideos(videos);
+//            swipeRefreshLayout.setRefreshing(false);
+//        });
 
         editUserButton.setOnClickListener(v -> {
             // TODO: Implement edit user functionality
@@ -96,6 +112,24 @@ public class ChannelActivity extends AppCompatActivity {
         });
 
         loadVideos(); //try-ch-mvvm
+    }//end onCreate
+
+    //try-channle-server
+    private void setupObservers() {
+        viewModel.getVideos().observe(this, videos -> {
+            videoAdapter.updateVideos(videos);
+            swipeRefreshLayout.setRefreshing(false);
+        });
+
+        viewModel.getIsLoading().observe(this, isLoading -> {
+            swipeRefreshLayout.setRefreshing(isLoading);
+        });
+
+        viewModel.getError().observe(this, error -> {
+            if (error != null && !error.isEmpty()) {
+                Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override
@@ -113,7 +147,6 @@ public class ChannelActivity extends AppCompatActivity {
     }
 
     private void refreshVideoList() { //try-ch-mvvm
-        //TODO: change this to use the server data
         viewModel.loadVideosForAuthor(authorName);
     }
 
@@ -166,26 +199,74 @@ public class ChannelActivity extends AppCompatActivity {
             notifyDataSetChanged();
         }
 
+//        @Override
+//        public void onBindViewHolder(VideoViewHolder holder, int position) {
+//            Video video = videoList.get(position);
+//            holder.bind(video);
+//
+//            holder.itemView.setOnClickListener(v -> {
+//                Intent intent = new Intent(context, VideoDetailActivity.class);
+//                intent.putExtra("VIDEO_ID", video.getId());
+//                intent.putExtra("VIDEO_URL", video.getVideoUrl());
+//                intent.putExtra("TITLE", video.getTitle());
+//                intent.putExtra("AUTHOR", video.getAuthor());
+//                intent.putExtra("VIEWS", video.getViews());
+//                intent.putExtra("UPLOAD_TIME", video.getUploadTime());
+//                intent.putExtra("AUTHOR_PROFILE_PIC_URL", video.getAuthorProfilePicUrl());
+//                intent.putExtra("LIKES", video.getLikes());
+//                //log the likes
+//                Log.d("VideoAdapter", "Likes: " + video.getLikes());
+//                ((Activity) context).startActivityForResult(intent, REQUEST_VIDEO_DETAIL); //try-chanUpd
+//                // context.startActivity(intent);
+//            });
+//
+//            // You can keep the menu button functionality if needed, or remove it for the channel page
+//        }
+
         @Override
         public void onBindViewHolder(VideoViewHolder holder, int position) {
             Video video = videoList.get(position);
             holder.bind(video);
 
+            //try-channle-server
             holder.itemView.setOnClickListener(v -> {
-                Intent intent = new Intent(context, VideoDetailActivity.class);
-                intent.putExtra("VIDEO_ID", video.getId());
-                intent.putExtra("VIDEO_URL", video.getVideoUrl());
-                intent.putExtra("TITLE", video.getTitle());
-                intent.putExtra("AUTHOR", video.getAuthor());
-                intent.putExtra("VIEWS", video.getViews());
-                intent.putExtra("UPLOAD_TIME", video.getUploadTime());
-                intent.putExtra("AUTHOR_PROFILE_PIC_URL", video.getAuthorProfilePicUrl());
-                intent.putExtra("LIKES", video.getLikes());
-                ((Activity) context).startActivityForResult(intent, REQUEST_VIDEO_DETAIL); //try-chanUpd
-                // context.startActivity(intent);
-            });
+                // Show loading indicator
+                showLoadingDialog();
 
-            // You can keep the menu button functionality if needed, or remove it for the channel page
+                // Fetch latest video details from server
+                viewModel.fetchVideoDetailsFromServer(video.getId(), new Callback<VideoResponse>() {
+                    @Override
+                    public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
+                        hideLoadingDialog();
+                        if (response.isSuccessful() && response.body() != null) {
+                            VideoResponse updatedVideo = response.body();
+
+                            // Start VideoDetailActivity
+                            Intent intent = new Intent(ChannelActivity.this, VideoDetailActivity.class);
+                            intent.putExtra("VIDEO_ID", updatedVideo.getId());
+                            intent.putExtra("VIDEO_URL", updatedVideo.getVideoUrl());
+                            intent.putExtra("TITLE", updatedVideo.getTitle());
+                            intent.putExtra("AUTHOR", updatedVideo.getAuthor());
+                            Log.d("ChannelActivity", "Updated video author: " + updatedVideo.getAuthor());
+                            intent.putExtra("VIEWS", updatedVideo.getViews());
+                            intent.putExtra("UPLOAD_TIME", updatedVideo.getUploadTime());
+                            intent.putExtra("AUTHOR_PROFILE_PIC_URL", updatedVideo.getAuthorProfilePic());
+                            intent.putExtra("LIKES", updatedVideo.getLikes());
+                            startActivityForResult(intent, REQUEST_VIDEO_DETAIL);
+                        } else {
+                            // Show error message
+                            Toast.makeText(ChannelActivity.this, "Failed to fetch latest video details", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<VideoResponse> call, Throwable t) {
+                        hideLoadingDialog();
+                        // Show error message
+                        Toast.makeText(ChannelActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            });
         }
 
         @Override
@@ -250,6 +331,22 @@ public class ChannelActivity extends AppCompatActivity {
                     Picasso.get().load(fullUrl).error(R.drawable.policy).into(imageView);
                 }
             }
+        }
+    }
+
+
+    private void showLoadingDialog() {
+        if (loadingDialog == null) {
+            loadingDialog = new ProgressDialog(this);
+            loadingDialog.setMessage("Loading...");
+            loadingDialog.setCancelable(false);
+        }
+        loadingDialog.show();
+    }
+
+    private void hideLoadingDialog() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
         }
     }
 }
