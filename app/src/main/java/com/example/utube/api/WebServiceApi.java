@@ -81,17 +81,38 @@ public interface WebServiceApi {
             @Header("Authorization") String token
     );
 
-        @DELETE("users/{userId}/videos/{videoId}/comments/{commentId}")
-        Call<Void> deleteComment(
-                @Path("userId") String userId,
-                @Path("videoId") String videoId,
-                @Path("commentId") String commentId,
-                @Header("Authorization") String token
-        );
+    @DELETE("users/{userId}/videos/{videoId}/comments/{commentId}")
+    Call<Void> deleteComment(
+            @Path("userId") String userId,
+            @Path("videoId") String videoId,
+            @Path("commentId") String commentId,
+            @Header("Authorization") String token
+    );
 
     //try-channle-server
     @GET("users/name/{username}/videos")
     Call<List<VideoResponse>> getVideosByUsername(@Path("username") String username);
+
+    @GET("users/{id}/page")
+    Call<UserDetails> getUserPage(@Path("id") String id);
+
+//    @GET("users/{id}/page")
+//    Call<UserDetails> getUser(@Path("id") String id);
+
+    @GET("users/{id}/videos")
+    Call<List<VideoResponse>> getUserVideos(@Path("id") String id);
+
+    @Multipart
+    @PUT("users/{id}")
+    Call<UserDetails> updateUserDetails(
+            @Path("id") String id,
+            @Part("firstName") RequestBody firstName,
+            @Part("lastName") RequestBody lastName,
+            @Part("date") RequestBody date,
+            @Part("email") RequestBody email,
+            @Part MultipartBody.Part profilePic,
+            @Header("Authorization") String token
+    );
 
 
 }

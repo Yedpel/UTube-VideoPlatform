@@ -37,6 +37,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.utube.R;
+import com.example.utube.models.UserDetails;
 import com.example.utube.models.Users;
 import com.example.utube.models.Video;
 import com.example.utube.utils.VideoResponse;
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_VIDEO_PICK = 2;
     private RecyclerView recyclerView;
     private VideoAdapter videoAdapter;
-    private Button btnLogin, btnThemeSwitch, btnRegister, btnAddVideo, btnLogout;
+    private Button btnLogin, btnThemeSwitch, btnRegister, btnAddVideo, btnLogout, btnMyChannel;
     private EditText searchBox;
     private SharedPreferences sharedPreferences;
     public static final String PREFS_NAME = "theme_prefs";
@@ -78,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
     private MainViewModel viewModel;
     private ProgressDialog loadingDialog;
+    private final UserDetails userDetails = UserDetails.getInstance();
 
 
     @Override
@@ -136,11 +138,15 @@ public class MainActivity extends AppCompatActivity {
         btnLogout = new Button(this);
         btnLogout.setText("Logout");
         btnLogout.setBackgroundResource(R.drawable.button_background);
+        btnMyChannel = new Button(this);
+        btnMyChannel.setText("My Channel");
+        btnMyChannel.setBackgroundResource(R.drawable.button_background);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         params.setMargins(10, 0, 10, 0);
         btnLogout.setLayoutParams(params);
+        btnMyChannel.setLayoutParams(params);
 
         btnThemeSwitch.setText(isNightMode ? "Day Mode" : "Night Mode");
         btnThemeSwitch.setOnClickListener(v -> switchTheme());
@@ -246,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
         btnThemeSwitch.setTextColor(buttonTextColor);
         btnAddVideo.setTextColor(buttonTextColor);
         btnLogout.setTextColor(buttonTextColor);
+        btnMyChannel.setTextColor(buttonTextColor);
 
         // Set background for buttons based on the theme
         int buttonBackground = isNightMode ? R.drawable.button_background : R.drawable.button_rounded_light;
@@ -254,6 +261,7 @@ public class MainActivity extends AppCompatActivity {
         btnThemeSwitch.setBackgroundResource(buttonBackground);
         btnAddVideo.setBackgroundResource(buttonBackground);
         btnLogout.setBackgroundResource(buttonBackground);
+        btnMyChannel.setBackgroundResource(buttonBackground);
 
         // Refresh RecyclerView to apply theme colors to its items
         if (videoAdapter != null) {
@@ -324,8 +332,8 @@ public class MainActivity extends AppCompatActivity {
             int views = 0;
             int likes = 0;
 
-            String authorProfilePicUrl = Users.getInstance().getUser(loggedInUser).getProfilePic();
-
+            //  String authorProfilePicUrl = Users.getInstance().getUser(loggedInUser).getProfilePic();
+            String authorProfilePicUrl = userDetails.getProfilePic();
             Video video = new Video(id, title, author, views, uploadTime, previewImageUrl, authorProfilePicUrl, videoFilePath, category, likes);
             viewModel.addVideo(video); //try-behave
             sharedPreferences.edit().putString(id + "_videoPath", videoFilePath).apply();
@@ -340,11 +348,17 @@ public class MainActivity extends AppCompatActivity {
 
         LinearLayout buttonContainer = findViewById(R.id.button_container);
         buttonContainer.addView(btnLogout);
+        buttonContainer.addView(btnMyChannel);
 
         btnLogout.setOnClickListener(v -> {
             sharedPreferences.edit().putBoolean(LOGGED_IN_KEY, false).remove(LOGGED_IN_USER).apply();
             Toast.makeText(MainActivity.this, "Logged out", Toast.LENGTH_SHORT).show();
             reloadMainActivity();
+        });
+        btnMyChannel.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ChannelActivity.class);
+            intent.putExtra("AUTHOR_NAME", this.userDetails.getUsername());
+            startActivity(intent);
         });
     }
 

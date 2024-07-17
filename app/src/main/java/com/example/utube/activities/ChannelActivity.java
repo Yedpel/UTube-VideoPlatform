@@ -1,6 +1,7 @@
 package com.example.utube.activities;
 
 import com.example.utube.data.VideoRepository;
+import com.example.utube.models.UserDetails;
 import com.example.utube.models.Video;
 
 import android.app.Activity;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -59,6 +61,13 @@ public class ChannelActivity extends AppCompatActivity {
 
     private ProgressDialog loadingDialog; //try-channle-server
 
+    private String loggedInUser;
+    public static final String LOGGED_IN_USER = "logged_in_user";
+    private static final String LOGGED_IN_KEY = "logged_in";
+    private final UserDetails userDetails = UserDetails.getInstance();
+    private UserEditDialog userEditDialog;
+    private ChannelViewModel channelViewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Load theme from shared preferences
@@ -70,6 +79,7 @@ public class ChannelActivity extends AppCompatActivity {
         setContentView(R.layout.activity_channel);
 
         viewModel = new ViewModelProvider(this).get(ChannelViewModel.class); //try-ch-mvvm
+        loggedInUser = sharedPreferences.getString(LOGGED_IN_USER, null);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -101,10 +111,13 @@ public class ChannelActivity extends AppCompatActivity {
 //            swipeRefreshLayout.setRefreshing(false);
 //        });
 
+        userEditDialog = new UserEditDialog(this, channelViewModel);
         editUserButton.setOnClickListener(v -> {
-            // TODO: Implement edit user functionality
-            Toast.makeText(this, "Edit User functionality not implemented yet", Toast.LENGTH_SHORT).show(); //try-chanUpd
+            // Show UserEditDialog using FragmentManager
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            userEditDialog.show(fragmentManager, "UserEditDialog");
         });
+        checkUserStatus();
 
         deleteUserButton.setOnClickListener(v -> {
             // TODO: Implement delete user functionality
@@ -113,6 +126,28 @@ public class ChannelActivity extends AppCompatActivity {
 
         loadVideos(); //try-ch-mvvm
     }//end onCreate
+
+    private void checkUserStatus() {
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean isLoggedIn = sharedPreferences.getBoolean(LOGGED_IN_KEY, false);
+        String visitingUser = getIntent().getStringExtra("AUTHOR_NAME");
+
+        if (isLoggedIn && loggedInUser != null && loggedInUser.equals(visitingUser)) {
+            updateUIForLoggedInUser();
+        } else {
+            updateUIForGuest();
+        }
+    }
+
+    private void updateUIForGuest() {
+        editUserButton.setVisibility(View.GONE);
+        deleteUserButton.setVisibility(View.GONE);
+    }
+
+    private void updateUIForLoggedInUser() {
+        editUserButton.setVisibility(View.VISIBLE);
+        deleteUserButton.setVisibility(View.VISIBLE);
+    }
 
     //try-channle-server
     private void setupObservers() {

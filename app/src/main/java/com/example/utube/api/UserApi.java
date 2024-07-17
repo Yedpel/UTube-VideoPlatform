@@ -163,6 +163,79 @@ public class UserApi {
             }
         });
     }
+
+    public void fetchUserPage(UserDetails user) {
+        Log.e("UserApi", "Fetching user page for: " + user.getToken());
+        //Log.e("UserApi","Fetching user details for: " + user.get_id());
+
+        Call<UserDetails> call = webApi.getUserPage(user.get_id());
+        call.enqueue(new Callback<UserDetails>() {
+            @Override
+            public void onResponse(Call<UserDetails> call, Response<UserDetails> response) {
+                if (response.isSuccessful()) {
+                    //Log.e("UserApi", "User details fetched successfully: " + response.body());
+                    UserDetails userDetails = UserDetails.getInstance();
+                    UserDetails fetchedUserDetails = response.body();
+                    if (fetchedUserDetails != null) {
+                        userDetails.setFirstName(fetchedUserDetails.getFirstName());
+                        userDetails.setLastName(fetchedUserDetails.getLastName());
+                        userDetails.setProfilePic(fetchedUserDetails.getProfilePic());
+                        userDetails.setUsername(fetchedUserDetails.getUsername());
+                        userDetails.setEmail(fetchedUserDetails.getEmail());
+                        userDetails.setDate(fetchedUserDetails.getDate());
+                        userDetails.set_id(fetchedUserDetails.get_id());
+                    }
+
+                    userData.setValue(fetchedUserDetails);
+                } else {
+                    Log.e("UserApi", "Failed to fetch user details: " + response.code());
+                    userData.setValue(null);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserDetails> call, Throwable t) {
+                Log.e("UserApi", "User details request failed", t);
+                userData.setValue(null);
+            }
+        });
+    }
+
+    public void updateUserDetails(UserDetails user) {
+        RequestBody firstName = RequestBody.create(MediaType.parse("text/plain"), user.getFirstName());
+        RequestBody lastName = RequestBody.create(MediaType.parse("text/plain"), user.getLastName());
+        RequestBody date = RequestBody.create(MediaType.parse("text/plain"), user.getDate());
+        RequestBody email = RequestBody.create(MediaType.parse("text/plain"), user.getEmail());
+
+        MultipartBody.Part profilePicPart = null;
+        if (user.getProfilePicFile() != null) {
+            RequestBody profilePicBody = RequestBody.create(MediaType.parse("image/*"), user.getProfilePicFile());
+            profilePicPart = MultipartBody.Part.createFormData("profilePic", user.getProfilePicFile().getName(), profilePicBody);
+        }
+        String bearerToken = "Bearer " + user.getToken(); // Assuming token is stored in UserDetails
+
+        Call<UserDetails> call = webApi.updateUserDetails(user.get_id(), firstName, lastName, date, email, profilePicPart, bearerToken);
+        call.enqueue(new Callback<UserDetails>() {
+            @Override
+            public void onResponse(Call<UserDetails> call, Response<UserDetails> response) {
+                if (response.isSuccessful()) {
+                    Log.d("UserApi", "Update successful: " + response.body());
+                    Toast.makeText(MyApplication.context, "Update Successful", Toast.LENGTH_SHORT).show();
+                    // Handle the response here if needed
+                } else {
+                    Toast.makeText(MyApplication.context, "Update failed", Toast.LENGTH_LONG).show();
+                    Log.d("UserApi", "Update failed: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserDetails> call, Throwable t) {
+                Toast.makeText(MyApplication.context, "Cannot connect to the server", Toast.LENGTH_LONG).show();
+                Log.e("UserApi", "Update request failed", t);
+            }
+        });
+    }
+
 }
 //package com.example.utube.api;
 //

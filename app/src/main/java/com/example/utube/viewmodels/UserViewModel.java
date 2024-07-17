@@ -44,6 +44,10 @@ public class UserViewModel extends ViewModel {
     public void signUp(UserDetails user) {
         userApi.signUp(user);
     }
+
+    public void updateUserDetails(UserDetails user) {
+        userApi.updateUserDetails(user);
+    }
 }
 //package com.example.utube.viewmodels;
 //
