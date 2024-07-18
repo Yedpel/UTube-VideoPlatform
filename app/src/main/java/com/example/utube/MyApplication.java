@@ -8,12 +8,36 @@ import android.os.Looper;
 import android.widget.Toast;
 
 import com.example.utube.activities.MainActivity;
+import com.example.utube.data.AppDatabase;
+import com.example.utube.data.CommentRepository;
+import com.example.utube.data.UserRepository;
+import com.example.utube.data.VideoRepository;
 
 public class MyApplication extends Application {
+
+    private static MyApplication instance;
+    private UserRepository userRepository;
+    private VideoRepository videoRepository;
+    private CommentRepository commentRepository;
+
+    public static Context context;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
+
+        // Initialize UserRepository
+        userRepository = new UserRepository(this);
+
+        // Initialize VideoRepository
+        videoRepository = new VideoRepository(this);
+
+        // Initialize CommentRepository
+        commentRepository = new CommentRepository(this);
+
+        // Initialize Context
+        context = getApplicationContext();
 
         // Set the default uncaught exception handler
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
@@ -33,5 +57,24 @@ public class MyApplication extends Application {
             // Exit the app
             System.exit(1);
         });
+    }
+
+    public static MyApplication getInstance() {
+        return instance;
+    }
+
+    public UserRepository getUserRepository() {
+        return userRepository;
+    }
+
+    public VideoRepository getVideoRepository() {
+        return videoRepository;
+    }
+    public CommentRepository getCommentRepository() {
+        return commentRepository;
+    }
+
+    public static Context getAppContext() {
+        return instance.getApplicationContext();
     }
 }

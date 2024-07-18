@@ -1,11 +1,14 @@
 
 package com.example.utube.activities;
 
+import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.SpannableString;
@@ -18,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -30,12 +34,19 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.utube.MyApplication;
 import com.example.utube.R;
+import com.example.utube.models.UserDetails;
 import com.example.utube.models.Users;
 import com.example.utube.models.Video;
+import com.example.utube.utils.VideoResponse;
+import com.example.utube.viewmodels.AddVideoViewModel;
+import com.example.utube.viewmodels.EditVideoViewModel;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -43,25 +54,41 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.lifecycle.ViewModelProvider;
+
+import com.example.utube.viewmodels.MainViewModel;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_VIDEO_PICK = 2;
     private RecyclerView recyclerView;
     private VideoAdapter videoAdapter;
-    private Button btnLogin, btnThemeSwitch, btnRegister, btnAddVideo, btnLogout;
+    private Button btnLogin, btnThemeSwitch, btnRegister, btnAddVideo, btnLogout, btnMyChannel;
     private EditText searchBox;
     private SharedPreferences sharedPreferences;
     public static final String PREFS_NAME = "theme_prefs";
     private static final String LOGGED_IN_KEY = "logged_in";
-    private static final String LOGGED_IN_USER = "logged_in_user";
-    private static boolean isNightMode = false; // Static variable for theme mode //try90
+    public static final String LOGGED_IN_USER = "logged_in_user";
+    private static boolean isNightMode = false; // Static variable for theme mode 
     private int videoIdCounter = 14;
     private Uri selectedVideoUri;
     private String loggedInUser;
-    private static boolean isFirstThemeApplication = true; // Add this line at the top of MainActivity class
+    private static boolean isFirstThemeApplication = true;
+    private SwipeRefreshLayout swipeRefreshLayout; //try-swip
+
+    private MainViewModel viewModel;
+    private ProgressDialog loadingDialog;
+    private final UserDetails userDetails = UserDetails.getInstance();
+    private AddVideoViewModel addVideoViewModel;
+    private EditVideoViewModel editVideoViewModel;
 
 
     @Override
@@ -70,30 +97,50 @@ public class MainActivity extends AppCompatActivity {
         boolean isLoggedIn = sharedPreferences.getBoolean(LOGGED_IN_KEY, false);
         loggedInUser = sharedPreferences.getString(LOGGED_IN_USER, null);
 
-        // Manually set the theme based on isNightMode //try90
-        //applyTheme();
-//        if (isFirstThemeApplication) {
-//            applyTheme(); // Apply the theme only if it's not the first application
-//       isFirstThemeApplication = false; // Set isFirstThemeApplication to false after the first theme application
-//        }
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-// boop       sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-//        isNightMode = sharedPreferences.getBoolean("isNightMode", false); // Ensure this is retrieved before setting the theme
-//        applyTheme();  // Apply theme immediately after super.onCreate()
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        addVideoViewModel = new ViewModelProvider(this).get(AddVideoViewModel.class);
+
+        editVideoViewModel = new ViewModelProvider(this).get(EditVideoViewModel.class);
+
+        viewModel.getError().observe(this, errorMessage -> {
+            if (errorMessage != null) {
+                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+            }
+        });
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         Button menuButton = findViewById(R.id.menu_button);
         menuButton.setOnClickListener(v -> openOptionsMenu());
-
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        videoAdapter = new VideoAdapter(VideoManager.getInstance().getFilteredVideoList(), sharedPreferences); //try90
-        recyclerView.setAdapter(videoAdapter); //try90
+
+        //   videoAdapter = new VideoAdapter(new ArrayList<>(), sharedPreferences);
+        videoAdapter = new VideoAdapter(viewModel.getVideos().getValue() != null ? viewModel.getVideos().getValue() : new ArrayList<>(), sharedPreferences);
+        recyclerView.setAdapter(videoAdapter);
+
+        viewModel.getVideos().observe(this, videos -> {
+            videoAdapter.updateVideos(videos);
+            Log.d("MainActivity", "Number of videos in adapter after setting: " + videoAdapter.getItemCount());
+        });
+
+        viewModel.getIsLoading().observe(this, isLoading -> {
+            swipeRefreshLayout.setRefreshing(isLoading);
+        }); //try-server
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            // viewModel.loadVideos();
+            /// viewModel.loadVideosFromDatabase();
+            ///  swipeRefreshLayout.setRefreshing(false);
+            viewModel.refreshVideos(); //try-server
+        });
+
+        // viewModel.loadVideos();
 
         btnLogin = findViewById(R.id.login_button);
         btnThemeSwitch = findViewById(R.id.theme_button);
@@ -102,82 +149,96 @@ public class MainActivity extends AppCompatActivity {
         searchBox = findViewById(R.id.search_box);
         btnLogout = new Button(this);
         btnLogout.setText("Logout");
-        btnLogout.setBackgroundResource(R.drawable.button_background); // Apply custom background // try90
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams( // try90
-                LinearLayout.LayoutParams.WRAP_CONTENT, // try90
-                LinearLayout.LayoutParams.WRAP_CONTENT); // try90
-        params.setMargins(10, 0, 10, 0); // set marginEnd to 10dp as the other buttons // try90
-        btnLogout.setLayoutParams(params); // try90
+        btnLogout.setBackgroundResource(R.drawable.button_background);
+        btnMyChannel = new Button(this);
+        btnMyChannel.setText("My Channel");
+        btnMyChannel.setBackgroundResource(R.drawable.button_background);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(10, 0, 10, 0);
+        btnLogout.setLayoutParams(params);
+        btnMyChannel.setLayoutParams(params);
 
-        btnThemeSwitch.setText(isNightMode ? "Day Mode" : "Night Mode"); //try90
-        btnThemeSwitch.setOnClickListener(v -> switchTheme()); //try90
+        btnThemeSwitch.setText(isNightMode ? "Day Mode" : "Night Mode");
+        btnThemeSwitch.setOnClickListener(v -> switchTheme());
 
         Intent intent = getIntent();
-        if (intent != null && intent.hasExtra("USERNAME")) { //try90
-            loggedInUser = intent.getStringExtra("USERNAME"); //try90
-            sharedPreferences.edit().putBoolean(LOGGED_IN_KEY, true).putString(LOGGED_IN_USER, loggedInUser).apply(); //try90
-            updateUIForLoggedInUser(loggedInUser); //try90
-        } else if (isLoggedIn) { //try90
-            if (savedInstanceState == null) { //try90
-                sharedPreferences.edit().remove(LOGGED_IN_KEY).remove(LOGGED_IN_USER).apply(); //try90
-                updateUIForGuest(); //try90
-            } else { //try90
-                updateUIForLoggedInUser(loggedInUser); //try90
-            } //try90
-        } else { //try90
-            updateUIForGuest(); //try90
+        if (intent != null && intent.hasExtra("USERNAME")) {
+            loggedInUser = intent.getStringExtra("USERNAME");
+            sharedPreferences.edit().putBoolean(LOGGED_IN_KEY, true).putString(LOGGED_IN_USER, loggedInUser).apply();
+            updateUIForLoggedInUser(loggedInUser);
+        } else if (isLoggedIn) {
+            if (savedInstanceState == null) {
+                sharedPreferences.edit().remove(LOGGED_IN_KEY).remove(LOGGED_IN_USER).apply();
+                updateUIForGuest();
+            } else {
+                updateUIForLoggedInUser(loggedInUser);
+            }
+        } else {
+            updateUIForGuest();
         }
 
         if (savedInstanceState != null) {
             ArrayList<Video> videoList = savedInstanceState.getParcelableArrayList("video_list");
             if (videoList != null) {
-                VideoManager.getInstance().setVideoList(videoList);
+                viewModel.setVideoList(videoList);
             }
             recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("recycler_state"));
-        } else if (VideoManager.getInstance().getVideoList().isEmpty()) {
-            loadVideoData();
+        } else {
+            viewModel.loadVideosFromDatabase();
         }
 
-        restoreUserAddedVideos(); //try90
+        restoreUserAddedVideos();
 
         searchBox.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filterVideos(s.toString());
+                viewModel.filterVideos(s.toString());
             }
+
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         btnAddVideo.setOnClickListener(v -> {
-            if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) { //try90
-                openVideoPicker(); //try90
-            } else { //try90
-                showLoginPromptDialog(); //try90
-            } //try90
+            if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) {
+                initializeAddVideoViewModel();
+                openVideoPicker();
+            } else {
+                showLoginPromptDialog();
+            }
         });
 
-        //if its first time application, make sure isNightMode is false
-        //and set the shared preference to false
         if (isFirstThemeApplication) {
             isNightMode = false;
             sharedPreferences.edit().putBoolean("isNightMode", isNightMode).apply();
         }
 
-        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        isNightMode = sharedPreferences.getBoolean("isNightMode", false); // Ensure this is retrieved before setting the theme
+        isNightMode = sharedPreferences.getBoolean("isNightMode", false);
 
         applyTheme();
 
-
-        isFirstThemeApplication = false; // Set isFirstThemeApplication to false after the first theme application
+        isFirstThemeApplication = false;
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        viewModel.loadVideos(); //try-behave
+        //  new Handler().postDelayed(() -> viewModel.loadVideos(), 100); // 100ms delay
+        Log.d("MainActivity", "onResume called, reloading videos after delay");
+    }
+
+
     private void applyTheme() {
-       // if (!isFirstThemeApplication) {
-            setTheme(isNightMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light);
+        // if (!isFirstThemeApplication) {
+        setTheme(isNightMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light);
         updateUIWithTheme(); // Refresh UI elements manually after theme change
         //}
     }
@@ -204,6 +265,7 @@ public class MainActivity extends AppCompatActivity {
         btnThemeSwitch.setTextColor(buttonTextColor);
         btnAddVideo.setTextColor(buttonTextColor);
         btnLogout.setTextColor(buttonTextColor);
+        btnMyChannel.setTextColor(buttonTextColor);
 
         // Set background for buttons based on the theme
         int buttonBackground = isNightMode ? R.drawable.button_background : R.drawable.button_rounded_light;
@@ -212,6 +274,7 @@ public class MainActivity extends AppCompatActivity {
         btnThemeSwitch.setBackgroundResource(buttonBackground);
         btnAddVideo.setBackgroundResource(buttonBackground);
         btnLogout.setBackgroundResource(buttonBackground);
+        btnMyChannel.setBackgroundResource(buttonBackground);
 
         // Refresh RecyclerView to apply theme colors to its items
         if (videoAdapter != null) {
@@ -222,50 +285,41 @@ public class MainActivity extends AppCompatActivity {
         mainLayout.invalidate();
     }
 
-
-
-
-
     private void switchTheme() {
         isNightMode = !isNightMode;
-        sharedPreferences.edit().putBoolean("isNightMode", isNightMode).apply(); // Save theme preference
-        applyTheme(); // Apply the new theme
-        recreate(); // Restart activity to apply the new theme
+        sharedPreferences.edit().putBoolean("isNightMode", isNightMode).apply();
+        viewModel.clearFilteredList(); //try-behave
+        applyTheme();
+        recreate();
     }
 
-
-    private void saveUserAddedVideos() { //try90
-        List<Video> videoList = VideoManager.getInstance().getVideoList();
-        for (Video video : videoList) {
-            if (video.getId().startsWith("new_")) {
-                sharedPreferences.edit().putString(video.getId() + "_videoUrl", video.getVideoUrl()).apply();
-            }
-        }
+    private void saveUserAddedVideos() {
+        viewModel.saveUserAddedVideos(sharedPreferences); //try-behave
     }
 
-    private void restoreUserAddedVideos() { //try90
-        List<Video> videoList = VideoManager.getInstance().getVideoList();
-        for (Video video : videoList) {
-            if (video.getId().startsWith("new_")) {
-                String videoUrl = sharedPreferences.getString(video.getId() + "_videoUrl", null);
-                if (videoUrl != null) {
-                    video.setVideoUrl(videoUrl);
-                }
-            }
-        }
-        reinitializeAdapter(); //try90
+    private void restoreUserAddedVideos() {
+        viewModel.restoreUserAddedVideos(sharedPreferences); //try-behave
+        reinitializeAdapter();
     }
 
-    private void reinitializeAdapter() { //try90
-        videoAdapter = new VideoAdapter(VideoManager.getInstance().getFilteredVideoList(), sharedPreferences); //try90
-        recyclerView.setAdapter(videoAdapter); //try90
-        videoAdapter.notifyDataSetChanged(); //try90
+    private void reinitializeAdapter() {
+        videoAdapter = new VideoAdapter(viewModel.getVideos().getValue(), sharedPreferences); //try-behave
+        recyclerView.setAdapter(videoAdapter);
+        videoAdapter.notifyDataSetChanged();
+    }
+
+    public void refreshVideoList() {
+        viewModel.refreshVideos(); //try-server
+//        viewModel.loadVideos(); //try-behave
+//        if (swipeRefreshLayout != null) {
+//            swipeRefreshLayout.setRefreshing(false);
+//        }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList("video_list", new ArrayList<>(VideoManager.getInstance().getVideoList()));
+        outState.putParcelableArrayList("video_list", new ArrayList<>(viewModel.getVideos().getValue())); //try-behave
         outState.putParcelable("recycler_state", recyclerView.getLayoutManager().onSaveInstanceState());
     }
 
@@ -275,32 +329,88 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             ArrayList<Video> videoList = savedInstanceState.getParcelableArrayList("video_list");
             if (videoList != null) {
-                VideoManager.getInstance().setVideoList(videoList);
+                viewModel.setVideoList(videoList); //try-behave
             }
             recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("recycler_state"));
         }
-        restoreUserAddedVideos(); //try90
+        restoreUserAddedVideos();
     }
 
+    //    private void showAddVideoDialog(String videoFilePath) {
+//        AddVideoDialog dialog = new AddVideoDialog();
+//        dialog.setAddVideoListener((title, category, previewImageUrl) -> {
+//            String id = "new_" + System.currentTimeMillis();
+//            String author = loggedInUser != null ? loggedInUser : "guest";
+//            String uploadTime = "Just now";
+//            int views = 0;
+//            int likes = 0;
+//
+//            //  String authorProfilePicUrl = Users.getInstance().getUser(loggedInUser).getProfilePic();
+//            String authorProfilePicUrl = userDetails.getProfilePic();
+//            Video video = new Video(id, title, author, views, uploadTime, previewImageUrl, authorProfilePicUrl, videoFilePath, category, likes);
+//            viewModel.addVideo(video); //try-behave
+//            sharedPreferences.edit().putString(id + "_videoPath", videoFilePath).apply();
+//            refreshVideoList(); //try-behave
+//        });
+//        dialog.show(getSupportFragmentManager(), "AddVideoDialog");
+//    }
     private void showAddVideoDialog(String videoFilePath) {
         AddVideoDialog dialog = new AddVideoDialog();
-        dialog.setAddVideoListener((title, category, previewImageUrl) -> {
-            String id = "new_" + System.currentTimeMillis();
+        dialog.setAddVideoListener((title, category, thumbnailUri) -> {
             String author = loggedInUser != null ? loggedInUser : "guest";
-            String uploadTime = "Just now";
-            int views = 0;
-            int likes = 0;
+            String userId = UserDetails.getInstance().get_id();
+            String token = UserDetails.getInstance().getToken();
 
-            //String authorProfilePicUrl = sharedPreferences.getString("userProfilePicUrl", "drawable/default_profile_pic");
-            //set video author profile pic to the user's profile pic by getprofilepic method
-            String authorProfilePicUrl = Users.getInstance().getUser(loggedInUser).getProfilePic(); //try90
+            File videoFile = new File(videoFilePath);
+            File thumbnailFile = uriToFile(Uri.parse(thumbnailUri));
 
-            Video video = new Video(id, title, author, views, uploadTime, previewImageUrl, authorProfilePicUrl, videoFilePath, category, likes);
-            VideoManager.getInstance().addVideo(video);
-            sharedPreferences.edit().putString(id + "_videoPath", videoFilePath).apply();
-            videoAdapter.notifyDataSetChanged();
+            if (videoFile.exists() && thumbnailFile != null) {
+                addVideoViewModel.uploadVideo(title, category, videoFile, thumbnailFile, userId, author, token);
+                // Add this observer here
+                addVideoViewModel.getUploadStatus().observe(this, new Observer<Boolean>() {
+                    @Override
+                    public void onChanged(Boolean isSuccess) {
+                        if (isSuccess != null) {
+                            if (isSuccess) {
+                                Toast.makeText(MainActivity.this, "Video uploaded successfully!", Toast.LENGTH_SHORT).show();
+                                refreshVideoList();
+                            } else {
+                                Toast.makeText(MainActivity.this, "Failed to upload video", Toast.LENGTH_SHORT).show();
+                            }
+                            addVideoViewModel.getUploadStatus().removeObserver(this);
+                        }
+                    }
+                });
+            } else {
+                Toast.makeText(this, "Failed to prepare video or thumbnail", Toast.LENGTH_SHORT).show();
+            }
         });
         dialog.show(getSupportFragmentManager(), "AddVideoDialog");
+    }
+
+    private File uriToFile(Uri uri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            File tempFile = File.createTempFile("thumbnail", getFileExtension(uri), getCacheDir());
+            FileOutputStream outputStream = new FileOutputStream(tempFile);
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+            inputStream.close();
+            outputStream.close();
+            return tempFile;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private String getFileExtension(Uri uri) {
+        ContentResolver contentResolver = getContentResolver();
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        return "." + mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
     }
 
     private void updateUIForLoggedInUser(String username) {
@@ -309,11 +419,18 @@ public class MainActivity extends AppCompatActivity {
 
         LinearLayout buttonContainer = findViewById(R.id.button_container);
         buttonContainer.addView(btnLogout);
+        buttonContainer.addView(btnMyChannel);
 
         btnLogout.setOnClickListener(v -> {
             sharedPreferences.edit().putBoolean(LOGGED_IN_KEY, false).remove(LOGGED_IN_USER).apply();
             Toast.makeText(MainActivity.this, "Logged out", Toast.LENGTH_SHORT).show();
+            UserDetails.getInstance().clear();
             reloadMainActivity();
+        });
+        btnMyChannel.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ChannelActivity.class);
+            intent.putExtra("AUTHOR_NAME", this.userDetails.getUsername());
+            startActivity(intent);
         });
     }
 
@@ -369,47 +486,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openVideoPicker() {
+        Toast.makeText(MyApplication.getAppContext(), "No media? Go to camera, then back. Ensure gallery permissions.", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, REQUEST_VIDEO_PICK);
     }
 
-    private void loadVideoData() {
-        try {
-            InputStream inputStream = getAssets().open("videos.json");
-            int size = inputStream.available();
-            byte[] buffer = new byte[size];
-            inputStream.read(buffer);
-            inputStream.close();
-            String json = new String(buffer, "UTF-8");
-            JSONArray jsonArray = new JSONArray(json);
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject obj = jsonArray.getJSONObject(i);
-                String id = obj.getString("id");
-                String title = obj.getString("title");
-                String author = obj.getString("author");
-                int views = obj.getInt("views");
-                String uploadTime = obj.getString("uploadTime");
-                String thumbnailUrl = obj.getString("thumbnailUrl");
-                String authorProfilePicUrl = obj.getString("authorProfilePicUrl");
-                String videoUrl = obj.getString("videoUrl");
-                String category = obj.getString("category");
-                int likes = obj.getInt("likes");
-
-                int updatedViews = getUpdatedViews(id, views);
-                int updatedLikes = getUpdatedLikes(id, likes);
-
-                VideoManager.getInstance().getLikesCountMap().put(id, updatedLikes);
-                VideoManager.getInstance().getLikedStateMap().put(id, sharedPreferences.getBoolean(id + "_liked", false));
-
-                Video video = new Video(id, title, author, updatedViews, uploadTime, thumbnailUrl, authorProfilePicUrl, videoUrl, category, updatedLikes);
-                VideoManager.getInstance().addVideo(video);
-            }
-            videoAdapter.notifyDataSetChanged();
-        } catch (Exception e) {
-            Log.e("MainActivity", "Error loading video data", e);
-        }
-    }
+//    private void loadVideoData() {
+//        viewModel.loadVideoData(this, sharedPreferences); //try-behave
+//    }
 
     private int getUpdatedViews(String videoId, int defaultViews) {
         return sharedPreferences.getInt(videoId + "_views", defaultViews);
@@ -420,26 +504,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void filterVideos(String query) {
-        List<Video> filteredVideoList = VideoManager.getInstance().getFilteredVideoList();
-        filteredVideoList.clear();
-        for (Video video : VideoManager.getInstance().getVideoList()) {
-            if (video.getTitle().toLowerCase().contains(query.toLowerCase()) ||
-                    video.getAuthor().toLowerCase().contains(query.toLowerCase())) {
-                filteredVideoList.add(video);
-            }
-        }
-        videoAdapter.notifyDataSetChanged();
+        viewModel.filterVideos(query); //try-behave
     }
 
     private void filterVideosByCategory(String category) {
-        List<Video> filteredVideoList = VideoManager.getInstance().getFilteredVideoList();
-        filteredVideoList.clear();
-        for (Video video : VideoManager.getInstance().getVideoList()) {
-            if (video.getCategory().equalsIgnoreCase(category)) {
-                filteredVideoList.add(video);
-            }
-        }
-        videoAdapter.notifyDataSetChanged();
+        viewModel.filterVideosByCategory(category); //try-behave
     }
 
     @Override
@@ -472,12 +541,22 @@ public class MainActivity extends AppCompatActivity {
             if (data != null) {
                 String videoId = data.getStringExtra("VIDEO_ID");
                 int updatedViews = data.getIntExtra("UPDATED_VIEWS", 0);
-                Video video = VideoManager.getInstance().getVideoMap().get(videoId);
-                if (video != null) {
-                    video.setViews(updatedViews);
-                    videoAdapter.notifyDataSetChanged();
-                }
+                viewModel.updateVideoViews(videoId, updatedViews); //try-behave
             }
+        }
+    }
+
+    private void initializeAddVideoViewModel() {
+        if (addVideoViewModel == null) {
+            addVideoViewModel = new ViewModelProvider(this).get(AddVideoViewModel.class);
+            addVideoViewModel.getUploadStatus().observe(this, isSuccess -> {
+                if (isSuccess) {
+                    Toast.makeText(this, "Video uploaded successfully!", Toast.LENGTH_SHORT).show();
+                    refreshVideoList();
+                } else {
+                    Toast.makeText(this, "Failed to upload video", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 
@@ -490,10 +569,34 @@ public class MainActivity extends AppCompatActivity {
         private List<Video> videoList;
         private SharedPreferences sharedPreferences; //try90
 
-        public VideoAdapter(List<Video> videoList, SharedPreferences sharedPreferences) { //try90
-            this.videoList = videoList; //try90
-            this.sharedPreferences = sharedPreferences; //try90
-        } //try90
+        public VideoAdapter(List<Video> videoList, SharedPreferences sharedPreferences) {
+            this.videoList = videoList != null ? videoList : new ArrayList<>();
+            this.sharedPreferences = sharedPreferences;
+            Log.d("VideoAdapter", "Number of videos passed to adapter: " + (this.videoList != null ? this.videoList.size() : "null"));
+        }
+
+        public void updateVideos(List<Video> newVideos) {
+            if (this.videoList == null) {
+                this.videoList = new ArrayList<>();
+            }
+            this.videoList.clear();
+            if (newVideos != null) {
+                this.videoList.addAll(newVideos);
+            }
+            notifyDataSetChanged();
+            Log.d("VideoAdapter", "Videos updated, new size: " + (newVideos != null ? newVideos.size() : 0));
+        }
+
+        //        public void updateVideos(List<Video> newVideos) {
+//            this.videoList = newVideos;
+//            notifyDataSetChanged();
+//        }
+//        public void updateVideos(List<Video> newVideos) {
+//            this.videoList.clear();
+//            this.videoList.addAll(newVideos);
+//            notifyDataSetChanged();
+//            Log.d("VideoAdapter", "Videos updated, new size: " + newVideos.size()); //try-behave
+//        }
 
         @Override
         public VideoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -505,25 +608,37 @@ public class MainActivity extends AppCompatActivity {
         public void onBindViewHolder(VideoViewHolder holder, int position) {
             Video video = videoList.get(position);
             holder.bind(video);
+            String currentLoggedInUser = UserDetails.getInstance().getUsername();
+            boolean isAuthor = currentLoggedInUser != null && currentLoggedInUser.equals(video.getAuthor());
 
-//            holder.menuButton.setOnClickListener(v -> {
-//                PopupMenu popupMenu = new PopupMenu(holder.menuButton.getContext(), holder.menuButton);
-//                MenuInflater inflater = popupMenu.getMenuInflater();
-//                inflater.inflate(R.menu.video_item_menu, popupMenu.getMenu());
+            // Set the visibility of the menu button based on authorship
+            holder.menuButton.setVisibility(isAuthor ? View.VISIBLE : View.GONE);
+            holder.menuButton.setOnClickListener(v -> {
+                PopupMenu popupMenu = new PopupMenu(holder.menuButton.getContext(), holder.menuButton);
+                MenuInflater inflater = popupMenu.getMenuInflater();
+                inflater.inflate(R.menu.video_item_menu, popupMenu.getMenu());
+
+//                // Apply custom styles to menu items
+//                for (int i = 0; i < popupMenu.getMenu().size(); i++) {
+//                    MenuItem menuItem = popupMenu.getMenu().getItem(i);
+//                    SpannableString spannableTitle = new SpannableString(menuItem.getTitle());
+//                    spannableTitle.setSpan(new ForegroundColorSpan(Color.parseColor("#D31E1E")), 0, spannableTitle.length(), 0);
+//                    menuItem.setTitle(spannableTitle);
+//                }
+//
 //                popupMenu.setOnMenuItemClickListener(item -> {
 //                    if (item.getItemId() == R.id.edit_video) {
-//                        if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) { //try90
-//                            EditVideoDialog dialog = EditVideoDialog.newInstance(video.getId()); //try90
-//                            dialog.setOnDismissListener(dialogInterface -> videoAdapter.notifyDataSetChanged()); //try90
-//                            dialog.show(((AppCompatActivity) holder.itemView.getContext()).getSupportFragmentManager(), "EditVideoDialog"); //try90
-//                        } else { //try90
-//                            showLoginPromptDialog(); //try90
-//                        } //try90
-//                        return true; //try90
+//                        if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) {
+//                            EditVideoDialog dialog = EditVideoDialog.newInstance(video.getId());
+//                            dialog.setOnDismissListener(dialogInterface -> notifyDataSetChanged());
+//                            dialog.show(((AppCompatActivity) holder.itemView.getContext()).getSupportFragmentManager(), "EditVideoDialog");
+//                        } else {
+//                            showLoginPromptDialog();
+//                        }
+//                        return true;
 //                    } else if (item.getItemId() == R.id.delete_video) {
 //                        if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) {
-//                            VideoManager.getInstance().removeVideo(video.getId());
-//                            notifyDataSetChanged();
+//                            viewModel.removeVideo(video.getId()); //try-behave
 //                        } else {
 //                            showLoginPromptDialog();
 //                        }
@@ -533,62 +648,98 @@ public class MainActivity extends AppCompatActivity {
 //                });
 //                popupMenu.show();
 //            });
-            // MainActivity.java
-            holder.menuButton.setOnClickListener(v -> {
-                PopupMenu popupMenu = new PopupMenu(holder.menuButton.getContext(), holder.menuButton);
-                MenuInflater inflater = popupMenu.getMenuInflater();
-                inflater.inflate(R.menu.video_item_menu, popupMenu.getMenu());
+                if (isAuthor) {
+                    // Apply custom styles to menu items
+                    for (int i = 0; i < popupMenu.getMenu().size(); i++) {
+                        MenuItem menuItem = popupMenu.getMenu().getItem(i);
+                        SpannableString spannableTitle = new SpannableString(menuItem.getTitle());
+                        spannableTitle.setSpan(new ForegroundColorSpan(Color.parseColor("#D31E1E")), 0, spannableTitle.length(), 0);
+                        menuItem.setTitle(spannableTitle);
+                    }
 
-                // Apply custom styles to menu items
-                for (int i = 0; i < popupMenu.getMenu().size(); i++) {
-                    MenuItem menuItem = popupMenu.getMenu().getItem(i);
-                    SpannableString spannableTitle = new SpannableString(menuItem.getTitle());
-                    spannableTitle.setSpan(new ForegroundColorSpan(Color.parseColor("#D31E1E")), 0, spannableTitle.length(), 0);
-                    menuItem.setTitle(spannableTitle);
+                    popupMenu.setOnMenuItemClickListener(item -> {
+                        if (item.getItemId() == R.id.edit_video) {
+                            if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) {
+                                EditVideoDialog dialog = EditVideoDialog.newInstance(video.getId());
+                                dialog.setOnDismissListener(dialogInterface -> refreshVideoList());
+//                            dialog.setOnDismissListener(dialogInterface -> notifyDataSetChanged());
+                                dialog.show(((AppCompatActivity) holder.itemView.getContext()).getSupportFragmentManager(), "EditVideoDialog");
+                            } else {
+                                showLoginPromptDialog();
+                            }
+                            return true;
+                        } else if (item.getItemId() == R.id.delete_video) {
+                            if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) {
+                                editVideoViewModel.deleteVideo(video.getId());
+                                editVideoViewModel.getDeleteVideoResult().observe(MainActivity.this, isSuccess -> {
+                                    if (isSuccess) {
+                                        viewModel.removeVideo(video.getId()); //try-behave
+//                                    refreshVideoList();
+                                        Toast.makeText(MyApplication.context, "Video deleted successfully!", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(MyApplication.context, "Failed to delete video", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                                //call to derver - if response is ok - continue to existing local delte code
+                            } else {
+                                showLoginPromptDialog();
+                            }
+                            return true;
+                        }
+                        return false;
+                    });
                 }
 
-                popupMenu.setOnMenuItemClickListener(item -> {
-                    if (item.getItemId() == R.id.edit_video) {
-                        if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) { //try90
-                            EditVideoDialog dialog = EditVideoDialog.newInstance(video.getId()); //try90
-                            dialog.setOnDismissListener(dialogInterface -> videoAdapter.notifyDataSetChanged()); //try90
-                            dialog.show(((AppCompatActivity) holder.itemView.getContext()).getSupportFragmentManager(), "EditVideoDialog"); //try90
-                        } else { //try90
-                            showLoginPromptDialog(); //try90
-                        } //try90
-                        return true; //try90
-                    } else if (item.getItemId() == R.id.delete_video) {
-                        if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) {
-                            VideoManager.getInstance().removeVideo(video.getId());
-                            notifyDataSetChanged();
-                        } else {
-                            showLoginPromptDialog();
-                        }
-                        return true;
-                    }
-                    return false;
-                });
                 popupMenu.show();
             });
 
 
             holder.itemView.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, VideoDetailActivity.class);
-                intent.putExtra("VIDEO_ID", video.getId());
-                intent.putExtra("VIDEO_URL", video.getVideoUrl());
-                intent.putExtra("TITLE", video.getTitle());
-                intent.putExtra("AUTHOR", video.getAuthor());
-                intent.putExtra("VIEWS", video.getViews());
-                intent.putExtra("UPLOAD_TIME", video.getUploadTime());
-                intent.putExtra("AUTHOR_PROFILE_PIC_URL", video.getAuthorProfilePicUrl());
-                intent.putExtra("LIKES", video.getLikes());
-                startActivityForResult(intent, 1);
+                // Show loading indicator
+                showLoadingDialog();
+
+                // Fetch latest video details from server
+                viewModel.fetchVideoDetailsFromServer(video.getId(), new Callback<VideoResponse>() {
+                    @Override
+                    public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
+                        hideLoadingDialog();
+                        if (response.isSuccessful() && response.body() != null) {
+                            VideoResponse updatedVideo = response.body();
+
+                            // Start VideoDetailActivity
+                            Intent intent = new Intent(MainActivity.this, VideoDetailActivity.class);
+                            intent.putExtra("VIDEO_ID", updatedVideo.getId());
+                            intent.putExtra("VIDEO_URL", updatedVideo.getVideoUrl());
+                            intent.putExtra("TITLE", updatedVideo.getTitle());
+                            intent.putExtra("AUTHOR", updatedVideo.getAuthor());
+                            Log.d("MainActivity", "Updated video author: " + updatedVideo.getAuthor());
+                            intent.putExtra("VIEWS", updatedVideo.getViews());
+                            intent.putExtra("UPLOAD_TIME", updatedVideo.getUploadTime());
+                            intent.putExtra("AUTHOR_PROFILE_PIC_URL", updatedVideo.getAuthorProfilePic());
+                            intent.putExtra("LIKES", updatedVideo.getLikes());
+                            startActivityForResult(intent, 1);
+                        } else {
+                            // Show error message
+                            Toast.makeText(MainActivity.this, "Failed to fetch latest video details", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<VideoResponse> call, Throwable t) {
+                        hideLoadingDialog();
+                        // Show error message
+                        Toast.makeText(MainActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
             });
+
+
         }
 
         @Override
         public int getItemCount() {
-            return videoList.size();
+            //return videoList.size();
+            return videoList != null ? videoList.size() : 0;
         }
 
         class VideoViewHolder extends RecyclerView.ViewHolder {
@@ -606,6 +757,7 @@ public class MainActivity extends AppCompatActivity {
                 authorProfilePic = itemView.findViewById(R.id.author_profile_pic);
                 menuButton = itemView.findViewById(R.id.menu_button);
             }
+
             public void bind(Video video) {
                 title.setText(video.getTitle());
                 author.setText(video.getAuthor());
@@ -614,26 +766,64 @@ public class MainActivity extends AppCompatActivity {
 
                 loadImageView(thumbnail, video.getThumbnailUrl());
                 loadImageView(authorProfilePic, video.getAuthorProfilePicUrl());
+                authorProfilePic.setOnClickListener(v -> {
+                    Intent intent = new Intent(MainActivity.this, ChannelActivity.class);
+                    intent.putExtra("AUTHOR_NAME", video.getAuthor());
+                    startActivity(intent);
+                });
+
             }
 
+            //            private void loadImageView(ImageView imageView, String imageUrl) {
+//                if (imageUrl.startsWith("drawable/")) {
+//                    // Handle drawable resources
+//                    int imageResId = getResources().getIdentifier(imageUrl, null, getPackageName());
+//                    if (imageResId != 0) {
+//                        imageView.setImageResource(imageResId);
+//                    } else {
+//                        imageView.setImageResource(R.drawable.policy); // Fallback to error image if resource not found
+//                    }
+//                } else if (imageUrl != null) {
+//                    // Handle remote images or local file URIs
+//                    Picasso.get().load(imageUrl).error(R.drawable.policy).into(imageView);
+//                } else {
+//                    // Fallback for unexpected image URL formats
+//                    imageView.setImageResource(R.drawable.policy);
+//                }
+//            }
             private void loadImageView(ImageView imageView, String imageUrl) {
-                if (imageUrl.startsWith("drawable/")) {
+                if (imageUrl == null || imageUrl.isEmpty()) {
+                    imageView.setImageResource(R.drawable.policy);
+                } else if (imageUrl.startsWith("drawable/")) {
                     // Handle drawable resources
                     int imageResId = getResources().getIdentifier(imageUrl, null, getPackageName());
                     if (imageResId != 0) {
                         imageView.setImageResource(imageResId);
                     } else {
-                        imageView.setImageResource(R.drawable.policy); // Fallback to error image if resource not found
+                        imageView.setImageResource(R.drawable.policy);
                     }
-                } else if (imageUrl!=null){
-                    // Handle remote images or local file URIs
-                    Picasso.get().load(imageUrl).error(R.drawable.policy).into(imageView);
                 } else {
-                    // Fallback for unexpected image URL formats
-                    imageView.setImageResource(R.drawable.policy);
+                    // Handle remote images
+                    String fullUrl = "http://10.0.2.2:12345" + imageUrl; // Adjust the base URL as needed
+                    Picasso.get().load(fullUrl).error(R.drawable.policy).into(imageView);
                 }
             }
 
+        }
+    }
+
+    private void showLoadingDialog() {
+        if (loadingDialog == null) {
+            loadingDialog = new ProgressDialog(this);
+            loadingDialog.setMessage("Loading...");
+            loadingDialog.setCancelable(false);
+        }
+        loadingDialog.show();
+    }
+
+    private void hideLoadingDialog() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
         }
     }
 }

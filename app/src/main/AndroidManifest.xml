@@ -10,6 +10,8 @@
 
 
     <application
+        android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -46,7 +48,7 @@
         <!-- Registration activity -->
         <activity android:name=".activities.RegisterActivity" />
 
-
+        <activity android:name=".activities.ChannelActivity" />
 
     </application>
 
