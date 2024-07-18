@@ -3,7 +3,7 @@ import { upload } from './mediaRoutes.js';
 import {
   getVideos, getVideo, createVideo, fetchComments, fetchCommentCount, fetchMixedVideos, fetchVideosByCategory
   , updateVideo, deleteVideo, likeVideo, UnlikeVideo, getVideosByUserId,
-  getUserLikedVideo, addView, getWatchPageData, getVideosByUsername
+  getUserLikedVideo, addView, getWatchPageData, getVideosByUsername, getVideoComments
 } from '../controllers/videoPlay.js'
 //import { isLoggedIn } from '../controllers/tokens.js';
 import { addComment, deleteComment, likeComment, unlikeComment, updateComment } from '../controllers/comments.js';
@@ -58,6 +58,9 @@ router.put('/users/:id/videos/:pid/likes', isLoggedIn, likeVideo);
 
 //a route to unlike a video
 router.put('/users/:id/videos/:pid/unlikes', isLoggedIn, UnlikeVideo);
+
+//a route to get video comments
+router.get('/videos/:videoId/comments', getVideoComments);
 
 
 export default router;

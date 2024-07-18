@@ -67,6 +67,23 @@ export async function getCommentsByVideoId(videoId) {
     }
 }
 
+export async function getCommentsByVideoIdServer(videoId) {
+    try {
+        const comments = await Comment.find({ videoId }).populate('userId', 'username profilePic');
+        return comments.map(comment => ({
+            _id: comment._id,
+            likes: comment.likes,
+            text: comment.text,
+            uploadTime: comment.uploadTime,
+            username: comment.userId.username,
+            profilePicUrl: comment.userId.profilePic
+        }));
+    } catch (error) {
+        console.error('Error retrieving comments:', error.message);
+        return [];
+    }
+}
+
 
 export async function createVideoModel(videoData) {
     if (!videoData.uploadTime) {

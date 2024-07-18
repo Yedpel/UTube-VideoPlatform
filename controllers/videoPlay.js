@@ -2,7 +2,7 @@ import {
     getVideoModel, createVideoModel, getVideosModel, updateVideoModel, deleteVideoModel,
     getVideosWithAuthorDetails, getMixedVideos, getVideosByCategory,
     unlikeVideo, getVideosbyUserId, isUserLikedVideo, incrementVideoViews, getVideosByUsernameService
-} from '../services/videoPlay.js';
+, getCommentsByVideoId, getCommentsByVideoIdServer} from '../services/videoPlay.js';
 //import { getCommentsByVideoId, countCommentsByVideoId } from '../services/comments.js';
 import { LikeVideo as toggleLikeVideo } from '../services/videoPlay.js';
 
@@ -236,6 +236,16 @@ export async function getWatchPageData(req, res) {
     } catch (error) {
         console.error('Failed to fetch watch page data:', error);
         res.status(500).json({ message: 'Failed to fetch watch page data' });
+    }
+}
+
+export async function getVideoComments(req, res) {
+    try {
+        const videoId = req.params.videoId;
+        const comments = await getCommentsByVideoIdServer(videoId);
+        res.json(comments);
+    } catch (error) {
+        res.status(500).send(error.message);
     }
 }
 
