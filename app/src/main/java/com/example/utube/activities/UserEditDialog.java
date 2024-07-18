@@ -45,7 +45,6 @@ public class UserEditDialog extends DialogFragment {
     private Runnable onDismissListener;
 
 
-
     public UserEditDialog(Activity activity, ChannelViewModel channelViewModel) {
         this.activity = activity;
 
@@ -111,6 +110,12 @@ public class UserEditDialog extends DialogFragment {
             String lastName = lastNameEditText.getText().toString();
             String email = emailEditText.getText().toString();
             String date = dateEditText.getText().toString();
+            if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || date.isEmpty()) {
+                Toast.makeText(MyApplication.getAppContext(), "Please fill all the fields", Toast.LENGTH_SHORT).show();
+
+                return;
+            }
+
 
             userDetails.setFirstName(firstName);
             userDetails.setLastName(lastName);
