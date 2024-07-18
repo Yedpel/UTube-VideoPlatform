@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.utube.activities.VideoManager;
 import com.example.utube.data.VideoRepository;
+import com.example.utube.models.UserDetails;
 import com.example.utube.models.Video;
 import com.example.utube.utils.VideoResponse;
 import com.google.gson.Gson;
@@ -151,6 +152,10 @@ public class ChannelViewModel extends AndroidViewModel {
                 videoResponse.getCategory(),
                 videoResponse.getLikes()
         );
+    }
+    public void removeVideo(String videoId) {
+        videoManager.removeVideo(videoId);
+        loadVideosForAuthor(UserDetails.getInstance().getUsername());
     }
 
 

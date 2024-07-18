@@ -10,20 +10,28 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -32,6 +40,7 @@ import com.example.utube.R;
 import com.example.utube.activities.VideoManager;
 import com.example.utube.utils.VideoResponse;
 import com.example.utube.viewmodels.ChannelViewModel;
+import com.example.utube.viewmodels.EditVideoViewModel;
 import com.example.utube.viewmodels.UserViewModel;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
@@ -70,6 +79,7 @@ public class ChannelActivity extends AppCompatActivity {
     private UserEditDialog userEditDialog;
     private ChannelViewModel channelViewModel;
     private UserViewModel userViewModel;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -233,11 +243,13 @@ public class ChannelActivity extends AppCompatActivity {
     private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
         private List<Video> videoList;
         private Context context;
+        private EditVideoViewModel editVideoViewModel;
 
         public VideoAdapter(List<Video> videoList, Context context) {
             //this.videoList = videoList;
             this.videoList = videoList != null ? videoList : new ArrayList<>(); //try-ch-mvvm
             this.context = context;
+            this.editVideoViewModel = new ViewModelProvider((ViewModelStoreOwner) context).get(EditVideoViewModel.class);
         }
 
         @Override
@@ -287,12 +299,113 @@ public class ChannelActivity extends AppCompatActivity {
 //            // You can keep the menu button functionality if needed, or remove it for the channel page
 //        }
 
+//        @Override
+//        public void onBindViewHolder(VideoViewHolder holder, int position) {
+//            Video video = videoList.get(position);
+//            holder.bind(video);
+//
+//            String currentLoggedInUser = UserDetails.getInstance().getUsername();
+//            boolean isAuthor = currentLoggedInUser != null && currentLoggedInUser.equals(video.getAuthor());
+//
+//
+//            //try-channle-server
+//            holder.itemView.setOnClickListener(v -> {
+//                // Show loading indicator
+//                showLoadingDialog();
+//
+//                // Fetch latest video details from server
+//                viewModel.fetchVideoDetailsFromServer(video.getId(), new Callback<VideoResponse>() {
+//                    @Override
+//                    public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
+//                        hideLoadingDialog();
+//                        if (response.isSuccessful() && response.body() != null) {
+//                            VideoResponse updatedVideo = response.body();
+//
+//                            // Start VideoDetailActivity
+//                            Intent intent = new Intent(ChannelActivity.this, VideoDetailActivity.class);
+//                            intent.putExtra("VIDEO_ID", updatedVideo.getId());
+//                            intent.putExtra("VIDEO_URL", updatedVideo.getVideoUrl());
+//                            intent.putExtra("TITLE", updatedVideo.getTitle());
+//                            intent.putExtra("AUTHOR", updatedVideo.getAuthor());
+//                            Log.d("ChannelActivity", "Updated video author: " + updatedVideo.getAuthor());
+//                            intent.putExtra("VIEWS", updatedVideo.getViews());
+//                            intent.putExtra("UPLOAD_TIME", updatedVideo.getUploadTime());
+//                            intent.putExtra("AUTHOR_PROFILE_PIC_URL", updatedVideo.getAuthorProfilePic());
+//                            intent.putExtra("LIKES", updatedVideo.getLikes());
+//                            startActivityForResult(intent, REQUEST_VIDEO_DETAIL);
+//                        } else {
+//                            // Show error message
+//                            Toast.makeText(ChannelActivity.this, "Failed to fetch latest video details", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<VideoResponse> call, Throwable t) {
+//                        hideLoadingDialog();
+//                        // Show error message
+//                        Toast.makeText(ChannelActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//            });
+
         @Override
         public void onBindViewHolder(VideoViewHolder holder, int position) {
             Video video = videoList.get(position);
             holder.bind(video);
 
-            //try-channle-server
+            String currentLoggedInUser = UserDetails.getInstance().getUsername();
+            boolean isAuthor = currentLoggedInUser != null && currentLoggedInUser.equals(video.getAuthor());
+
+            // Set the visibility of the menu button based on authorship
+            holder.menuButton.setVisibility(isAuthor ? View.VISIBLE : View.GONE);
+            holder.menuButton.setOnClickListener(v -> {
+                PopupMenu popupMenu = new PopupMenu(holder.menuButton.getContext(), holder.menuButton);
+                MenuInflater inflater = popupMenu.getMenuInflater();
+                inflater.inflate(R.menu.video_item_menu, popupMenu.getMenu());
+
+                if (isAuthor) {
+                    // Apply custom styles to menu items
+                    for (int i = 0; i < popupMenu.getMenu().size(); i++) {
+                        MenuItem menuItem = popupMenu.getMenu().getItem(i);
+                        SpannableString spannableTitle = new SpannableString(menuItem.getTitle());
+                        spannableTitle.setSpan(new ForegroundColorSpan(Color.parseColor("#D31E1E")), 0, spannableTitle.length(), 0);
+                        menuItem.setTitle(spannableTitle);
+                    }
+
+                    popupMenu.setOnMenuItemClickListener(item -> {
+                        if (item.getItemId() == R.id.edit_video) {
+                            if (getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getBoolean(LOGGED_IN_KEY, false)) {
+                                EditVideoDialog dialog = EditVideoDialog.newInstance(video.getId());
+                                dialog.setOnDismissListener(dialogInterface -> refreshVideoList());
+                                dialog.show(((AppCompatActivity) context).getSupportFragmentManager(), "EditVideoDialog");
+                            } else {
+                                showLoginPromptDialog();
+                            }
+                            return true;
+                        } else if (item.getItemId() == R.id.delete_video) {
+                            if (getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getBoolean(LOGGED_IN_KEY, false)) {
+                                editVideoViewModel.deleteVideo(video.getId());
+                                editVideoViewModel.getDeleteVideoResult().observe((LifecycleOwner) context, isSuccess -> {
+                                    if (isSuccess) {
+                                        viewModel.removeVideo(video.getId());
+                                        Toast.makeText(context, "Video deleted successfully!", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(context, "Failed to delete video", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            } else {
+                                showLoginPromptDialog();
+                            }
+                            return true;
+                        }
+                        return false;
+                    });
+                }
+
+                popupMenu.show();
+            });
+
+            // Video detail page navigation
             holder.itemView.setOnClickListener(v -> {
                 // Show loading indicator
                 showLoadingDialog();
@@ -306,7 +419,7 @@ public class ChannelActivity extends AppCompatActivity {
                             VideoResponse updatedVideo = response.body();
 
                             // Start VideoDetailActivity
-                            Intent intent = new Intent(ChannelActivity.this, VideoDetailActivity.class);
+                            Intent intent = new Intent(context, VideoDetailActivity.class);
                             intent.putExtra("VIDEO_ID", updatedVideo.getId());
                             intent.putExtra("VIDEO_URL", updatedVideo.getVideoUrl());
                             intent.putExtra("TITLE", updatedVideo.getTitle());
@@ -316,10 +429,10 @@ public class ChannelActivity extends AppCompatActivity {
                             intent.putExtra("UPLOAD_TIME", updatedVideo.getUploadTime());
                             intent.putExtra("AUTHOR_PROFILE_PIC_URL", updatedVideo.getAuthorProfilePic());
                             intent.putExtra("LIKES", updatedVideo.getLikes());
-                            startActivityForResult(intent, REQUEST_VIDEO_DETAIL);
+                            ((Activity) context).startActivityForResult(intent, REQUEST_VIDEO_DETAIL);
                         } else {
                             // Show error message
-                            Toast.makeText(ChannelActivity.this, "Failed to fetch latest video details", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "Failed to fetch latest video details", Toast.LENGTH_SHORT).show();
                         }
                     }
 
@@ -327,11 +440,11 @@ public class ChannelActivity extends AppCompatActivity {
                     public void onFailure(Call<VideoResponse> call, Throwable t) {
                         hideLoadingDialog();
                         // Show error message
-                        Toast.makeText(ChannelActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
             });
-        }
+        }//end onBindViewHolder
 
         @Override
         public int getItemCount() {
@@ -413,4 +526,11 @@ public class ChannelActivity extends AppCompatActivity {
             loadingDialog.dismiss();
         }
     }
+
+    private void showLoginPromptDialog() {
+        LoginPromptDialog dialog = new LoginPromptDialog();
+        dialog.show(getSupportFragmentManager(), "LoginPromptDialog");
+    }
+
+
 }
