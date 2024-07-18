@@ -1,5 +1,6 @@
 package com.example.utube.models;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -14,6 +15,7 @@ public class CommentEntity {
     public String uploadTime;
     public int likes;
     public String profilePicUrl;
+    @ColumnInfo(name = "server_id")
     public String serverId; //try-com-id
 
     // Constructor

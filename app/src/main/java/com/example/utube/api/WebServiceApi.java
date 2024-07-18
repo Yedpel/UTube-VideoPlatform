@@ -117,5 +117,7 @@ public interface WebServiceApi {
     @DELETE("users/{id}")
     Call<Void> deleteUser(@Path("id") String id, @Header("Authorization") String token);
 
+    @GET("videos/{videoId}/comments")
+    Call<List<CommentResponse>> getComments(@Path("videoId") String videoId);
 
 }

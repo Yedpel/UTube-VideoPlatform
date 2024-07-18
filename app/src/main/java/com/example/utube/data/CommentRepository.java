@@ -2,6 +2,8 @@ package com.example.utube.data;
 
 import android.app.Application;
 import com.example.utube.models.CommentEntity;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,6 +55,28 @@ public class CommentRepository {
 
     public void deleteAllCommentsByUsername(String username) {
         executorService.execute(() -> commentDao.deleteAllCommentsByUsername(username));
+    }
+
+    public void mergeCommentsForVideo(String videoId, List<CommentEntity> newComments) {
+        executorService.execute(() -> {
+            List<String> newServerIds = new ArrayList<>();
+
+            for (CommentEntity newComment : newComments) {
+                newServerIds.add(newComment.serverId);
+                CommentEntity existingComment = commentDao.findCommentByServerIdAndVideoId(newComment.serverId, videoId);
+                if (existingComment != null) {
+                    existingComment.text = newComment.text;
+                    existingComment.likes = newComment.likes;
+                    existingComment.uploadTime = newComment.uploadTime;
+                    // Update other fields as necessary
+                    commentDao.updateComment(existingComment);
+                } else {
+                    commentDao.insert(newComment);
+                }
+            }
+
+            commentDao.deleteCommentsNotInList(videoId, newServerIds);
+        });
     }
 
 

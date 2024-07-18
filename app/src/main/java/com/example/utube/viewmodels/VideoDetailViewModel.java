@@ -9,10 +9,12 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.utube.MyApplication;
 import com.example.utube.activities.MainActivity;
 import com.example.utube.activities.VideoManager;
 import com.example.utube.api.RetrofitClient;
 import com.example.utube.api.WebServiceApi;
+import com.example.utube.data.VideoRepository;
 import com.example.utube.models.CommentEntity;
 import com.example.utube.models.Video;
 import com.example.utube.data.CommentRepository;
@@ -37,6 +39,7 @@ public class VideoDetailViewModel extends AndroidViewModel {
 
     private SharedPreferences sharedPreferences;
     private MutableLiveData<String> error = new MutableLiveData<>();
+    private VideoRepository videoRepository = new VideoRepository(MyApplication.getInstance());
 
     public VideoDetailViewModel(Application application) {
         super(application);
@@ -422,6 +425,51 @@ public class VideoDetailViewModel extends AndroidViewModel {
     public void deleteComment(CommentEntity comment) {
         commentRepository.deleteComment(comment);
         loadComments(comment.getVideoId()); // Reload comments after deleting
+    }
+
+    public void refreshComments(String videoId) {
+        videoRepository.fetchCommentsFromServer(videoId, new Callback<List<CommentResponse>>() {
+            @Override
+            public void onResponse(Call<List<CommentResponse>> call, Response<List<CommentResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    //log the response
+                    Gson gson = new Gson();
+                    String jsonResponse = gson.toJson(response.body());
+                    Log.d("VideoDetailViewModel", "comments response: " + jsonResponse);
+                    List<CommentEntity> commentEntities = convertToCommentEntities(response.body(), videoId);
+                    commentRepository.mergeCommentsForVideo(videoId, commentEntities);
+                    loadComments(videoId);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<CommentResponse>> call, Throwable t) {
+                // Handle error
+                Log.e("VideoDetailViewModel", "Failed to fetch comments", t);
+            }
+        });
+    }
+
+    private List<CommentEntity> convertToCommentEntities(List<CommentResponse> responses, String videoId) {
+        List<CommentEntity> entities = new ArrayList<>();
+        for (CommentResponse response : responses) {
+            CommentEntity entity = new CommentEntity(videoId, response.getUsername(), response.getText(),
+                    response.getUploadTime(), response.getLikes(), response.getProfilePicUrl(), response.getServerId());
+            //log the profile pic
+            Log.d("VideoDetailViewModel", "Profile pic url: " + response.getProfilePicUrl());
+            entities.add(entity);
+        }
+//            CommentEntity entity = new CommentEntity();
+//            entity.serverId = response.getId();
+//            entity.videoId = videoId;
+//            entity.text = response.getText();
+//            entity.username = response.getUsername();
+//            entity.likes = response.getLikes();
+//            entity.uploadTime = response.getUploadTime();
+//            // Set other fields as necessary
+//            entities.add(entity);
+        //  }
+        return entities;
     }
 
 

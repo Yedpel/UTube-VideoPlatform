@@ -98,6 +98,7 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(VideoDetailViewModel.class); //mvvm-change
 
+
         commentsAdapter = new CommentsAdapter(new ArrayList<>());
         commentsRecyclerView.setAdapter(commentsAdapter);
 
@@ -125,6 +126,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         // likes = VideoManager.getInstance(getApplication()).getLikesCountMap().getOrDefault(videoId, likes);
 
 
+        viewModel.refreshComments(videoId);
         // MVVM changes
         viewModel.loadVideo(videoId); //mvvm-change
         viewModel.loadComments(videoId); //mvvm-change
@@ -648,6 +650,8 @@ public class VideoDetailActivity extends AppCompatActivity {
                 uploadTimeTextView.setText(comment.getUploadTime());
                 commentLikesTextView.setText(comment.getLikes() + " likes");
 
+                //log the profile pic url
+                Log.d("VideoDetailActivity", "Comment.profile pic URL: " + comment.getProfilePicUrl());
                 loadImageView(profilePicImageView, comment.getProfilePicUrl());
                 Log.d("VideoDetailActivity", "Comment.profile pic URL: " + comment.getProfilePicUrl());
 

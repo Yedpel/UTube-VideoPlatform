@@ -10,6 +10,7 @@ import com.example.utube.api.RetrofitClient;
 import com.example.utube.api.WebServiceApi;
 import com.example.utube.models.Video;
 import com.example.utube.models.VideoEntity;
+import com.example.utube.utils.CommentResponse;
 import com.example.utube.utils.VideoResponse;
 import com.google.gson.Gson;
 
@@ -251,6 +252,12 @@ public class VideoRepository {
 
     public void deleteAllVideosByAuthor(String author) {
         executorService.execute(() -> videoDao.deleteAllVideosByAuthor(author));
+    }
+
+    public void fetchCommentsFromServer(String videoId, Callback<List<CommentResponse>> callback) {
+        WebServiceApi api = RetrofitClient.getInstance().create(WebServiceApi.class);
+        Call<List<CommentResponse>> call = api.getComments(videoId);
+        call.enqueue(callback);
     }
 
 }
