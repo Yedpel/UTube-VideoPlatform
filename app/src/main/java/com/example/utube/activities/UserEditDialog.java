@@ -14,12 +14,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.utube.MyApplication;
 import com.example.utube.R;
 import com.example.utube.models.UserDetails;
 import com.example.utube.viewmodels.ChannelViewModel;
@@ -151,6 +153,7 @@ public class UserEditDialog extends DialogFragment {
 
 
     private void openImagePicker() {
+        Toast.makeText(MyApplication.getAppContext(), "No media? Go to camera, then back. Ensure gallery permissions.", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");  // This limits selection to image files
         //activity.startActivityForResult(intent, 1);

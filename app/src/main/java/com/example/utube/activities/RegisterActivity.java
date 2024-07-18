@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.utube.MyApplication;
 import com.example.utube.R;
 import com.example.utube.models.UserDetails;
 import com.example.utube.models.Users;
@@ -150,6 +151,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void openImagePicker() {
+        Toast.makeText(MyApplication.getAppContext(), "No media? Go to camera, then back. Ensure gallery permissions.", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");  // This limits selection to image files
         startActivityForResult(intent, REQUEST_IMAGE_PICK);

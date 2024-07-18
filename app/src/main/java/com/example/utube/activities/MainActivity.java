@@ -470,6 +470,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openVideoPicker() {
+        Toast.makeText(MyApplication.getAppContext(), "No media? Go to camera, then back. Ensure gallery permissions.", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, REQUEST_VIDEO_PICK);
     }
