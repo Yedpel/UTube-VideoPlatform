@@ -2,6 +2,7 @@ package com.example.utube.activities;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -39,6 +40,8 @@ public class UserEditDialog extends DialogFragment {
     private Uri selectedImageUri;
     //private ChannelViewModel channelViewModel;
     UserDetails userDetails = UserDetails.getInstance();
+    private Runnable onDismissListener;
+
 
 
     public UserEditDialog(Activity activity, ChannelViewModel channelViewModel) {
@@ -189,6 +192,18 @@ public class UserEditDialog extends DialogFragment {
 //            } catch (IOException e) {
 //                e.printStackTrace();
 //            }
+        }
+    }
+
+    public void setOnDismissListener(Runnable listener) {
+        this.onDismissListener = listener;
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+        if (onDismissListener != null) {
+            onDismissListener.run();
         }
     }
 }

@@ -127,6 +127,7 @@ public class ChannelActivity extends AppCompatActivity {
 //        });
 
         userEditDialog = new UserEditDialog(this, channelViewModel);
+        userEditDialog.setOnDismissListener(() -> refreshVideoList());
         editUserButton.setOnClickListener(v -> {
             // Show UserEditDialog using FragmentManager
             FragmentManager fragmentManager = getSupportFragmentManager();
