@@ -250,12 +250,12 @@ public class VideoDetailActivity extends AppCompatActivity {
             // If URL is null or empty, set to default error image
             authorProfilePic.setImageResource(R.drawable.policy);
         }
-        // Set the profile picture click listener to open the author's channel
-        authorProfilePic.setOnClickListener(v -> {
-            Intent intent = new Intent(VideoDetailActivity.this, ChannelActivity.class);
-            intent.putExtra("AUTHOR_NAME", authorTextView.getText().toString());
-            startActivity(intent);
-        });
+//        // Set the profile picture click listener to open the author's channel
+//        authorProfilePic.setOnClickListener(v -> {
+//            Intent intent = new Intent(VideoDetailActivity.this, ChannelActivity.class);
+//            intent.putExtra("AUTHOR_NAME", authorTextView.getText().toString());
+//            startActivity(intent);
+//        });
 
 
         // Set initial like button state
