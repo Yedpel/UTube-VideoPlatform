@@ -34,6 +34,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -365,6 +366,21 @@ public class MainActivity extends AppCompatActivity {
 
             if (videoFile.exists() && thumbnailFile != null) {
                 addVideoViewModel.uploadVideo(title, category, videoFile, thumbnailFile, userId, author, token);
+                // Add this observer here
+                addVideoViewModel.getUploadStatus().observe(this, new Observer<Boolean>() {
+                    @Override
+                    public void onChanged(Boolean isSuccess) {
+                        if (isSuccess != null) {
+                            if (isSuccess) {
+                                Toast.makeText(MainActivity.this, "Video uploaded successfully!", Toast.LENGTH_SHORT).show();
+                                refreshVideoList();
+                            } else {
+                                Toast.makeText(MainActivity.this, "Failed to upload video", Toast.LENGTH_SHORT).show();
+                            }
+                            addVideoViewModel.getUploadStatus().removeObserver(this);
+                        }
+                    }
+                });
             } else {
                 Toast.makeText(this, "Failed to prepare video or thumbnail", Toast.LENGTH_SHORT).show();
             }
