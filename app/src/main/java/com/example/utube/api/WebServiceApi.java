@@ -120,4 +120,37 @@ public interface WebServiceApi {
     @GET("videos/{videoId}/comments")
     Call<List<CommentResponse>> getComments(@Path("videoId") String videoId);
 
+    @DELETE("users/{userId}/videos/{videoId}")
+    Call<Void> deleteVideo(
+            @Header("Authorization") String token,
+            @Path("userId") String userId,
+            @Path("videoId") String videoId
+    );
+
+    @Multipart
+    @PUT("users/{userId}/videos/{videoId}")
+    Call<Void> editVideo(
+            @Header("Authorization") String token,
+            @Path("userId") String userId,
+            @Path("videoId") String videoId,
+            @Part("title") RequestBody title,
+            @Part("category") RequestBody category,
+            @Part MultipartBody.Part video
+    );
+
+    @Multipart
+    @POST("users/{userId}/videos")
+    Call<Void> uploadVideo(
+            @Header("Authorization") String token,
+            @Path("userId") String userId,
+            @Part("title") RequestBody title,
+            @Part("category") RequestBody category,
+            @Part("authorId") RequestBody authorId,
+            @Part("authorName") RequestBody authorName,
+            @Part("views") RequestBody views,
+            @Part("likes") RequestBody likes,
+            @Part MultipartBody.Part video,
+            @Part MultipartBody.Part thumbnail
+    );
+
 }
