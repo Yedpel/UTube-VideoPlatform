@@ -31,6 +31,8 @@ import {
 import { fetchMixedVideos, fetchVideosByCategory } from './controllers/videoPlay.js';
 import request from 'supertest';  // npm install supertest --save-dev
 //import server from './server'; // Assuming your Express instance is exported from a file named 'server.js'
+import cppServerRouter from './routes/cppServer.js';
+import http from 'http';
 
 dotenv.config();
 
@@ -52,12 +54,15 @@ server.use('/api', routerVideoPlay);
 server.use('/api', mediaRoutes);  // Dedicated endpoint for media operations
 server.use('/api', routerComments);
 
+server.use('/api/cpp', cppServerRouter);
+
 (async () => {
     // MongoDB connection
     mongoose.connect(process.env.CONNECTION_STRING)
         .then(() => {
             console.log('MongoDB connected');
             checkAndLoadData();  // check if the mongoDB is empty and load the data
+            testCppServerCommunication();
         })
         .catch(err => console.error('MongoDB connection error:', err));
 })()
@@ -94,7 +99,7 @@ async function loadData() {
             ...video,
             authorId: usernameToIdMap[video.author],  // Map the username to ObjectId
             authorName: video.author,  // Optionally keep authorName if needed
-           // uploadTime: new Date() // Convert to actual Date if necessary
+            // uploadTime: new Date() // Convert to actual Date if necessary
         }));
 
         await Video.deleteMany({});
@@ -118,8 +123,55 @@ server.listen(PORT, () => {
 
 /////////////////////tests/////////////////////
 
+function testCppServerCommunication() {
+    const data = JSON.stringify({
+        userId: 'testUser3',
+        videoId: 'testVideo3'
+    });
 
-/* Test the video creation to see date format 
+    const options = {
+        hostname: 'localhost',
+        port: 5555,
+        path: '/',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': data.length
+        },
+        timeout: 5000 // 5 seconds timeout
+    };
+
+    const req = http.request(options, (res) => {
+        let responseData = '';
+
+        res.on('data', (chunk) => {
+            responseData += chunk;
+        });
+
+        res.on('end', () => {
+            console.log('C++ Server Notification Response:', responseData);
+        });
+    });
+
+    req.on('error', (error) => {
+        console.error('Error testing C++ server communication:', error);
+        if (error.code === 'ECONNREFUSED') {
+            console.error('Make sure the C++ server is running on port 5555');
+        }
+    });
+
+    req.on('timeout', () => {
+        console.error('Connection to C++ server timed out');
+        req.abort();
+    });
+
+    req.write(data);
+    req.end();
+}
+
+
+
+/* Test the video creation to see date format
 // Example Video Data for Testing
 const testVideoData = {
     thumbnailUrl: "media/images_new/testThumbnail.jpg",
