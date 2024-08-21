@@ -33,6 +33,8 @@ import request from 'supertest';  // npm install supertest --save-dev
 //import server from './server'; // Assuming your Express instance is exported from a file named 'server.js'
 import cppServerRouter from './routes/cppServer.js';
 import http from 'http';
+import { createThreadForUser, closeThreadForUser } from './services/cppServerService.js';
+
 
 dotenv.config();
 
@@ -62,7 +64,7 @@ server.use('/api/cpp', cppServerRouter);
         .then(() => {
             console.log('MongoDB connected');
             checkAndLoadData();  // check if the mongoDB is empty and load the data
-            testCppServerCommunication();
+           // testUserThreadLifecycle();  // Add this line
         })
         .catch(err => console.error('MongoDB connection error:', err));
 })()
@@ -123,6 +125,34 @@ server.listen(PORT, () => {
 
 /////////////////////tests/////////////////////
 
+/*async function testUserThreadLifecycle() {
+    try {
+        const userId = 'testUser123';  // Replace with a valid user ID from your system
+
+        console.log('Creating thread...');
+        const createResult = await createThreadForUser(userId);
+        console.log('Thread creation result:', createResult);
+
+        // Wait for a moment to simulate some user activity
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        console.log('Closing thread...');
+        const closeResult = await closeThreadForUser(userId);
+        console.log('Thread closing result:', closeResult);
+    } catch (error) {
+        console.error('Error in user thread lifecycle test:', error);
+    }
+}*/
+/*async function testCreateThreadForUser() {
+    try {
+        const userId = 'testUser123';  // Replace with a valid user ID from your system
+        const result = await createThreadForUser(userId);
+        console.log('Thread creation result:', result);
+    } catch (error) {
+        console.error('Error creating thread:', error);
+    }
+}*/
+/*
 function testCppServerCommunication() {
     const data = JSON.stringify({
         userId: 'testUser3',
@@ -167,7 +197,7 @@ function testCppServerCommunication() {
 
     req.write(data);
     req.end();
-}
+} */
 
 
 
