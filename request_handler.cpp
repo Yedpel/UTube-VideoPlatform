@@ -1,11 +1,11 @@
-#include "request_handler.hpp"
-#include "user_thread_manager.hpp"
-#include "video_manager.hpp"
 #include <nlohmann/json.hpp>
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <thread>
+#include "user_thread_manager.hpp"
+#include "video_manager.hpp"
 
 using json = nlohmann::json;
 
@@ -42,48 +42,69 @@ void handleClient(int clientSocket)
     {
         json data = json::parse(jsonBody);
         std::string action = data["action"];
+        std::string userId = data["userId"];
+
+        // Get current thread ID
+        std::thread::id this_id = std::this_thread::get_id();
+        std::stringstream ss;
+        ss << this_id;
+        std::string thread_id = ss.str();
+
+        json response;
+        response["threadId"] = thread_id;
 
         if (action == "create_thread")
         {
-            std::string userId = data["userId"];
             UserThreadManager::getInstance().createThreadForUser(userId);
-
-            // Send HTTP response
-            std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n";
-            response += "{\"message\":\"Thread created successfully\"}";
-            send(clientSocket, response.c_str(), response.length(), 0);
+            response["message"] = "Thread created successfully";
+            std::cout << "Thread " << thread_id << " created for user: " << userId << std::endl;
         }
         else if (action == "close_thread")
         {
-            std::string userId = data["userId"];
             UserThreadManager::getInstance().closeThreadForUser(userId);
-
-            // Send HTTP response
-            std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n";
-            response += "{\"message\":\"Thread closed successfully\"}";
-            send(clientSocket, response.c_str(), response.length(), 0);
+            response["message"] = "Thread closed successfully";
+            std::cout << "Thread " << thread_id << " closed for user: " << userId << std::endl;
         }
-        else if (action == "watch_video")
+        else if (action == "notify-watch")
         {
-            std::string userId = data["userId"];
+            if (!data.contains("videoId"))
+            {
+                throw std::runtime_error("Missing videoId for notify-watch action");
+            }
             std::string videoId = data["videoId"];
-            VideoManager::getInstance().addVideoView(videoId, userId);
-            std::cout << "User " << userId << " watched video " << videoId << std::endl;
 
-            // Send HTTP response
-            std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n";
-            response += "{\"message\":\"Video watch recorded\"}";
-            send(clientSocket, response.c_str(), response.length(), 0);
+            if (!UserThreadManager::getInstance().hasThreadForUser(userId))
+            {
+                UserThreadManager::getInstance().createThreadForUser(userId);
+            }
+
+            UserThreadManager::getInstance().processUserRequest(userId, action, videoId);
+            response["message"] = "Video watch recorded";
+            std::cout << "Thread " << thread_id << " - User " << userId << " watched video " << videoId << std::endl;
+        }
+        else if (action == "get_recommendations")
+        {
+            // TODO: Implement recommendation logic
+            response["message"] = "Recommendations feature not implemented yet";
         }
         else
         {
-            throw std::runtime_error("Unknown action");
+            throw std::runtime_error("Unknown action: " + action);
         }
+
+        std::string responseStr = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n" + response.dump();
+        send(clientSocket, responseStr.c_str(), responseStr.length(), 0);
+    }
+    catch (const json::exception &e)
+    {
+        std::cerr << "JSON parsing error: " << e.what() << std::endl;
+        std::string response = "HTTP/1.1 400 Bad Request\r\nContent-Type: application/json\r\n\r\n";
+        response += "{\"error\":\"Invalid JSON: " + std::string(e.what()) + "\"}";
+        send(clientSocket, response.c_str(), response.length(), 0);
     }
     catch (const std::exception &e)
     {
         std::cerr << "Error processing request: " << e.what() << std::endl;
-        // Send error response
         std::string response = "HTTP/1.1 400 Bad Request\r\nContent-Type: application/json\r\n\r\n";
         response += "{\"error\":\"Invalid request: " + std::string(e.what()) + "\"}";
         send(clientSocket, response.c_str(), response.length(), 0);
