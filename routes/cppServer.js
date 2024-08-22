@@ -1,5 +1,7 @@
 import express from 'express';
-import { notifyVideoWatch, createUserThread, closeUserThread } from '../controllers/cppServerController.js';
+import {
+    notifyVideoWatch, createUserThread, closeUserThread, getVideoRecommendations
+} from '../controllers/cppServerController.js';
 import { isLoggedIn } from '../middlewares/auth.js';
 
 const router = express.Router();
@@ -15,6 +17,10 @@ router.post('/create-thread', isLoggedIn, createUserThread);
 //before logging out, close the user thread
 //the req need to have the token
 router.post('/close-thread', isLoggedIn, closeUserThread);
+
+//route for video recommendations
+//the req need to have the token/guest and the video id
+router.post('/get-recommendations', getVideoRecommendations);
 
 
 export default router;

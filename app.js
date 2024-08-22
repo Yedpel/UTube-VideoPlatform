@@ -34,6 +34,7 @@ import request from 'supertest';  // npm install supertest --save-dev
 import cppServerRouter from './routes/cppServer.js';
 import http from 'http';
 import { createThreadForUser, closeThreadForUser, sendWatchNotification } from './services/cppServerService.js';
+import { getVideoRecommendations } from './controllers/cppServerController.js';
 
 
 dotenv.config();
@@ -64,7 +65,7 @@ server.use('/api/cpp', cppServerRouter);
         .then(() => {
             console.log('MongoDB connected');
             checkAndLoadData();  // check if the mongoDB is empty and load the data
-            //testCppServerInteractions();  // Add this line
+            //testRecommendationSystem();  // Run the recommendation test
         })
         .catch(err => console.error('MongoDB connection error:', err));
 })()
@@ -125,7 +126,67 @@ server.listen(PORT, () => {
 
 /////////////////////tests/////////////////////
 
+/*
+async function testRecommendationSystem() {
+    await createViewerHistory();
+    console.log("Starting recommendation system test...");
 
+    // Simulate a request object
+    const req = {
+        body: {
+            videoId: "66990ce8d7e807e5f0008505",
+            token: "guest"
+        }
+    };
+
+    // Simulate a response object
+    const res = {
+        status: function (statusCode) {
+            console.log(`Response Status: ${statusCode}`);
+            return this;
+        },
+        json: function (data) {
+            console.log("Recommendation Response:");
+            console.log(JSON.stringify(data, null, 2));
+        }
+    };
+
+    try {
+        await getVideoRecommendations(req, res);
+        console.log("Recommendation test completed.");
+    } catch (error) {
+        console.error("Error in recommendation test:", error);
+    }
+}
+
+async function createViewerHistory() {
+    const videoIds = [
+        "66990ce8d7e807e5f0008505",
+        "6699457ad7e807e5f00089da",
+        "66994733d7e807e5f0008a23",
+        "669948b8d7e807e5f0008a6f",
+        "66990ce8d7e807e5f000850d",
+        "66990ce8d7e807e5f000850e"
+    ];
+    const userIds = [
+        "66990ce8d7e807e5f00084ff",
+        "66990ce8d7e807e5f0008500",
+        "66990ce8d7e807e5f0008502"
+    ];
+
+    console.log("Creating viewer history...");
+
+    for (let i = 0; i < videoIds.length; i++) {
+        for (let j = 0; j < userIds.length; j++) {
+            if (Math.random() < 0.7) {  // 70% chance of a user watching each video
+                await sendWatchNotification(userIds[j], videoIds[i]);
+                console.log(`User ${userIds[j]} watched video ${videoIds[i]}`);
+            }
+        }
+    }
+
+    console.log("Viewer history created.");
+} */
 // async function testCppServerInteractions() {
 //     const users = [
 //         { id: 'user1', name: 'Alice' },

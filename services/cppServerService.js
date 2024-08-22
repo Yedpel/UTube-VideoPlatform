@@ -1,4 +1,5 @@
 import net from 'net';
+import Video from '../models/videoPlay.js';
 
 const CPP_SERVER_HOST = 'localhost';
 const CPP_SERVER_PORT = 5555;
@@ -51,3 +52,44 @@ export const closeThreadForUser = (userId) => {
 export const sendWatchNotification = (userId, videoId) => {
     return sendRequestToCppServer('notify-watch', { userId, videoId });
 };
+
+export const getRecommendations = async (userId, videoId, allVideos) => {
+    try {
+        const response = await sendRequestToCppServer('get_recommendations', { userId, videoId, allVideos });
+        const recommendedVideoIds = response.recommendations;
+
+        // Fetch full details for recommended videos
+        const recommendedVideos = await Video.find({ _id: { $in: recommendedVideoIds } })
+            .populate('authorId', 'username profilePic')
+            .select('thumbnailUrl title views uploadTime category videoUrl');
+
+        // Transform the result to include only the required fields
+        const transformedVideos = recommendedVideos.map(video => ({
+            _id: video._id,
+            thumbnailUrl: video.thumbnailUrl,
+            author: video.authorId.username,
+            authorId: video.authorId._id,
+            authorProfilePic: video.authorId.profilePic,
+            title: video.title,
+            views: video.views,
+            uploadTime: video.uploadTime,
+            category: video.category,
+            videoUrl: video.videoUrl
+        }));
+
+        return transformedVideos;
+    } catch (error) {
+        console.error('Failed to fetch recommended videos:', error);
+        throw error;
+    }
+};
+
+export async function getAllVideosWithViewCounts() {
+    try {
+        const videos = await Video.find({}, 'id views');
+        return videos.map(video => ({ id: video._id.toString(), views: video.views }));
+    } catch (error) {
+        console.error('Failed to fetch videos with view counts:', error);
+        throw error;
+    }
+}
