@@ -1,5 +1,6 @@
 #include "video_manager.hpp"
-#include <iostream> 
+#include <algorithm>
+#include <iostream>
 
 VideoManager &VideoManager::getInstance()
 {
@@ -7,24 +8,110 @@ VideoManager &VideoManager::getInstance()
     return instance;
 }
 
-void VideoManager::addVideoView(const std::string &videoId, const std::string &userId)
+void VideoManager::updateVideoData(const std::unordered_map<std::string, int> &newVideoData)
 {
-    std::lock_guard<std::mutex> lock(videoViewersMutex);
-    if (!videoExists(videoId))
+    std::lock_guard<std::mutex> lock(videoMutex);
+
+    // Remove videos that are no longer in the list
+    for (auto it = videos.begin(); it != videos.end();)
     {
-        createVideo(videoId);
+        if (newVideoData.find(it->first) == newVideoData.end())
+        {
+            it = videos.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
     }
-    videoViewers[videoId].insert(userId);
-    std::cout << "User " << userId << " watched video " << videoId << std::endl;
+
+    // Update existing videos and add new ones
+    for (const auto &[videoId, views] : newVideoData)
+    {
+        if (videos.find(videoId) == videos.end())
+        {
+            videos[videoId] = VideoData{{}, views};
+        }
+        else
+        {
+            videos[videoId].totalViews = views;
+        }
+    }
 }
 
-bool VideoManager::videoExists(const std::string &videoId)
+std::vector<std::string> VideoManager::getRecommendedVideos(const std::string &currentVideoId, const std::string &userId, int numRecommendations)
 {
-    return videoViewers.find(videoId) != videoViewers.end();
-}
+    std::lock_guard<std::mutex> lock(videoMutex);
 
-void VideoManager::createVideo(const std::string &videoId)
-{
-    videoViewers[videoId] = std::unordered_set<std::string>();
-    std::cout << "Created new video entry for " << videoId << std::endl;
+    std::vector<std::pair<std::string, int>> commonViewers;
+    const auto &currentViewers = videos[currentVideoId].viewers;
+
+    for (const auto &[videoId, videoData] : videos)
+    {
+        if (videoId != currentVideoId)
+        {
+            int commonCount = 0;
+            for (const auto &viewer : videoData.viewers)
+            {
+                if (viewer != userId && currentViewers.find(viewer) != currentViewers.end())
+                {
+                    commonCount++;
+                }
+            }
+            commonViewers.emplace_back(videoId, commonCount);
+        }
+    }
+
+    // Sort by common viewers, then by total views
+    // std::sort(commonViewers.begin(), commonViewers.end(),
+    //           [this](const auto &a, const auto &b)
+    //           {
+    //               if (a.second != b.second)
+    //                   return a.second > b.second;
+    //               return videos[a.first].totalViews > videos[b.first].totalViews;
+    //           });
+    std::sort(commonViewers.begin(), commonViewers.end(),
+              [this](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b)
+              {
+                  if (a.second != b.second)
+                      return a.second > b.second;
+                  return videos.at(a.first).totalViews > videos.at(b.first).totalViews;
+              });
+
+    std::vector<std::string> recommendations;
+    for (const auto &[videoId, _] : commonViewers)
+    {
+        if (recommendations.size() >= numRecommendations)
+            break;
+        recommendations.push_back(videoId);
+    }
+
+    // If we don't have enough recommendations, fill with most viewed videos
+    if (recommendations.size() < numRecommendations)
+    {
+        std::vector<std::pair<std::string, int>> allVideos;
+        for (const auto &[videoId, videoData] : videos)
+        {
+            if (videoId != currentVideoId && std::find(recommendations.begin(), recommendations.end(), videoId) == recommendations.end())
+            {
+                allVideos.emplace_back(videoId, videoData.totalViews);
+            }
+        }
+
+        // std::sort(allVideos.begin(), allVideos.end(),
+        //           [](const auto &a, const auto &b)
+        //           { return a.second > b.second; });
+        std::sort(allVideos.begin(), allVideos.end(),
+                  [](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b)
+                  { return a.second > b.second; });
+
+        for (const auto &[videoId, _] : allVideos)
+        {
+            if (recommendations.size() >= numRecommendations)
+                break;
+            recommendations.push_back(videoId);
+        }
+    }
+
+    return recommendations;
 }

@@ -21,14 +21,19 @@ class UserThreadManager
 {
 public:
     static UserThreadManager &getInstance();
+    ~UserThreadManager();
     std::string createThreadForUser(const std::string &userId);
     std::string closeThreadForUser(const std::string &userId);
     bool hasThreadForUser(const std::string &userId);
     std::future<std::string> processUserRequest(const std::string &userId, const std::string &action, const std::string &videoId = "");
     std::string getThreadIdForUser(const std::string &userId);
+    std::future<std::string> processGuestRequest(const std::string &action, const std::string &videoId = "");
 
 private:
-    UserThreadManager() = default;
+    UserThreadManager(); // Declare the constructor as private
+    UserThreadManager(const UserThreadManager &) = delete;
+    UserThreadManager &operator=(const UserThreadManager &) = delete;
+    // UserThreadManager() = default;
     std::unordered_map<std::string, std::thread> userThreads;
     std::unordered_map<std::string, std::queue<UserMessage>> userMessageQueues;
     std::unordered_map<std::string, std::mutex> userMutexes;
@@ -37,7 +42,14 @@ private:
     std::unordered_map<std::string, std::string> userThreadIds;
     std::mutex threadMapMutex;
 
+    std::thread guestThread;
+    std::queue<UserMessage> guestMessageQueue;
+    std::mutex guestMutex;
+    std::condition_variable guestCondVar;
+    std::atomic<bool> guestThreadActive{true};
+
     void handleUserRequests(const std::string &userId);
+    void handleGuestRequests();
 };
 
 #endif

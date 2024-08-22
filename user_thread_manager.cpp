@@ -4,11 +4,40 @@
 #include <thread>
 #include <sstream>
 
+UserThreadManager::UserThreadManager() : guestThreadActive(true)
+{
+    guestThread = std::thread(&UserThreadManager::handleGuestRequests, this);
+}
+
+UserThreadManager::~UserThreadManager()
+{
+    guestThreadActive = false;
+    guestCondVar.notify_one();
+    if (guestThread.joinable())
+    {
+        guestThread.join();
+    }
+}
+
 UserThreadManager &UserThreadManager::getInstance()
 {
     static UserThreadManager instance;
     return instance;
 }
+
+// UserThreadManager &UserThreadManager::getInstance()
+// {
+//     static UserThreadManager instance;
+//     return instance;
+// }
+// UserThreadManager &UserThreadManager::getInstance()
+// {
+//     static UserThreadManager instance;
+//     static std::once_flag flag;
+//     std::call_once(flag, [&]()
+//                    { instance.guestThread = std::thread(&UserThreadManager::handleGuestRequests, &instance); });
+//     return instance;
+// }
 
 std::string UserThreadManager::createThreadForUser(const std::string &userId)
 {
@@ -102,7 +131,6 @@ void UserThreadManager::handleUserRequests(const std::string &userId)
 
         if (message.action == "notify-watch")
         {
-            VideoManager::getInstance().addVideoView(message.videoId, userId);
             std::cout << "Thread " << thread_id << " - User " << userId << " watched video " << message.videoId << std::endl;
         }
         // Add other actions here as needed
@@ -112,3 +140,69 @@ void UserThreadManager::handleUserRequests(const std::string &userId)
 
     std::cout << "Thread " << thread_id << " ended for user: " << userId << std::endl;
 }
+
+std::future<std::string> UserThreadManager::processGuestRequest(const std::string &action, const std::string &videoId)
+{
+    std::lock_guard<std::mutex> lock(guestMutex);
+    UserMessage message{action, videoId, std::promise<std::string>()};
+    std::future<std::string> futureThreadId = message.threadIdPromise.get_future();
+    guestMessageQueue.push(std::move(message));
+    guestCondVar.notify_one();
+    return futureThreadId;
+}
+
+void UserThreadManager::handleGuestRequests()
+{
+    std::thread::id this_id = std::this_thread::get_id();
+    std::stringstream ss;
+    ss << this_id;
+    std::string thread_id = ss.str();
+
+    std::cout << "Guest thread " << thread_id << " started" << std::endl;
+
+    while (guestThreadActive)
+    {
+        std::unique_lock<std::mutex> lock(guestMutex);
+        guestCondVar.wait(lock, [this]
+                          { return !guestMessageQueue.empty() || !guestThreadActive; });
+
+        if (!guestThreadActive)
+            break;
+
+        auto message = std::move(guestMessageQueue.front());
+        guestMessageQueue.pop();
+        lock.unlock();
+
+        if (message.action == "get_recommendations")
+        {
+            std::cout << "Guest thread " << thread_id << " - Generating recommendations for video " << message.videoId << std::endl;
+        }
+        // Add other actions here as needed
+
+        message.threadIdPromise.set_value(thread_id);
+    }
+
+    std::cout << "Guest thread " << thread_id << " ended" << std::endl;
+}
+
+// In the constructor or initialization method of UserThreadManager
+// UserThreadManager::UserThreadManager() {
+//     guestThread = std::thread(&UserThreadManager::handleGuestRequests, this);
+// }
+
+// In the destructor of UserThreadManager
+// UserThreadManager::~UserThreadManager() {
+//     guestThreadActive = false;
+//     guestCondVar.notify_one();
+//     if (guestThread.joinable()) {
+//         guestThread.join();
+//     }
+// }
+
+// UserThreadManager::~UserThreadManager() {
+//     guestThreadActive = false;
+//     guestCondVar.notify_one();
+//     if (guestThread.joinable()) {
+//         guestThread.join();
+//     }
+// }

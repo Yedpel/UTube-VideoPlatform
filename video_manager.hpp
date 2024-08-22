@@ -4,21 +4,26 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 #include <mutex>
+
+struct VideoData
+{
+    std::unordered_set<std::string> viewers;
+    int totalViews;
+};
 
 class VideoManager
 {
 public:
     static VideoManager &getInstance();
-    void addVideoView(const std::string &videoId, const std::string &userId);
-    bool videoExists(const std::string &videoId);
+    void updateVideoData(const std::unordered_map<std::string, int> &newVideoData);
+    std::vector<std::string> getRecommendedVideos(const std::string &currentVideoId, const std::string &userId, int numRecommendations);
 
 private:
     VideoManager() = default;
-    std::unordered_map<std::string, std::unordered_set<std::string>> videoViewers;
-    std::mutex videoViewersMutex;
-
-    void createVideo(const std::string &videoId);
+    std::unordered_map<std::string, VideoData> videos;
+    std::mutex videoMutex;
 };
 
-#endif 
+#endif

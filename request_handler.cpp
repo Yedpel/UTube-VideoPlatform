@@ -1,11 +1,12 @@
+#include "request_handler.hpp"
+#include "user_thread_manager.hpp"
+#include "video_manager.hpp"
 #include <nlohmann/json.hpp>
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <thread>
-#include "user_thread_manager.hpp"
-#include "video_manager.hpp"
 
 using json = nlohmann::json;
 
@@ -78,9 +79,38 @@ void handleClient(int clientSocket)
         }
         else if (action == "get_recommendations")
         {
-            // TODO: Implement recommendation logic
-            response["message"] = "Recommendations feature not implemented yet";
-            response["threadId"] = UserThreadManager::getInstance().getThreadIdForUser(userId);
+            if (!data.contains("videoId") || !data.contains("allVideos"))
+            {
+                throw std::runtime_error("Missing videoId or allVideos for get_recommendations action");
+            }
+            std::string videoId = data["videoId"];
+
+            // Update video data
+            std::unordered_map<std::string, int> newVideoData;
+            for (const auto &video : data["allVideos"])
+            {
+                newVideoData[video["id"]] = video["views"];
+            }
+            VideoManager::getInstance().updateVideoData(newVideoData);
+
+            // Process request in user's thread (or guest thread)
+            std::future<std::string> futureThreadId;
+            if (userId == "guest")
+            {
+                futureThreadId = UserThreadManager::getInstance().processGuestRequest(action, videoId);
+            }
+            else
+            {
+                futureThreadId = UserThreadManager::getInstance().processUserRequest(userId, action, videoId);
+            }
+            std::string threadId = futureThreadId.get();
+
+            // Generate recommendations
+            std::vector<std::string> recommendations = VideoManager::getInstance().getRecommendedVideos(videoId, userId, 6);
+
+            response["message"] = "Recommendations generated successfully";
+            response["threadId"] = threadId;
+            response["recommendations"] = recommendations;
         }
         else
         {

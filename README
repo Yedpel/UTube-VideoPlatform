@@ -1,5 +1,5 @@
 for compile in the terminal:
-g++ -std=c++11 -pthread main.cpp user_thread_manager.cpp request_handler.cpp video_manager.cpp -o vid_rec_server -I/usr/include/nlohmann
+g++ -std=c++17 -pthread main.cpp user_thread_manager.cpp request_handler.cpp video_manager.cpp -o vid_rec_server -I/usr/include/nlohmann
 
 for run in the terminal:
 ./vid_rec_server
