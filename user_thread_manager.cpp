@@ -10,23 +10,29 @@ UserThreadManager &UserThreadManager::getInstance()
     return instance;
 }
 
-void UserThreadManager::createThreadForUser(const std::string &userId)
+std::string UserThreadManager::createThreadForUser(const std::string &userId)
 {
     std::lock_guard<std::mutex> lock(threadMapMutex);
     if (userThreads.find(userId) == userThreads.end())
     {
         userThreadActive[userId] = true;
         userThreads[userId] = std::thread(&UserThreadManager::handleUserRequests, this, userId);
-        std::cout << "Thread created for user: " << userId << std::endl;
+        std::thread::id threadId = userThreads[userId].get_id();
+        std::stringstream ss;
+        ss << threadId;
+        userThreadIds[userId] = ss.str();
+        std::cout << "Thread created for user: " << userId << " with ID: " << userThreadIds[userId] << std::endl;
     }
+    return userThreadIds[userId];
 }
 
-void UserThreadManager::closeThreadForUser(const std::string &userId)
+std::string UserThreadManager::closeThreadForUser(const std::string &userId)
 {
     std::lock_guard<std::mutex> lock(threadMapMutex);
     auto it = userThreads.find(userId);
     if (it != userThreads.end())
     {
+        std::string threadId = userThreadIds[userId];
         userThreadActive[userId] = false;
         userCondVars[userId].notify_one();
         if (it->second.joinable())
@@ -38,8 +44,11 @@ void UserThreadManager::closeThreadForUser(const std::string &userId)
         userMutexes.erase(userId);
         userCondVars.erase(userId);
         userThreadActive.erase(userId);
-        std::cout << "Thread closed for user: " << userId << std::endl;
+        userThreadIds.erase(userId);
+        std::cout << "Thread closed for user: " << userId << " with ID: " << threadId << std::endl;
+        return threadId;
     }
+    return "";
 }
 
 bool UserThreadManager::hasThreadForUser(const std::string &userId)
@@ -48,11 +57,25 @@ bool UserThreadManager::hasThreadForUser(const std::string &userId)
     return userThreads.find(userId) != userThreads.end();
 }
 
-void UserThreadManager::processUserRequest(const std::string &userId, const std::string &action, const std::string &videoId)
+std::future<std::string> UserThreadManager::processUserRequest(const std::string &userId, const std::string &action, const std::string &videoId)
 {
     std::lock_guard<std::mutex> lock(userMutexes[userId]);
-    userMessageQueues[userId].push({action, videoId});
+    UserMessage message{action, videoId, std::promise<std::string>()};
+    std::future<std::string> futureThreadId = message.threadIdPromise.get_future();
+    userMessageQueues[userId].push(std::move(message));
     userCondVars[userId].notify_one();
+    return futureThreadId;
+}
+
+std::string UserThreadManager::getThreadIdForUser(const std::string &userId)
+{
+    std::lock_guard<std::mutex> lock(threadMapMutex);
+    auto it = userThreadIds.find(userId);
+    if (it != userThreadIds.end())
+    {
+        return it->second;
+    }
+    return "";
 }
 
 void UserThreadManager::handleUserRequests(const std::string &userId)
@@ -73,7 +96,7 @@ void UserThreadManager::handleUserRequests(const std::string &userId)
         if (!userThreadActive[userId])
             break;
 
-        auto message = userMessageQueues[userId].front();
+        auto message = std::move(userMessageQueues[userId].front());
         userMessageQueues[userId].pop();
         lock.unlock();
 
@@ -83,6 +106,8 @@ void UserThreadManager::handleUserRequests(const std::string &userId)
             std::cout << "Thread " << thread_id << " - User " << userId << " watched video " << message.videoId << std::endl;
         }
         // Add other actions here as needed
+
+        message.threadIdPromise.set_value(thread_id);
     }
 
     std::cout << "Thread " << thread_id << " ended for user: " << userId << std::endl;

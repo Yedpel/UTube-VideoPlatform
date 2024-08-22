@@ -44,26 +44,19 @@ void handleClient(int clientSocket)
         std::string action = data["action"];
         std::string userId = data["userId"];
 
-        // Get current thread ID
-        std::thread::id this_id = std::this_thread::get_id();
-        std::stringstream ss;
-        ss << this_id;
-        std::string thread_id = ss.str();
-
         json response;
-        response["threadId"] = thread_id;
 
         if (action == "create_thread")
         {
-            UserThreadManager::getInstance().createThreadForUser(userId);
+            std::string threadId = UserThreadManager::getInstance().createThreadForUser(userId);
             response["message"] = "Thread created successfully";
-            std::cout << "Thread " << thread_id << " created for user: " << userId << std::endl;
+            response["threadId"] = threadId;
         }
         else if (action == "close_thread")
         {
-            UserThreadManager::getInstance().closeThreadForUser(userId);
+            std::string threadId = UserThreadManager::getInstance().closeThreadForUser(userId);
             response["message"] = "Thread closed successfully";
-            std::cout << "Thread " << thread_id << " closed for user: " << userId << std::endl;
+            response["threadId"] = threadId;
         }
         else if (action == "notify-watch")
         {
@@ -78,14 +71,16 @@ void handleClient(int clientSocket)
                 UserThreadManager::getInstance().createThreadForUser(userId);
             }
 
-            UserThreadManager::getInstance().processUserRequest(userId, action, videoId);
+            std::future<std::string> futureThreadId = UserThreadManager::getInstance().processUserRequest(userId, action, videoId);
+            std::string threadId = futureThreadId.get();
             response["message"] = "Video watch recorded";
-            std::cout << "Thread " << thread_id << " - User " << userId << " watched video " << videoId << std::endl;
+            response["threadId"] = threadId;
         }
         else if (action == "get_recommendations")
         {
             // TODO: Implement recommendation logic
             response["message"] = "Recommendations feature not implemented yet";
+            response["threadId"] = UserThreadManager::getInstance().getThreadIdForUser(userId);
         }
         else
         {
