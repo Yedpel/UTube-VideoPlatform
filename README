@@ -1,5 +1,10 @@
-for compile in the terminal:
-g++ -std=c++17 -pthread main.cpp user_thread_manager.cpp request_handler.cpp video_manager.cpp -o vid_rec_server -I/usr/include/nlohmann
+To compile and run the C++ server, use this command in the terminal:
 
-for run in the terminal:
-./vid_rec_server
+make && make run
+
+To stop the server, use Ctrl+C
+
+Additional options:
+make        - Compile only
+make run    - Run the compiled server
+make clean  - Remove compiled files
