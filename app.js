@@ -64,7 +64,7 @@ server.use('/api/cpp', cppServerRouter);
         .then(() => {
             console.log('MongoDB connected');
             checkAndLoadData();  // check if the mongoDB is empty and load the data
-            testCppServerInteractions();  // Add this line
+            //testCppServerInteractions();  // Add this line
         })
         .catch(err => console.error('MongoDB connection error:', err));
 })()
@@ -126,63 +126,63 @@ server.listen(PORT, () => {
 /////////////////////tests/////////////////////
 
 
-async function testCppServerInteractions() {
-    const users = [
-        { id: 'user1', name: 'Alice' },
-        { id: 'user2', name: 'Bob' }
-    ];
-    const videos = ['video1', 'video2', 'video3'];
+// async function testCppServerInteractions() {
+//     const users = [
+//         { id: 'user1', name: 'Alice' },
+//         { id: 'user2', name: 'Bob' }
+//     ];
+//     const videos = ['video1', 'video2', 'video3'];
 
-    const threadIds = {};
+//     const threadIds = {};
 
-    try {
-        // Create threads for users
-        for (const user of users) {
-            console.log(`Creating thread for ${user.name}...`);
-            const createResult = await createThreadForUser(user.id);
-            console.log(`Thread creation result for ${user.name}:`, createResult);
+//     try {
+//         // Create threads for users
+//         for (const user of users) {
+//             console.log(`Creating thread for ${user.name}...`);
+//             const createResult = await createThreadForUser(user.id);
+//             console.log(`Thread creation result for ${user.name}:`, createResult);
 
-            if (createResult.threadId) {
-                threadIds[user.id] = createResult.threadId;
-                console.log(`Thread ID for ${user.name}: ${threadIds[user.id]}`);
-            } else {
-                throw new Error(`Failed to get thread ID for ${user.name}`);
-            }
-        }
+//             if (createResult.threadId) {
+//                 threadIds[user.id] = createResult.threadId;
+//                 console.log(`Thread ID for ${user.name}: ${threadIds[user.id]}`);
+//             } else {
+//                 throw new Error(`Failed to get thread ID for ${user.name}`);
+//             }
+//         }
 
-        // Simulate video watches
-        for (const user of users) {
-            for (const video of videos) {
-                console.log(`${user.name} is watching ${video}...`);
-                const watchResult = await sendWatchNotification(user.id, video);
-                console.log(`Watch notification result for ${user.name} on ${video}:`, watchResult);
+//         // Simulate video watches
+//         for (const user of users) {
+//             for (const video of videos) {
+//                 console.log(`${user.name} is watching ${video}...`);
+//                 const watchResult = await sendWatchNotification(user.id, video);
+//                 console.log(`Watch notification result for ${user.name} on ${video}:`, watchResult);
 
-                if (watchResult.threadId === threadIds[user.id]) {
-                    console.log(`Correct thread used for ${user.name}`);
-                } else {
-                    console.error(`Incorrect thread used for ${user.name}. Expected ${threadIds[user.id]}, got ${watchResult.threadId}`);
-                }
-            }
-        }
+//                 if (watchResult.threadId === threadIds[user.id]) {
+//                     console.log(`Correct thread used for ${user.name}`);
+//                 } else {
+//                     console.error(`Incorrect thread used for ${user.name}. Expected ${threadIds[user.id]}, got ${watchResult.threadId}`);
+//                 }
+//             }
+//         }
 
-        // Close threads for users
-        for (const user of users) {
-            console.log(`Closing thread for ${user.name}...`);
-            const closeResult = await closeThreadForUser(user.id);
-            console.log(`Thread closing result for ${user.name}:`, closeResult);
+//         // Close threads for users
+//         for (const user of users) {
+//             console.log(`Closing thread for ${user.name}...`);
+//             const closeResult = await closeThreadForUser(user.id);
+//             console.log(`Thread closing result for ${user.name}:`, closeResult);
 
-            if (closeResult.threadId === threadIds[user.id]) {
-                console.log(`Correct thread closed for ${user.name}`);
-            } else {
-                console.error(`Incorrect thread closure for ${user.name}. Expected ${threadIds[user.id]}, got ${closeResult.threadId}`);
-            }
-        }
+//             if (closeResult.threadId === threadIds[user.id]) {
+//                 console.log(`Correct thread closed for ${user.name}`);
+//             } else {
+//                 console.error(`Incorrect thread closure for ${user.name}. Expected ${threadIds[user.id]}, got ${closeResult.threadId}`);
+//             }
+//         }
 
-        console.log('All tests completed successfully!');
-    } catch (error) {
-        console.error('Error during C++ server interaction test:', error);
-    }
-}
+//         console.log('All tests completed successfully!');
+//     } catch (error) {
+//         console.error('Error during C++ server interaction test:', error);
+//     }
+// }
 /*async function testUserThreadLifecycle() {
     try {
         const userId = 'testUser123';  // Replace with a valid user ID from your system
