@@ -64,7 +64,7 @@ server.use('/api/cpp', cppServerRouter);
         .then(() => {
             console.log('MongoDB connected');
             checkAndLoadData();  // check if the mongoDB is empty and load the data
-          //  testCppServerInteractions();  // Add this line
+            testCppServerInteractions();  // Add this line
         })
         .catch(err => console.error('MongoDB connection error:', err));
 })()
@@ -125,7 +125,7 @@ server.listen(PORT, () => {
 
 /////////////////////tests/////////////////////
 
-/*
+
 async function testCppServerInteractions() {
     const users = [
         { id: 'user1', name: 'Alice' },
@@ -142,8 +142,12 @@ async function testCppServerInteractions() {
             const createResult = await createThreadForUser(user.id);
             console.log(`Thread creation result for ${user.name}:`, createResult);
 
-            threadIds[user.id] = createResult.threadId;
-            console.log(`Thread ID for ${user.name}: ${threadIds[user.id]}`);
+            if (createResult.threadId) {
+                threadIds[user.id] = createResult.threadId;
+                console.log(`Thread ID for ${user.name}: ${threadIds[user.id]}`);
+            } else {
+                throw new Error(`Failed to get thread ID for ${user.name}`);
+            }
         }
 
         // Simulate video watches
@@ -156,7 +160,7 @@ async function testCppServerInteractions() {
                 if (watchResult.threadId === threadIds[user.id]) {
                     console.log(`Correct thread used for ${user.name}`);
                 } else {
-                    console.error(`Incorrect thread used for ${user.name}`);
+                    console.error(`Incorrect thread used for ${user.name}. Expected ${threadIds[user.id]}, got ${watchResult.threadId}`);
                 }
             }
         }
@@ -170,7 +174,7 @@ async function testCppServerInteractions() {
             if (closeResult.threadId === threadIds[user.id]) {
                 console.log(`Correct thread closed for ${user.name}`);
             } else {
-                console.error(`Incorrect thread closure for ${user.name}`);
+                console.error(`Incorrect thread closure for ${user.name}. Expected ${threadIds[user.id]}, got ${closeResult.threadId}`);
             }
         }
 
@@ -179,7 +183,6 @@ async function testCppServerInteractions() {
         console.error('Error during C++ server interaction test:', error);
     }
 }
-    */
 /*async function testUserThreadLifecycle() {
     try {
         const userId = 'testUser123';  // Replace with a valid user ID from your system
