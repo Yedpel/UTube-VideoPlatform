@@ -2,12 +2,18 @@ import { sendWatchNotification, createThreadForUser, closeThreadForUser } from '
 
 export const notifyVideoWatch = async (req, res) => {
     try {
-        const { userId, videoId } = req.body;
-        await sendWatchNotification(userId, videoId);
-        res.status(200).json({ message: 'Notification sent to C++ server' });
+        const userId = req.user.id; // Assuming the user ID is stored in req.user after authentication
+        const { videoId } = req.body;
+
+        if (!videoId) {
+            return res.status(400).json({ message: 'videoId is required' });
+        }
+
+        const result = await sendWatchNotification(userId, videoId);
+        res.status(200).json({ message: 'Watch notification sent successfully', result });
     } catch (error) {
-        console.error('Error notifying C++ server:', error);
-        res.status(500).json({ message: 'Failed to notify C++ server' });
+        console.error('Error notifying video watch:', error);
+        res.status(500).json({ message: 'Failed to notify video watch' });
     }
 };
 

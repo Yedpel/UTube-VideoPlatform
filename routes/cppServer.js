@@ -4,7 +4,7 @@ import { isLoggedIn } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-router.post('/notify-watch', notifyVideoWatch);
+router.post('/notify-watch', isLoggedIn, notifyVideoWatch);
 
 router.post('/create-thread', isLoggedIn, createUserThread);
 
