@@ -1,5 +1,7 @@
-To compile and run the C++ server, use this command in the terminal:
+Before compiling, run this command in the terminal to install the required JSON library:
+sudo apt-get install nlohmann-json3-dev
 
+To compile and run the C++ server, use this command in the terminal:
 make && make run
 
 To stop the server, use Ctrl+C
