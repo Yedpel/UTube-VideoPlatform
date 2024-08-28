@@ -12,12 +12,10 @@ export const getVideoRecommendations = async (req, res) => {
     try {
         const { videoId, token } = req.body;
         let userId = 'guest';
-
         if (!videoId) {
             return res.status(400).json({ message: 'videoId is required' });
         }
-
-        if (token && token !== 'guest') {
+        if (token  && token !== 'guest') {
             try {
                 const decoded = jwt.verify(token, key);
                 const user = await User.findOne({ username: decoded.username });
@@ -28,17 +26,20 @@ export const getVideoRecommendations = async (req, res) => {
                 console.error('Error verifying token:', error);
                 // If token verification fails, we'll use 'guest' as userId
             }
-        }
+        } 
 
         // Get all videos with their view counts
         const allVideos = await getAllVideosWithViewCounts();
 
         const recommendationsWithDetails = await getRecommendations(userId, videoId, allVideos);
 
-        res.status(200).json({
-            message: 'Recommendations retrieved successfully',
-            recommendations: recommendationsWithDetails
-        });
+        res.status(200).json(
+            recommendationsWithDetails
+        //     {
+        //     message: 'Recommendations retrieved successfully',
+        //     recommendations: recommendationsWithDetails
+        // }
+    );
     } catch (error) {
         console.error('Error getting video recommendations:', error);
         res.status(500).json({ message: 'Failed to get video recommendations' });
@@ -49,7 +50,7 @@ export const notifyVideoWatch = async (req, res) => {
     try {
         const userId = req.user.id; // Assuming the user ID is stored in req.user after authentication
         const { videoId } = req.body;
-
+       
         if (!videoId) {
             return res.status(400).json({ message: 'videoId is required' });
         }
@@ -64,7 +65,8 @@ export const notifyVideoWatch = async (req, res) => {
 
 export const createUserThread = async (req, res) => {
     try {
-        const userId = req.user.id; // Assuming the user ID is stored in req.user after authentication
+        const userId = req.user._id; // Assuming the user ID is stored in req.user after authentication
+        // console.log('user id: ',userId)
         const result = await createThreadForUser(userId);
         res.status(200).json({ message: 'Thread created successfully', result });
     } catch (error) {
@@ -74,8 +76,10 @@ export const createUserThread = async (req, res) => {
 };
 
 export const closeUserThread = async (req, res) => {
+    console.log("entered to closeUserThread in server.....")
     try {
         const userId = req.user.id; // Assuming the user ID is stored in req.user after authentication
+        console.log("userId",userId);
         const result = await closeThreadForUser(userId);
         res.status(200).json({ message: 'Thread closed successfully', result });
     } catch (error) {
