@@ -131,6 +131,7 @@ void UserThreadManager::handleUserRequests(const std::string &userId)
 
         if (message.action == "notify-watch")
         {
+            VideoManager::getInstance().addViewer(message.videoId, userId);
             std::cout << "Thread " << thread_id << " - User " << userId << " watched video " << message.videoId << std::endl;
         }
         // Add other actions here as needed

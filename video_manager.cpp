@@ -53,7 +53,7 @@ std::vector<std::string> VideoManager::getRecommendedVideos(const std::string &c
             int commonCount = 0;
             for (const auto &viewer : videoData.viewers)
             {
-                if (viewer != userId && currentViewers.find(viewer) != currentViewers.end())
+                if (currentViewers.find(viewer) != currentViewers.end())
                 {
                     commonCount++;
                 }
@@ -114,4 +114,10 @@ std::vector<std::string> VideoManager::getRecommendedVideos(const std::string &c
     }
 
     return recommendations;
+}
+
+void VideoManager::addViewer(const std::string &videoId, const std::string &userId)
+{
+    std::lock_guard<std::mutex> lock(videoMutex);
+    videos[videoId].viewers.insert(userId);
 }
