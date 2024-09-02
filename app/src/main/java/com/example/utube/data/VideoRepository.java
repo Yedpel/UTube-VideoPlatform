@@ -249,6 +249,38 @@ public class VideoRepository {
             callback.onFailure(null, new Throwable("Error creating network request: " + e.getMessage()));
         }
     }
+    public void fetchRecommendedVideosFromServer(String videoId, String token, Callback<List<VideoResponse>> callback) {
+        try {
+            WebServiceApi webServiceApi = RetrofitClient.getInstance().create(WebServiceApi.class);
+            Call<List<VideoResponse>> call = webServiceApi.getRecommended(videoId, "Bearer " + token);
+            Log.d("VideoRepository-rec", "Sending request to server");
+            call.enqueue(new Callback<List<VideoResponse>>() {
+                @Override
+                public void onResponse(Call<List<VideoResponse>> call, Response<List<VideoResponse>> response) {
+                    Log.d("VideoRepository", "Received response from server. isSuccessful: " + response.isSuccessful());
+                    if (response.isSuccessful() && response.body() != null) {
+                        List<VideoResponse> videos = response.body();
+                        Log.d("VideoRepository", "Raw JSON response: " + new Gson().toJson(videos));
+                        Log.d("VideoRepository", "Received " + videos.size() + " videos from server");
+                        insertVideosFromServer(videos);
+                        callback.onResponse(call, response);
+                    } else {
+                        Log.e("VideoRepository", "Response not successful. Code: " + response.code() + ", Message: " + response.message());
+                        callback.onFailure(call, new Throwable("Error fetching videos"));
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<List<VideoResponse>> call, Throwable t) {
+                    Log.e("VideoRepository", "Network request failed", t);
+                    callback.onFailure(call, t);
+                }
+            });
+        } catch (Exception e) {
+            Log.e("VideoRepository", "Error creating network request", e);
+            callback.onFailure(null, new Throwable("Error creating network request: " + e.getMessage()));
+        }
+    }
 
     public void deleteAllVideosByAuthor(String author) {
         executorService.execute(() -> videoDao.deleteAllVideosByAuthor(author));

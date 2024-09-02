@@ -48,6 +48,11 @@ public interface WebServiceApi {
     @GET("videos")
     Call<List<VideoResponse>> getVideos();
 
+    @POST("get-recommendations")
+    Call<List<VideoResponse>> getRecommended(
+            @Path("videoId") String videoId,
+            @Header("Authorization") String token);
+
     @GET("users/{userId}/videos/{videoId}")
     Call<VideoResponse> getVideo(@Path("videoId") String videoId);
     //start like server 21:43

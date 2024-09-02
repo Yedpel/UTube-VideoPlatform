@@ -5,6 +5,11 @@ import static com.example.utube.activities.MainActivity.PREFS_NAME;
 
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.WindowManager;
 
 import android.content.Intent;
@@ -16,7 +21,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.MediaController;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +43,7 @@ import com.example.utube.models.UserDetails;
 import com.example.utube.models.Users;
 import com.example.utube.models.Video;
 import com.example.utube.utils.CommentResponse;
+import com.example.utube.utils.VideoResponse;
 import com.example.utube.viewmodels.VideoDetailViewModel;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -46,6 +54,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Response;
+
 public class VideoDetailActivity extends AppCompatActivity {
 
     private boolean isFullScreen = false;
@@ -53,7 +64,11 @@ public class VideoDetailActivity extends AppCompatActivity {
     private VideoView videoView;
     private TextView titleTextView, authorTextView, viewsTextView, uploadTimeTextView, likesTextView, commentsCountTextView;
     private ImageView authorProfilePic;
+    private LinearLayout commentsHeaderContainer;
+
     private RecyclerView commentsRecyclerView;
+    private ImageView expandCollapseButton;
+    private boolean isCommentsExpanded  = false;
     private boolean isLiked = false;
     private String videoId;
     private int likes;
@@ -71,6 +86,7 @@ public class VideoDetailActivity extends AppCompatActivity {
     private VideoDetailViewModel viewModel; //mvvm-change
     private ProgressBar likeProgressBar;//try-com-ui-like
     private ProgressBar commentProgressBar;
+    private VideoAdapter videoAdapter;
 
 
     @Override
@@ -91,7 +107,10 @@ public class VideoDetailActivity extends AppCompatActivity {
         authorProfilePic = findViewById(R.id.author_profile_pic);
         likesTextView = findViewById(R.id.likes_count);
         commentsCountTextView = findViewById(R.id.comments_count);
+        commentsHeaderContainer = findViewById(R.id.comments_header_container);
         commentsRecyclerView = findViewById(R.id.comments_recycler_view);
+        expandCollapseButton  = findViewById(R.id.expand_collapse_button);
+
         commentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         btnFullScreen = findViewById(R.id.btn_full_screen);
         commentProgressBar = findViewById(R.id.comment_progress_bar);
@@ -101,6 +120,18 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         commentsAdapter = new CommentsAdapter(new ArrayList<>());
         commentsRecyclerView.setAdapter(commentsAdapter);
+        commentsHeaderContainer.setOnClickListener(v -> {
+            if (isCommentsExpanded) {
+                // Collapse the comments section
+                commentsRecyclerView.setVisibility(View.GONE);
+                expandCollapseButton.setImageResource(R.drawable.baseline_expand_more_24);
+            } else {
+                // Expand the comments section
+                commentsRecyclerView.setVisibility(View.VISIBLE);
+                expandCollapseButton.setImageResource(R.drawable.baseline_expand_less_24);
+            }
+            isCommentsExpanded = !isCommentsExpanded;
+        });
 
         // Initialize media controller
         MediaController mediaController = new MediaController(this);
@@ -350,7 +381,25 @@ public class VideoDetailActivity extends AppCompatActivity {
         });
 
         likeProgressBar = findViewById(R.id.like_progress_bar);//try-com-ui-like
+        String token = UserDetails.getInstance().getToken();
+        String videoId = getIntent().getStringExtra("VIDEO_ID"); // Assuming video ID is passed via intent
+
+        fetchRecommendedVideos(videoId, token);
+
     }//end onCreate
+    private void fetchRecommendedVideos(String videoId, String token) {
+        viewModel.fetchRecommendedVideosFromServer(videoId, token, new Callback<List<VideoResponse>>() {
+            @Override
+            public void onResponse(Call<List<VideoResponse>> call, Response<List<VideoResponse>> response) {
+                // This callback is handled inside the ViewModel, so no need to process it here
+            }
+
+            @Override
+            public void onFailure(Call<List<VideoResponse>> call, Throwable t) {
+                // This callback is handled inside the ViewModel, so no need to process it here
+            }
+        });
+    }
 
     private void loadAuthorProfilePic(String authorProfilePicUrl) {
         if (authorProfilePicUrl != null && !authorProfilePicUrl.isEmpty()) {
@@ -447,7 +496,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         findViewById(R.id.add_comment_button).setVisibility(View.GONE);
         findViewById(R.id.share_button).setVisibility(View.GONE);
         findViewById(R.id.like_button).setVisibility(View.GONE);
-        findViewById(R.id.comments_headline).setVisibility(View.GONE);
+//        findViewById(R.id.comments_headline).setVisibility(View.GONE);
         //make toast to exit full screen scroll down to see the button
         Toast.makeText(this, "To exit full screen, scroll down and press the Exit Full Screen button", Toast.LENGTH_LONG).show();
     }
@@ -479,7 +528,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         findViewById(R.id.add_comment_button).setVisibility(View.VISIBLE);
         findViewById(R.id.share_button).setVisibility(View.VISIBLE);
         findViewById(R.id.like_button).setVisibility(View.VISIBLE);
-        findViewById(R.id.comments_headline).setVisibility(View.VISIBLE);
+//        findViewById(R.id.comments_headline).setVisibility(View.VISIBLE);
     }
 
     //    private void updateLikeButton() {
@@ -634,7 +683,7 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         class CommentViewHolder extends RecyclerView.ViewHolder {
             TextView usernameTextView, commentTextView, uploadTimeTextView, commentLikesTextView;
-            ImageView profilePicImageView;
+            ImageView profilePicImageView,expandCollapseIcon;
             Button likeCommentButton, editCommentButton, deleteCommentButton;
             private boolean isCommentLiked = false;
 
@@ -936,4 +985,181 @@ public class VideoDetailActivity extends AppCompatActivity {
                 response.getServerId()
         );
     }
+    private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
+        private List<Video> videoList;
+        private SharedPreferences sharedPreferences; //try90
+
+        public VideoAdapter(List<Video> videoList, SharedPreferences sharedPreferences) {
+            this.videoList = videoList != null ? videoList : new ArrayList<>();
+            this.sharedPreferences = sharedPreferences;
+            Log.d("VideoAdapter", "Number of videos passed to adapter: " + (this.videoList != null ? this.videoList.size() : "null"));
+        }
+
+        public void updateVideos(List<Video> newVideos) {
+            if (this.videoList == null) {
+                this.videoList = new ArrayList<>();
+            }
+            this.videoList.clear();
+            if (newVideos != null) {
+                this.videoList.addAll(newVideos);
+            }
+            notifyDataSetChanged();
+            Log.d("VideoAdapter", "Videos updated, new size: " + (newVideos != null ? newVideos.size() : 0));
+        }
+
+        //fetchRecommendedVideos from VideoDetailViewModel
+//        public void fetchRecommendedVideos() {
+//            viewModel.fetchRecommendedVideosFromServer() {
+//                @Override
+//                public void onSuccess(List<Video> videos) {
+//                    updateVideos(videos);
+//                }
+//
+//                @Override
+//                public void onError(String message) {
+//                    Toast.makeText(VideoDetailActivity.this, message, Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//        }
+        @Override
+        public VideoAdapter.VideoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_video, parent, false);
+            return new VideoAdapter.VideoViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(VideoAdapter.VideoViewHolder holder, int position) {
+            Video video = videoList.get(position);
+            holder.bind(video);
+            String currentLoggedInUser = UserDetails.getInstance().getUsername();
+            boolean isAuthor = currentLoggedInUser != null && currentLoggedInUser.equals(video.getAuthor());
+
+            // Set the visibility of the menu button based on authorship
+            holder.menuButton.setVisibility(isAuthor ? View.VISIBLE : View.GONE);
+            holder.menuButton.setOnClickListener(v -> {
+                PopupMenu popupMenu = new PopupMenu(holder.menuButton.getContext(), holder.menuButton);
+                MenuInflater inflater = popupMenu.getMenuInflater();
+                inflater.inflate(R.menu.video_item_menu, popupMenu.getMenu());
+                popupMenu.show();
+            });
+
+
+            holder.itemView.setOnClickListener(v -> {
+                // Show loading indicator
+                showLoadingDialog();
+
+                // Fetch latest video details from server
+                viewModel.fetchVideoDetailsFromServer(video.getId(), new retrofit2.Callback<VideoResponse>() {
+                    @Override
+                    public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
+                        hideLoadingDialog();
+                        if (response.isSuccessful() && response.body() != null) {
+                            VideoResponse updatedVideo = response.body();
+
+                            // Start VideoDetailActivity
+                            Intent intent = new Intent(this, VideoDetailActivity.class);
+                            intent.putExtra("VIDEO_ID", updatedVideo.getId());
+                            intent.putExtra("VIDEO_URL", updatedVideo.getVideoUrl());
+                            intent.putExtra("TITLE", updatedVideo.getTitle());
+                            intent.putExtra("AUTHOR", updatedVideo.getAuthor());
+                            Log.d("MainActivity", "Updated video author: " + updatedVideo.getAuthor());
+                            intent.putExtra("VIEWS", updatedVideo.getViews());
+                            intent.putExtra("UPLOAD_TIME", updatedVideo.getUploadTime());
+                            intent.putExtra("AUTHOR_PROFILE_PIC_URL", updatedVideo.getAuthorProfilePic());
+                            intent.putExtra("LIKES", updatedVideo.getLikes());
+                            startActivityForResult(intent, 1);
+                        } else {
+                            // Show error message
+                            Toast.makeText(context, "Failed to fetch latest video details", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<VideoResponse> call, Throwable t) {
+                        hideLoadingDialog();
+                        // Show error message
+                        Toast.makeText(this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            });
+
+
+        }
+
+        @Override
+        public int getItemCount() {
+            //return videoList.size();
+            return videoList != null ? videoList.size() : 0;
+        }
+
+        class VideoViewHolder extends RecyclerView.ViewHolder {
+            TextView title, author, views, uploadTime;
+            ImageView thumbnail, authorProfilePic;
+            Button menuButton;
+
+            public VideoViewHolder(View itemView) {
+                super(itemView);
+                title = itemView.findViewById(R.id.video_title);
+                author = itemView.findViewById(R.id.video_author);
+                views = itemView.findViewById(R.id.video_views);
+                uploadTime = itemView.findViewById(R.id.video_upload_time);
+                thumbnail = itemView.findViewById(R.id.video_thumbnail);
+                authorProfilePic = itemView.findViewById(R.id.author_profile_pic);
+                menuButton = itemView.findViewById(R.id.menu_button);
+            }
+
+            public void bind(Video video) {
+                title.setText(video.getTitle());
+                author.setText(video.getAuthor());
+                views.setText(video.getViews() + " views");
+                uploadTime.setText(video.getUploadTime());
+
+                loadImageView(thumbnail, video.getThumbnailUrl());
+                loadImageView(authorProfilePic, video.getAuthorProfilePicUrl());
+                authorProfilePic.setOnClickListener(v -> {
+                    Intent intent = new Intent(this, ChannelActivity.class);
+                    intent.putExtra("AUTHOR_NAME", video.getAuthor());
+                    startActivity(intent);
+                });
+
+            }
+
+            //            private void loadImageView(ImageView imageView, String imageUrl) {
+//                if (imageUrl.startsWith("drawable/")) {
+//                    // Handle drawable resources
+//                    int imageResId = getResources().getIdentifier(imageUrl, null, getPackageName());
+//                    if (imageResId != 0) {
+//                        imageView.setImageResource(imageResId);
+//                    } else {
+//                        imageView.setImageResource(R.drawable.policy); // Fallback to error image if resource not found
+//                    }
+//                } else if (imageUrl != null) {
+//                    // Handle remote images or local file URIs
+//                    Picasso.get().load(imageUrl).error(R.drawable.policy).into(imageView);
+//                } else {
+//                    // Fallback for unexpected image URL formats
+//                    imageView.setImageResource(R.drawable.policy);
+//                }
+//            }
+            private void loadImageView(ImageView imageView, String imageUrl) {
+                if (imageUrl == null || imageUrl.isEmpty()) {
+                    imageView.setImageResource(R.drawable.policy);
+                } else if (imageUrl.startsWith("drawable/")) {
+                    // Handle drawable resources
+                    int imageResId = getResources().getIdentifier(imageUrl, null, getPackageName());
+                    if (imageResId != 0) {
+                        imageView.setImageResource(imageResId);
+                    } else {
+                        imageView.setImageResource(R.drawable.policy);
+                    }
+                } else {
+                    // Handle remote images
+                    String fullUrl = "http://10.0.2.2:12345" + imageUrl; // Adjust the base URL as needed
+                    Picasso.get().load(fullUrl).error(R.drawable.policy).into(imageView);
+                }
+            }
+
+        }
+    }
+
 }
