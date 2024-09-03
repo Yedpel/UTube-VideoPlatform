@@ -41,7 +41,7 @@ public class VideoDetailViewModel extends AndroidViewModel {
     private MutableLiveData<String> error = new MutableLiveData<>();
     private VideoRepository videoRepository = new VideoRepository(MyApplication.getInstance());
     private MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
-    private MutableLiveData<List<Video>> videos = new MutableLiveData<>();
+    private MutableLiveData<List<Video>> recommendedVideos = new MutableLiveData<>();
 
 
 
@@ -50,7 +50,7 @@ public class VideoDetailViewModel extends AndroidViewModel {
         isLoading = new MutableLiveData<>(false);
         videoManager = VideoManager.getInstance(application);
         commentRepository = new CommentRepository(application);
-        videos = new MutableLiveData<>();
+        recommendedVideos = new MutableLiveData<>();
         sharedPreferences = application.getSharedPreferences(MainActivity.PREFS_NAME, Context.MODE_PRIVATE);
     }
 
@@ -64,6 +64,51 @@ public class VideoDetailViewModel extends AndroidViewModel {
         }
     }
     //bla bla
+    public LiveData<List<Video>> getRecommendedVideos() {
+        return recommendedVideos;
+    }
+
+    public LiveData<String> getError() {
+        return error;
+    }
+    public void fetchRecommendedVideos(String token, String videoId) {
+        videoRepository.fetchRecommendedVideosFromServer(token, videoId, new Callback<List<VideoResponse>>() {
+            @Override
+            public void onResponse(Call<List<VideoResponse>> call, Response<List<VideoResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Video> videos = convertToVideoList(response.body());
+                    recommendedVideos.postValue(videos);
+                } else {
+                    error.postValue("Failed to load recommended videos");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<VideoResponse>> call, Throwable t) {
+                error.postValue("Network error: " + t.getMessage());
+            }
+        });
+    }
+
+    private List<Video> convertToVideoList(List<VideoResponse> videoResponses) {
+        List<Video> videoList = new ArrayList<>();
+        for (VideoResponse response : videoResponses) {
+            Video video = new Video(
+                    response.getId(),
+                    response.getTitle(),
+                    response.getAuthor(),
+                    response.getViews(),
+                    response.getUploadTime(),
+                    response.getThumbnailUrl(),
+                    response.getAuthorProfilePic(),
+                    response.getVideoUrl(),
+                    response.getCategory(),
+                    response.getLikes()
+            );
+            videoList.add(video);
+        }
+        return videoList;
+    }
 
     public void addComment(String videoId, String username, String text, String profilePicUrl, String date, String serverId) {
         String currentTime = date;
@@ -257,99 +302,7 @@ public class VideoDetailViewModel extends AndroidViewModel {
 
         void onError(String errorMessage);
     }
-//    public void loadRecommendedVideos() {
-//        isLoading.setValue(true);
-//        List<Video> videoList = videoManager.getVideoList();
-//        if (videoList.isEmpty()) {
-//            fetchRecommendedVideosFromServer();
-//        } else {
-//            videos.postValue(videoList);
-//            isLoading.postValue(false);
-//            fetchRecommendedVideosFromServer(); // Fetch in background to update
-//        }
-//    }
-    public void fetchRecommendedVideosFromServer(String videoId, String token, Callback<List<VideoResponse>> callback) {
-        isLoading.setValue(true);
-        videoRepository.fetchRecommendedVideosFromServer(videoId, token, new Callback<List<VideoResponse>>() {
-            @Override
-            public void onResponse(Call<List<VideoResponse>> call, Response<List<VideoResponse>> response) {
-                Log.d("MainViewModel", "onResponse called. isSuccessful: " + response.isSuccessful());
-                if (response.isSuccessful() && response.body() != null) {
-                    List<Video> newVideos = convertToVideoList(response.body());
-                    Log.d("MainViewModel", "Received " + newVideos.size() + " videos from server");
-                    videoManager.setVideoList(newVideos);
-                    videos.postValue(newVideos);
-                } else {
-                    Log.e("MainViewModel", "Response not successful. Code: " + response.code() + ", Message: " + response.message());
-                    error.postValue("Failed to load videos. Please try again.");
-                }
-                isLoading.postValue(false);
-            }
 
-            @Override
-            public void onFailure(Call<List<VideoResponse>> call, Throwable t) {
-                Log.e("MainViewModel", "Network request failed", t);
-                error.postValue("Network error. Please check your connection and try again.");
-                isLoading.postValue(false);
-            }
-        });
-    }
-    public void fetchVideoDetailsFromServer(String videoId, Callback<VideoResponse> callback) {
-        videoRepository.fetchVideoDetailsFromServer(videoId, new Callback<VideoResponse>() {
-            @Override
-            public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    VideoResponse videoResponse = response.body();
-                    Log.d("ChannelViewModel", "Received video details: " + new Gson().toJson(videoResponse));
-                    Video video = convertVideoResponseToVideo(videoResponse);
-                    videoRepository.updateVideoFromModel(video);
-                }
-                callback.onResponse(call, response);
-            }
-
-            @Override
-            public void onFailure(Call<VideoResponse> call, Throwable t) {
-                Log.e("ChannelViewModel", "Error fetching video details", t);
-                callback.onFailure(call, t);
-            }
-        });
-    }
-
-    //try-channle-server
-    private Video convertVideoResponseToVideo(VideoResponse videoResponse) {
-        return new Video(
-                videoResponse.getId(),
-                videoResponse.getTitle(),
-                videoResponse.getAuthor(),
-                videoResponse.getViews(),
-                videoResponse.getUploadTime(),
-                videoResponse.getThumbnailUrl(),
-                videoResponse.getAuthorProfilePic(),
-                videoResponse.getVideoUrl(),
-                videoResponse.getCategory(),
-                videoResponse.getLikes()
-        );
-    }
-    private List<Video> convertToVideoList(List<VideoResponse> videoResponses) {
-        List<Video> videoList = new ArrayList<>();
-        for (VideoResponse response : videoResponses) {
-            Video video = new Video(
-                    response.getId(),
-                    response.getTitle(),
-                    response.getAuthor(),
-                    response.getViews(),
-                    response.getUploadTime(),
-                    response.getThumbnailUrl(),
-                    response.getAuthorProfilePic(),
-                    response.getVideoUrl() != null ? response.getVideoUrl() : "",
-                    //"",  // videoUrl
-                    response.getCategory(),
-                    0  // likes
-            );
-            videoList.add(video);
-        }
-        return videoList;
-    }
     public void toggleLikeOnServer(String videoId, String userId, String token, boolean isLiking, ToggleLikeCallback callback) {
         WebServiceApi api = RetrofitClient.getInstance().create(WebServiceApi.class);
         Call<VideoResponse> call = isLiking ?

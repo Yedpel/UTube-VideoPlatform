@@ -3,6 +3,8 @@ package com.example.utube.activities;
 import static com.example.utube.activities.MainActivity.LOGGED_IN_USER;
 import static com.example.utube.activities.MainActivity.PREFS_NAME;
 
+import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
@@ -86,9 +88,12 @@ public class VideoDetailActivity extends AppCompatActivity {
     private VideoDetailViewModel viewModel; //mvvm-change
     private ProgressBar likeProgressBar;//try-com-ui-like
     private ProgressBar commentProgressBar;
-    private VideoAdapter videoAdapter;
+    private RecyclerView recommendedVideosRecyclerView;
+    private VideoAdapter recommendedVideosAdapter;
+    private ProgressDialog loadingDialog;
 
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Load theme from shared preferences
@@ -116,7 +121,10 @@ public class VideoDetailActivity extends AppCompatActivity {
         commentProgressBar = findViewById(R.id.comment_progress_bar);
 
         viewModel = new ViewModelProvider(this).get(VideoDetailViewModel.class); //mvvm-change
-
+        recommendedVideosRecyclerView = findViewById(R.id.recommended_videos_recycler_view);
+        recommendedVideosRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        recommendedVideosAdapter = new VideoAdapter(new ArrayList<>(),sharedPreferences);
+        recommendedVideosRecyclerView.setAdapter(recommendedVideosAdapter);
 
         commentsAdapter = new CommentsAdapter(new ArrayList<>());
         commentsRecyclerView.setAdapter(commentsAdapter);
@@ -132,6 +140,23 @@ public class VideoDetailActivity extends AppCompatActivity {
             }
             isCommentsExpanded = !isCommentsExpanded;
         });
+        // Initialize the recommended videos list
+        String  videoId = getIntent().getStringExtra("VIDEO_ID");
+//        String token = UserDetails.getInstance().getToken();
+
+        viewModel.fetchRecommendedVideos(UserDetails.getInstance().getToken(), videoId);
+
+        viewModel.getRecommendedVideos().observe(this, videos -> {
+            recommendedVideosAdapter.updateVideos(videos);
+        });
+
+        viewModel.getError().observe(this, errorMessage -> {
+            if (errorMessage != null) {
+                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+            }
+        });
+
+
 
         // Initialize media controller
         MediaController mediaController = new MediaController(this);
@@ -139,7 +164,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         videoView.setMediaController(mediaController);
 
         // Get video details from intent
-        videoId = getIntent().getStringExtra("VIDEO_ID");
+        //videoId = getIntent().getStringExtra("VIDEO_ID");
         String videoUrl = getIntent().getStringExtra("VIDEO_URL");
         String title = getIntent().getStringExtra("TITLE");
         String author = getIntent().getStringExtra("AUTHOR");
@@ -381,25 +406,9 @@ public class VideoDetailActivity extends AppCompatActivity {
         });
 
         likeProgressBar = findViewById(R.id.like_progress_bar);//try-com-ui-like
-        String token = UserDetails.getInstance().getToken();
-        String videoId = getIntent().getStringExtra("VIDEO_ID"); // Assuming video ID is passed via intent
-
-        fetchRecommendedVideos(videoId, token);
 
     }//end onCreate
-    private void fetchRecommendedVideos(String videoId, String token) {
-        viewModel.fetchRecommendedVideosFromServer(videoId, token, new Callback<List<VideoResponse>>() {
-            @Override
-            public void onResponse(Call<List<VideoResponse>> call, Response<List<VideoResponse>> response) {
-                // This callback is handled inside the ViewModel, so no need to process it here
-            }
 
-            @Override
-            public void onFailure(Call<List<VideoResponse>> call, Throwable t) {
-                // This callback is handled inside the ViewModel, so no need to process it here
-            }
-        });
-    }
 
     private void loadAuthorProfilePic(String authorProfilePicUrl) {
         if (authorProfilePicUrl != null && !authorProfilePicUrl.isEmpty()) {
@@ -1007,28 +1016,14 @@ public class VideoDetailActivity extends AppCompatActivity {
             Log.d("VideoAdapter", "Videos updated, new size: " + (newVideos != null ? newVideos.size() : 0));
         }
 
-        //fetchRecommendedVideos from VideoDetailViewModel
-//        public void fetchRecommendedVideos() {
-//            viewModel.fetchRecommendedVideosFromServer() {
-//                @Override
-//                public void onSuccess(List<Video> videos) {
-//                    updateVideos(videos);
-//                }
-//
-//                @Override
-//                public void onError(String message) {
-//                    Toast.makeText(VideoDetailActivity.this, message, Toast.LENGTH_SHORT).show();
-//                }
-//            });
-//        }
         @Override
-        public VideoAdapter.VideoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public VideoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_video, parent, false);
-            return new VideoAdapter.VideoViewHolder(view);
+            return new VideoViewHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(VideoAdapter.VideoViewHolder holder, int position) {
+        public void onBindViewHolder(VideoViewHolder holder, int position) {
             Video video = videoList.get(position);
             holder.bind(video);
             String currentLoggedInUser = UserDetails.getInstance().getUsername();
@@ -1049,38 +1044,38 @@ public class VideoDetailActivity extends AppCompatActivity {
                 showLoadingDialog();
 
                 // Fetch latest video details from server
-                viewModel.fetchVideoDetailsFromServer(video.getId(), new retrofit2.Callback<VideoResponse>() {
-                    @Override
-                    public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
-                        hideLoadingDialog();
-                        if (response.isSuccessful() && response.body() != null) {
-                            VideoResponse updatedVideo = response.body();
-
-                            // Start VideoDetailActivity
-                            Intent intent = new Intent(this, VideoDetailActivity.class);
-                            intent.putExtra("VIDEO_ID", updatedVideo.getId());
-                            intent.putExtra("VIDEO_URL", updatedVideo.getVideoUrl());
-                            intent.putExtra("TITLE", updatedVideo.getTitle());
-                            intent.putExtra("AUTHOR", updatedVideo.getAuthor());
-                            Log.d("MainActivity", "Updated video author: " + updatedVideo.getAuthor());
-                            intent.putExtra("VIEWS", updatedVideo.getViews());
-                            intent.putExtra("UPLOAD_TIME", updatedVideo.getUploadTime());
-                            intent.putExtra("AUTHOR_PROFILE_PIC_URL", updatedVideo.getAuthorProfilePic());
-                            intent.putExtra("LIKES", updatedVideo.getLikes());
-                            startActivityForResult(intent, 1);
-                        } else {
-                            // Show error message
-                            Toast.makeText(context, "Failed to fetch latest video details", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<VideoResponse> call, Throwable t) {
-                        hideLoadingDialog();
-                        // Show error message
-                        Toast.makeText(this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+//                viewModel.fetchVideoDetailsFromServer(video.getId(), new retrofit2.Callback<VideoResponse>() {
+//                    @Override
+//                    public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
+//                        hideLoadingDialog();
+//                        if (response.isSuccessful() && response.body() != null) {
+//                            VideoResponse updatedVideo = response.body();
+//
+//                            // Start VideoDetailActivity
+//                            Intent intent = new Intent(VideoDetailActivity.this, VideoDetailActivity.class);
+//                            intent.putExtra("VIDEO_ID", updatedVideo.getId());
+//                            intent.putExtra("VIDEO_URL", updatedVideo.getVideoUrl());
+//                            intent.putExtra("TITLE", updatedVideo.getTitle());
+//                            intent.putExtra("AUTHOR", updatedVideo.getAuthor());
+//                            Log.d("MainActivity", "Updated video author: " + updatedVideo.getAuthor());
+//                            intent.putExtra("VIEWS", updatedVideo.getViews());
+//                            intent.putExtra("UPLOAD_TIME", updatedVideo.getUploadTime());
+//                            intent.putExtra("AUTHOR_PROFILE_PIC_URL", updatedVideo.getAuthorProfilePic());
+//                            intent.putExtra("LIKES", updatedVideo.getLikes());
+//                            startActivityForResult(intent, 1);
+//                        } else {
+//                            // Show error message
+//                            Toast.makeText(VideoDetailActivity.this, "Failed to fetch latest video details", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<VideoResponse> call, Throwable t) {
+//                        hideLoadingDialog();
+//                        // Show error message
+//                        Toast.makeText(VideoDetailActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+//                    }
+//                });
             });
 
 
@@ -1117,7 +1112,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                 loadImageView(thumbnail, video.getThumbnailUrl());
                 loadImageView(authorProfilePic, video.getAuthorProfilePicUrl());
                 authorProfilePic.setOnClickListener(v -> {
-                    Intent intent = new Intent(this, ChannelActivity.class);
+                    Intent intent = new Intent(VideoDetailActivity.this, ChannelActivity.class);
                     intent.putExtra("AUTHOR_NAME", video.getAuthor());
                     startActivity(intent);
                 });
@@ -1159,6 +1154,20 @@ public class VideoDetailActivity extends AppCompatActivity {
                 }
             }
 
+        }
+    }
+    private void showLoadingDialog() {
+        if (loadingDialog == null) {
+            loadingDialog = new ProgressDialog(this);
+            loadingDialog.setMessage("Loading...");
+            loadingDialog.setCancelable(false);
+        }
+        loadingDialog.show();
+    }
+
+    private void hideLoadingDialog() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
         }
     }
 

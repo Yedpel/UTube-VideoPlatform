@@ -22,6 +22,7 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface WebServiceApi {
     @POST("tokens")
@@ -49,8 +50,8 @@ public interface WebServiceApi {
     Call<List<VideoResponse>> getVideos();
 
     @POST("get-recommendations")
-    Call<List<VideoResponse>> getRecommended(
-            @Path("videoId") String videoId,
+    Call<List<VideoResponse>> getRecommendedVideos(
+            @Query("videoId") String videoId,
             @Header("Authorization") String token);
 
     @GET("users/{userId}/videos/{videoId}")
