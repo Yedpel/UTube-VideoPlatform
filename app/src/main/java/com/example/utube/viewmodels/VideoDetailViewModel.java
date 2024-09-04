@@ -89,6 +89,40 @@ public class VideoDetailViewModel extends AndroidViewModel {
             }
         });
     }
+    public void fetchVideoDetailsFromServer(String videoId, Callback<VideoResponse> callback) {
+        videoRepository.fetchVideoDetailsFromServer(videoId, new Callback<VideoResponse>() {
+            @Override
+            public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    VideoResponse videoResponse = response.body();
+                    Log.d("MainViewModel", "Received video details: " + new Gson().toJson(videoResponse));
+                    Video video = convertVideoResponseToVideo(videoResponse);
+                    videoRepository.updateVideoFromModel(video);
+                }
+                callback.onResponse(call, response);
+            }
+
+            @Override
+            public void onFailure(Call<VideoResponse> call, Throwable t) {
+                Log.e("MainViewModel", "Error fetching video details", t);
+                callback.onFailure(call, t);
+            }
+        });
+    }
+    private Video convertVideoResponseToVideo(VideoResponse videoResponse) {
+        return new Video(
+                videoResponse.getId(),
+                videoResponse.getTitle(),
+                videoResponse.getAuthor(),
+                videoResponse.getViews(),
+                videoResponse.getUploadTime(),
+                videoResponse.getThumbnailUrl(),
+                videoResponse.getAuthorProfilePic(),
+                videoResponse.getVideoUrl(),
+                videoResponse.getCategory(),
+                videoResponse.getLikes()
+        );
+    }
 
     private List<Video> convertToVideoList(List<VideoResponse> videoResponses) {
         List<Video> videoList = new ArrayList<>();

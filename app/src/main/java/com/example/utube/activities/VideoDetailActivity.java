@@ -1045,38 +1045,38 @@ public class VideoDetailActivity extends AppCompatActivity {
                 showLoadingDialog();
 
                 // Fetch latest video details from server
-//                viewModel.fetchVideoDetailsFromServer(video.getId(), new retrofit2.Callback<VideoResponse>() {
-//                    @Override
-//                    public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
-//                        hideLoadingDialog();
-//                        if (response.isSuccessful() && response.body() != null) {
-//                            VideoResponse updatedVideo = response.body();
-//
-//                            // Start VideoDetailActivity
-//                            Intent intent = new Intent(VideoDetailActivity.this, VideoDetailActivity.class);
-//                            intent.putExtra("VIDEO_ID", updatedVideo.getId());
-//                            intent.putExtra("VIDEO_URL", updatedVideo.getVideoUrl());
-//                            intent.putExtra("TITLE", updatedVideo.getTitle());
-//                            intent.putExtra("AUTHOR", updatedVideo.getAuthor());
-//                            Log.d("MainActivity", "Updated video author: " + updatedVideo.getAuthor());
-//                            intent.putExtra("VIEWS", updatedVideo.getViews());
-//                            intent.putExtra("UPLOAD_TIME", updatedVideo.getUploadTime());
-//                            intent.putExtra("AUTHOR_PROFILE_PIC_URL", updatedVideo.getAuthorProfilePic());
-//                            intent.putExtra("LIKES", updatedVideo.getLikes());
-//                            startActivityForResult(intent, 1);
-//                        } else {
-//                            // Show error message
-//                            Toast.makeText(VideoDetailActivity.this, "Failed to fetch latest video details", Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<VideoResponse> call, Throwable t) {
-//                        hideLoadingDialog();
-//                        // Show error message
-//                        Toast.makeText(VideoDetailActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-//                    }
-//                });
+                viewModel.fetchVideoDetailsFromServer(video.getId(), new retrofit2.Callback<VideoResponse>() {
+                    @Override
+                    public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
+                        hideLoadingDialog();
+                        if (response.isSuccessful() && response.body() != null) {
+                            VideoResponse updatedVideo = response.body();
+
+                            // Start VideoDetailActivity
+                            Intent intent = new Intent(VideoDetailActivity.this, VideoDetailActivity.class);
+                            intent.putExtra("VIDEO_ID", updatedVideo.getId());
+                            intent.putExtra("VIDEO_URL", updatedVideo.getVideoUrl());
+                            intent.putExtra("TITLE", updatedVideo.getTitle());
+                            intent.putExtra("AUTHOR", updatedVideo.getAuthor());
+                            Log.d("MainActivity", "Updated video author: " + updatedVideo.getAuthor());
+                            intent.putExtra("VIEWS", updatedVideo.getViews());
+                            intent.putExtra("UPLOAD_TIME", updatedVideo.getUploadTime());
+                            intent.putExtra("AUTHOR_PROFILE_PIC_URL", updatedVideo.getAuthorProfilePic());
+                            intent.putExtra("LIKES", updatedVideo.getLikes());
+                            startActivityForResult(intent, 1);
+                        } else {
+                            // Show error message
+                            Toast.makeText(VideoDetailActivity.this, "Failed to fetch latest video details", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<VideoResponse> call, Throwable t) {
+                        hideLoadingDialog();
+                        // Show error message
+                        Toast.makeText(VideoDetailActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
             });
 
 
