@@ -157,6 +157,8 @@ public class VideoDetailActivity extends AppCompatActivity {
             }
         });
 
+        // Todo call notify_watch from here if the user is logged in(video id, token)
+
 
 
         // Initialize media controller

@@ -422,6 +422,7 @@ public class MainActivity extends AppCompatActivity {
         buttonContainer.addView(btnMyChannel);
 
         btnLogout.setOnClickListener(v -> {
+            //TODO call close thread from here with token
             sharedPreferences.edit().putBoolean(LOGGED_IN_KEY, false).remove(LOGGED_IN_USER).apply();
             Toast.makeText(MainActivity.this, "Logged out", Toast.LENGTH_SHORT).show();
             UserDetails.getInstance().clear();

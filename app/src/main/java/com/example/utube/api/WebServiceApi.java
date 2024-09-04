@@ -181,4 +181,7 @@ public interface WebServiceApi {
             @Part MultipartBody.Part thumbnail
     );
 
+    @POST("cpp/create-thread")
+    Call<Void> createUserThread(@Header("Authorization") String token);
+
 }

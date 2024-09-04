@@ -58,6 +58,17 @@ public class LoginActivity extends AppCompatActivity {
         userViewModel.getUserDetails().observe(this, userDetails -> {
             if (userDetails != null) {
                 // Log.e("LoginActivity", "User details fetched successfully " + this.userDetails.getUsername() + " ," + this.userDetails.getProfilePic());
+
+                createUserThread();
+                userViewModel.getThreadCreationStatus().observe(this, isCreated -> {
+                    if (isCreated == null || !isCreated) {
+                        Toast.makeText(LoginActivity.this, "Failed to create user thread", Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        Log.d("LoginActivity", "User thread created successfully");
+                    }
+                });
+
                 Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 intent.putExtra("USERNAME", this.userDetails.getUsername());
@@ -80,6 +91,12 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
         });
     }
+
+    private void createUserThread() {
+        String token = userDetails.getToken();
+        userViewModel.createUserThread(token);
+    }
+
 }
 
 

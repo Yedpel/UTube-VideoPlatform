@@ -263,4 +263,20 @@ public class UserApi {
         });
     }
 
+    public void createUserThread(String token, MutableLiveData<Boolean> threadCreationStatus) {
+        WebServiceApi api = RetrofitClient.getInstance().create(WebServiceApi.class);
+        Call<Void> call = api.createUserThread("Bearer " + token);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                threadCreationStatus.postValue(response.isSuccessful());
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                threadCreationStatus.postValue(false);
+            }
+        });
+    }
+
 }
