@@ -122,7 +122,8 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(VideoDetailViewModel.class); //mvvm-change
         recommendedVideosRecyclerView = findViewById(R.id.recommended_videos_recycler_view);
-        recommendedVideosRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+//        recommendedVideosRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        recommendedVideosRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         recommendedVideosAdapter = new VideoAdapter(new ArrayList<>(),sharedPreferences);
         recommendedVideosRecyclerView.setAdapter(recommendedVideosAdapter);
 

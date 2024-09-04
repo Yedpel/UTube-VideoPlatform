@@ -15,6 +15,8 @@ import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Multipart;
@@ -49,10 +51,30 @@ public interface WebServiceApi {
     @GET("videos")
     Call<List<VideoResponse>> getVideos();
 
-    @POST("get-recommendations")
+//    @Multipart
+//    @POST("cpp/get-recommendations")
+//    Call<List<VideoResponse>> getRecommendedVideos(
+//            @Part("videoId") RequestBody videoId,
+//            @Part("token") RequestBody token);
+//    @Multipart
+//    @POST("cpp/get-recommendations")
+//    Call<List<VideoResponse>> getRecommendedVideos(
+//            @Part("videoId") RequestBody videoId,
+//            @Header("Authorization") String token);
+
+
+    @FormUrlEncoded
+    @POST("cpp/get-recommendations")
     Call<List<VideoResponse>> getRecommendedVideos(
-            @Query("videoId") String videoId,
-            @Header("Authorization") String token);
+            @Field("videoId") String videoId,
+            @Field("token") String token);
+//
+
+//    @FormUrlEncoded
+//    @POST("videos")
+//    Call<List<VideoResponse>> getRecommendedVideos(
+//            @Field("videoId") String videoId,
+//            @Field("token") String token);
 
     @GET("users/{userId}/videos/{videoId}")
     Call<VideoResponse> getVideo(@Path("videoId") String videoId);

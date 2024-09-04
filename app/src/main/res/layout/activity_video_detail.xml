@@ -239,17 +239,17 @@
                 android:layout_height="wrap_content"
                 android:text="Recommended Videos"
                 android:textColor="@color/colorText"
-                android:textStyle="bold"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recommended_videos_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:padding="10dp" />
         </LinearLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recommended_videos_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:padding="10dp" />
 
     </LinearLayout>
 </ScrollView>

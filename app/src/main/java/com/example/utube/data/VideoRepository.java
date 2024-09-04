@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -115,10 +117,15 @@ public class VideoRepository {
     public void fetchRecommendedVideosFromServer(String token, String videoId, Callback<List<VideoResponse>> callback) {
         try {
             Log.e("videoId", "the Id is: " + videoId);
-
+            RequestBody videoIdReq = RequestBody.create(MediaType.parse("text/plain"), videoId);
+            RequestBody tokenReq = RequestBody.create(MediaType.parse("text/plain"), token);
+            Log.e("VideoRepository", "Sending request for recommended videos");
             WebServiceApi webServiceApi = RetrofitClient.getInstance().create(WebServiceApi.class);
+//            Call<List<VideoResponse>> call = webServiceApi.getRecommendedVideos( videoIdReq,tokenReq);
+//            Call<List<VideoResponse>> call = webServiceApi.getRecommendedVideos( videoIdReq,token);
             Call<List<VideoResponse>> call = webServiceApi.getRecommendedVideos( videoId,token);
-            Log.d("VideoRepository", "Sending request for recommended videos");
+//            Call<List<VideoResponse>> call = webServiceApi.getVideos( );
+
             call.enqueue(new Callback<List<VideoResponse>>() {
                 @Override
                 public void onResponse(Call<List<VideoResponse>> call, Response<List<VideoResponse>> response) {
