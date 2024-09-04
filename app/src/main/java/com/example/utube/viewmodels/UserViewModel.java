@@ -17,6 +17,8 @@ public class UserViewModel extends ViewModel {
     private MutableLiveData<Boolean> registrationStatus; // Add this field
     private MutableLiveData<Boolean> deleteUserResult;
     private MutableLiveData<Boolean> threadCreationStatus = new MutableLiveData<>();
+    private MutableLiveData<Boolean> threadClosureStatus = new MutableLiveData<>();
+
 
     public LiveData<Boolean> getThreadCreationStatus() {
         return threadCreationStatus;
@@ -24,6 +26,13 @@ public class UserViewModel extends ViewModel {
 
     public void createUserThread(String token) {
         userApi.createUserThread(token, threadCreationStatus);
+    }
+    public LiveData<Boolean> getThreadClosureStatus() {
+        return threadClosureStatus;
+    }
+
+    public void closeUserThread(String token) {
+        userApi.closeUserThread(token, threadClosureStatus);
     }
 
     public UserViewModel() {

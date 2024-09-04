@@ -47,6 +47,7 @@ import com.example.utube.models.Video;
 import com.example.utube.utils.VideoResponse;
 import com.example.utube.viewmodels.AddVideoViewModel;
 import com.example.utube.viewmodels.EditVideoViewModel;
+import com.example.utube.viewmodels.UserViewModel;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -90,6 +91,8 @@ public class MainActivity extends AppCompatActivity {
     private AddVideoViewModel addVideoViewModel;
     private EditVideoViewModel editVideoViewModel;
 
+    private UserViewModel userViewModel;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +107,8 @@ public class MainActivity extends AppCompatActivity {
         addVideoViewModel = new ViewModelProvider(this).get(AddVideoViewModel.class);
 
         editVideoViewModel = new ViewModelProvider(this).get(EditVideoViewModel.class);
+
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         viewModel.getError().observe(this, errorMessage -> {
             if (errorMessage != null) {
@@ -413,6 +418,7 @@ public class MainActivity extends AppCompatActivity {
         return "." + mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
     }
 
+
     private void updateUIForLoggedInUser(String username) {
         btnLogin.setVisibility(View.GONE);
         btnRegister.setVisibility(View.GONE);
@@ -422,7 +428,23 @@ public class MainActivity extends AppCompatActivity {
         buttonContainer.addView(btnMyChannel);
 
         btnLogout.setOnClickListener(v -> {
-            //TODO call close thread from here with token
+            // Close thread process
+            String token = UserDetails.getInstance().getToken();
+            userViewModel.closeUserThread(token);
+            userViewModel.getThreadClosureStatus().observe(this, new Observer<Boolean>() {
+                @Override
+                public void onChanged(Boolean isClosed) {
+                    if (isClosed == null || !isClosed) {
+                        Log.e("MainActivity", "Failed to close user thread");
+                    }
+                    else {
+                        Log.d("MainActivity", "User thread closed successfully");
+                    }
+                    // Remove the observer to avoid multiple calls
+                    userViewModel.getThreadClosureStatus().removeObserver(this);
+                }
+            });
+
             sharedPreferences.edit().putBoolean(LOGGED_IN_KEY, false).remove(LOGGED_IN_USER).apply();
             Toast.makeText(MainActivity.this, "Logged out", Toast.LENGTH_SHORT).show();
             UserDetails.getInstance().clear();

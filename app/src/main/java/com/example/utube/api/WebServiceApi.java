@@ -184,4 +184,7 @@ public interface WebServiceApi {
     @POST("cpp/create-thread")
     Call<Void> createUserThread(@Header("Authorization") String token);
 
+    @POST("cpp/close-thread")
+    Call<Void> closeUserThread(@Header("Authorization") String token);
+
 }

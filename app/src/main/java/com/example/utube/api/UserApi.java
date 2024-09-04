@@ -279,4 +279,24 @@ public class UserApi {
         });
     }
 
+    public void closeUserThread(String token, MutableLiveData<Boolean> threadClosureStatus) {
+        WebServiceApi api = RetrofitClient.getInstance().create(WebServiceApi.class);
+        Call<Void> call = api.closeUserThread("Bearer " + token);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                threadClosureStatus.postValue(response.isSuccessful());
+                if (!response.isSuccessful()) {
+                    Log.e("UserApi", "Failed to close user thread. Code: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                threadClosureStatus.postValue(false);
+                Log.e("UserApi", "Error closing user thread", t);
+            }
+        });
+    }
+
 }
