@@ -148,7 +148,7 @@ public class VideoDetailActivity extends AppCompatActivity {
             isCommentsExpanded = !isCommentsExpanded;
         });
         // Initialize the recommended videos list
-        String videoId = getIntent().getStringExtra("VIDEO_ID");
+         videoId = getIntent().getStringExtra("VIDEO_ID");
 //        String token = UserDetails.getInstance().getToken();
 
 
@@ -194,7 +194,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         videoView.setMediaController(mediaController);
 
         // Get video details from intent
-        //videoId = getIntent().getStringExtra("VIDEO_ID");
+      //  videoId = getIntent().getStringExtra("VIDEO_ID");
         String videoUrl = getIntent().getStringExtra("VIDEO_URL");
         String title = getIntent().getStringExtra("TITLE");
         String author = getIntent().getStringExtra("AUTHOR");
