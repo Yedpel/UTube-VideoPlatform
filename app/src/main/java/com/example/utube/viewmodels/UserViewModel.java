@@ -87,6 +87,8 @@ public class UserViewModel extends ViewModel {
         userApi.updateUserDetails(user);
     }
 
-
+    public void notifyVideoWatch(String videoId, String token) {
+        userApi.notifyVideoWatch(videoId, token);
+    }
 
 }

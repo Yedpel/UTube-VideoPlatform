@@ -13,6 +13,9 @@ import com.example.utube.utils.LoginResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -295,6 +298,37 @@ public class UserApi {
             public void onFailure(Call<Void> call, Throwable t) {
                 threadClosureStatus.postValue(false);
                 Log.e("UserApi", "Error closing user thread", t);
+            }
+        });
+    }
+
+    public void notifyVideoWatch(String videoId, String token) {
+        WebServiceApi api = RetrofitClient.getInstance().create(WebServiceApi.class);
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("videoId", videoId);
+        } catch (JSONException e) {
+            Log.e("UserApi", "Error creating JSON object", e);
+            return;
+        }
+
+        RequestBody body = RequestBody.create(MediaType.parse("application/json"), jsonObject.toString());
+
+        Call<Void> call = api.notifyVideoWatch(body, "Bearer " + token);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Log.d("UserApi", "Successfully notified video watch");
+                } else {
+                    Log.e("UserApi", "Failed to notify video watch. Code: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e("UserApi", "Error notifying video watch", t);
             }
         });
     }

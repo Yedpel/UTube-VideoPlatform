@@ -72,7 +72,20 @@ public class VideoDetailViewModel extends AndroidViewModel {
         return error;
     }
     public void fetchRecommendedVideos(String token, String videoId) {
-        videoRepository.fetchRecommendedVideosFromServer(token, videoId, new Callback<List<VideoResponse>>() {
+        Log.d("VideoDetailViewModel", "Fetching recommendations - Token: " + token + ", VideoId: " + videoId);
+
+
+        if (videoId == null) {
+            error.postValue("Invalid video ID");
+            return;
+        }
+
+        // Use "guest" as token if null or empty
+        String actualToken = (token == null || token.isEmpty()) ? "guest" : token;
+        //log the actual token
+        Log.d("VideoDetailViewModel", "Actual token: " + actualToken);
+
+        videoRepository.fetchRecommendedVideosFromServer(actualToken, videoId, new Callback<List<VideoResponse>>() {
             @Override
             public void onResponse(Call<List<VideoResponse>> call, Response<List<VideoResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {

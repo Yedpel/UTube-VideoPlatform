@@ -14,6 +14,8 @@ import com.example.utube.utils.CommentResponse;
 import com.example.utube.utils.VideoResponse;
 import com.google.gson.Gson;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -114,49 +116,134 @@ public class VideoRepository {
             Log.d("VideoRepository", "Incremented views for video " + videoId);
         });
     }
-    public void fetchRecommendedVideosFromServer(String token, String videoId, Callback<List<VideoResponse>> callback) {
-        try {
-            Log.e("videoId", "the Id is: " + videoId);
-            RequestBody videoIdReq = RequestBody.create(MediaType.parse("text/plain"), videoId);
-            RequestBody tokenReq = RequestBody.create(MediaType.parse("text/plain"), token);
-            Log.e("VideoRepository", "Sending request for recommended videos");
-            WebServiceApi webServiceApi = RetrofitClient.getInstance().create(WebServiceApi.class);
-//            Call<List<VideoResponse>> call = webServiceApi.getRecommendedVideos( videoIdReq,tokenReq);
-//            Call<List<VideoResponse>> call = webServiceApi.getRecommendedVideos( videoIdReq,token);
-            Call<List<VideoResponse>> call = webServiceApi.getRecommendedVideos( videoId,token);
-//            Call<List<VideoResponse>> call = webServiceApi.getVideos( );
 
-            call.enqueue(new Callback<List<VideoResponse>>() {
-                @Override
-                public void onResponse(Call<List<VideoResponse>> call, Response<List<VideoResponse>> response) {
-                    Log.d("VideoRepository", "Received response for recommended videos. isSuccessful: " + response.isSuccessful());
+//    public void fetchRecommendedVideosFromServer(String token, String videoId, Callback<List<VideoResponse>> callback) {
+//        try {
+//
+//     /*       Log.e("videoId", "the Id is: " + videoId);
+//            RequestBody videoIdReq = RequestBody.create(MediaType.parse("text/plain"), videoId);
+//            RequestBody tokenReq = RequestBody.create(MediaType.parse("text/plain"), token);
+//            Log.e("VideoRepository", "Sending request for recommended videos");
+//            WebServiceApi webServiceApi = RetrofitClient.getInstance().create(WebServiceApi.class);
+////            Call<List<VideoResponse>> call = webServiceApi.getRecommendedVideos( videoIdReq,tokenReq);
+////            Call<List<VideoResponse>> call = webServiceApi.getRecommendedVideos( videoIdReq,token);
+//            Call<List<VideoResponse>> call = webServiceApi.getRecommendedVideos( videoId,token);
+////            Call<List<VideoResponse>> call = webServiceApi.getVideos( );
+//*/
+//            Log.d("VideoRepository", "Fetching from server - Token: " + token + ", VideoId: " + videoId);
+//
+//            if (videoId == null) {
+//                throw new IllegalArgumentException("videoId cannot be null");
+//            }
+//
+//            // Use "guest" as token if null or empty
+//            String actualToken = (token == null || token.isEmpty()) ? "guest" : token;
+//
+//            Log.d("VideoRepository", "Using token: " + actualToken);
+//
+//            WebServiceApi webServiceApi = RetrofitClient.getInstance().create(WebServiceApi.class);
+//            Call<List<VideoResponse>> call = webServiceApi.getRecommendedVideos(videoId, actualToken);
+//            call.enqueue(new Callback<List<VideoResponse>>() {
+//                @Override
+//                public void onResponse(Call<List<VideoResponse>> call, Response<List<VideoResponse>> response) {
+//                    Log.d("VideoRepository", "Received response for recommended videos. isSuccessful: " + response.isSuccessful());
+//
+//                    Log.d("VideoRepository", "Full response: " + response.toString());
+//                    Log.d("VideoRepository", "Response body: " + response.body());
+//                    if (response.isSuccessful() && response.body() != null) {
+//                        List<VideoResponse> videos = response.body();
+//                        Log.d("VideoRepository", "Raw JSON response: " + new Gson().toJson(videos));
+//                        Log.d("VideoRepository", "Received " + videos.size() + " recommended videos from server");
+//                        insertVideosFromServer(videos);
+//                        callback.onResponse(call, response);
+//                    } else {
+//                        Log.e("VideoRepository", "Response not successful. Code: " + response.code() + ", Message: " + response.message());
+//                        callback.onFailure(call, new Throwable("Error fetching recommended videos"));
+//                    }
+//                }
+//
+//                @Override
+//                public void onFailure(Call<List<VideoResponse>> call, Throwable t) {
+//                    Log.e("VideoRepository", "Network request failed", t);
+//                    callback.onFailure(call, t);
+//                }
+//            });
+//        } catch (Exception e) {
+//            Log.e("VideoRepository", "Error creating network request", e);
+//            callback.onFailure(null, new Throwable("Error creating network request: " + e.getMessage()));
+//        }
+//    }
+public void fetchRecommendedVideosFromServer(String token, String videoId, Callback<List<VideoResponse>> callback) {
+    try {
+        Log.d("VideoRepository", "Fetching from server - Token: " + token + ", VideoId: " + videoId);
+
+        if (videoId == null) {
+            throw new IllegalArgumentException("videoId cannot be null");
+        }
+
+        // Use "guest" as token if null or empty
+        String actualToken = (token == null || token.isEmpty()) ? "guest" : token;
+
+        Log.d("VideoRepository", "Using token: " + actualToken);
+
+        Log.d("VideoRepository", "Request body: " + new JSONObject()
+                .put("videoId", videoId)
+                .put("token", actualToken)
+                .toString());
+
+        WebServiceApi webServiceApi = RetrofitClient.getInstance().create(WebServiceApi.class);
+        Call<List<VideoResponse>> call = webServiceApi.getRecommendedVideos(videoId, actualToken);
+
+        retryRequest(call, 3, new Callback<List<VideoResponse>>() {
+            @Override
+            public void onResponse(Call<List<VideoResponse>> call, Response<List<VideoResponse>> response) {
+                Log.d("VideoRepository", "Received response for recommended videos. isSuccessful: " + response.isSuccessful());
+                Log.d("VideoRepository", "Full response: " + response.toString());
+                Log.d("VideoRepository", "Response body: " + response.body());
+
+                if (response.isSuccessful() && response.body() != null) {
+                    List<VideoResponse> videos = response.body();
+                    Log.d("VideoRepository", "Raw JSON response: " + new Gson().toJson(videos));
+                    Log.d("VideoRepository", "Received " + videos.size() + " recommended videos from server");
+                    insertVideosFromServer(videos);
+                    callback.onResponse(call, response);
+                } else {
                     Log.e("VideoRepository", "Response not successful. Code: " + response.code() + ", Message: " + response.message());
-
-                    Log.d("VideoRepository", "Full response: " + response.toString());
-                    Log.d("VideoRepository", "Response body: " + response.body());
-                    if (response.isSuccessful() && response.body() != null) {
-                        List<VideoResponse> videos = response.body();
-                        Log.d("VideoRepository", "Raw JSON response: " + new Gson().toJson(videos));
-                        Log.d("VideoRepository", "Received " + videos.size() + " recommended videos from server");
-                        insertVideosFromServer(videos);
-                        callback.onResponse(call, response);
-                    } else {
-                        Log.e("VideoRepository", "Response not successful. Code: " + response.code() + ", Message: " + response.message());
-                        callback.onFailure(call, new Throwable("Error fetching recommended videos"));
-                    }
+                    callback.onFailure(call, new Throwable("Error fetching recommended videos"));
                 }
+            }
 
-                @Override
-                public void onFailure(Call<List<VideoResponse>> call, Throwable t) {
-                    Log.e("VideoRepository", "Network request failed", t);
+            @Override
+            public void onFailure(Call<List<VideoResponse>> call, Throwable t) {
+                Log.e("VideoRepository", "Network request failed after retries", t);
+                callback.onFailure(call, t);
+            }
+        });
+    } catch (Exception e) {
+        Log.e("VideoRepository", "Error creating network request", e);
+        callback.onFailure(null, new Throwable("Error creating network request: " + e.getMessage()));
+    }
+}
+
+    private void retryRequest(Call<List<VideoResponse>> call, int maxRetries, Callback<List<VideoResponse>> callback) {
+        call.enqueue(new Callback<List<VideoResponse>>() {
+            @Override
+            public void onResponse(Call<List<VideoResponse>> call, Response<List<VideoResponse>> response) {
+                callback.onResponse(call, response);
+            }
+
+            @Override
+            public void onFailure(Call<List<VideoResponse>> call, Throwable t) {
+                if (maxRetries > 0) {
+                    Log.d("VideoRepository", "Retrying request. Retries left: " + (maxRetries - 1));
+                    retryRequest(call.clone(), maxRetries - 1, callback);
+                } else {
                     callback.onFailure(call, t);
                 }
-            });
-        } catch (Exception e) {
-            Log.e("VideoRepository", "Error creating network request", e);
-            callback.onFailure(null, new Throwable("Error creating network request: " + e.getMessage()));
-        }
+            }
+        });
     }
+
     public void fetchVideosFromServer(Callback<List<VideoResponse>> callback) {
         try {
             WebServiceApi webServiceApi = RetrofitClient.getInstance().create(WebServiceApi.class);
@@ -303,5 +390,7 @@ public class VideoRepository {
         Call<List<CommentResponse>> call = api.getComments(videoId);
         call.enqueue(callback);
     }
+
+
 
 }
