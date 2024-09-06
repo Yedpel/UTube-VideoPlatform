@@ -669,6 +669,13 @@ public class VideoDetailActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshVideoDetailsOnBack();
+        refreshCommentLikesOnResume();
+    }
+
     private void showLoginPromptDialog() { //try5
         LoginPromptDialog dialog = new LoginPromptDialog(); //try5
         dialog.show(getSupportFragmentManager(), "LoginPromptDialog"); //try5
@@ -1203,4 +1210,29 @@ public class VideoDetailActivity extends AppCompatActivity {
         }
     }
 
+    private void refreshVideoDetailsOnBack() {
+        Video videoForUpdate = VideoManager.getInstance(getApplication()).getVideoById(videoId);
+        int updatedLikes = videoForUpdate.getLikes();
+        likesTextView.setText(updatedLikes + " likes");
+
+        String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
+        isLiked = viewModel.isVideoLiked(videoId, currentLoggedInUser);
+        ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like");
+    }
+
+    private void refreshCommentLikesOnResume() {
+        List<Video.Comment> currentComments = viewModel.getComments().getValue();
+        if (currentComments != null && !currentComments.isEmpty()) {
+            for (int i = 0; i < currentComments.size(); i++) {
+                Video.Comment comment = currentComments.get(i);
+                CommentEntity updatedComment = commentRepository.getCommentById(comment.getId());
+                if (updatedComment != null) {
+                    comment.setLikes(updatedComment.getLikes());
+                }
+            }
+            if (commentsAdapter != null) {
+                commentsAdapter.notifyDataSetChanged();
+            }
+        }
+    }
 }
