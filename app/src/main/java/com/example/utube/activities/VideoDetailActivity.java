@@ -1067,14 +1067,16 @@ public class VideoDetailActivity extends AppCompatActivity {
             String currentLoggedInUser = UserDetails.getInstance().getUsername();
             boolean isAuthor = currentLoggedInUser != null && currentLoggedInUser.equals(video.getAuthor());
 
-            // Set the visibility of the menu button based on authorship
-            holder.menuButton.setVisibility(isAuthor ? View.VISIBLE : View.GONE);
-            holder.menuButton.setOnClickListener(v -> {
-                PopupMenu popupMenu = new PopupMenu(holder.menuButton.getContext(), holder.menuButton);
-                MenuInflater inflater = popupMenu.getMenuInflater();
-                inflater.inflate(R.menu.video_item_menu, popupMenu.getMenu());
-                popupMenu.show();
-            });
+//            // Set the visibility of the menu button based on authorship
+//            holder.menuButton.setVisibility(isAuthor ? View.VISIBLE : View.GONE);
+//            holder.menuButton.setOnClickListener(v -> {
+//                PopupMenu popupMenu = new PopupMenu(holder.menuButton.getContext(), holder.menuButton);
+//                MenuInflater inflater = popupMenu.getMenuInflater();
+//                inflater.inflate(R.menu.video_item_menu, popupMenu.getMenu());
+//                popupMenu.show();
+//            });
+            //set the visibility of the menu button gone to all
+            holder.menuButton.setVisibility(View.GONE);
 
 
             holder.itemView.setOnClickListener(v -> {
