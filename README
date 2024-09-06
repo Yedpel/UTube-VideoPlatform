@@ -2,7 +2,9 @@ Before compiling, run this command in the terminal to install the required JSON 
 sudo apt-get install nlohmann-json3-dev
 
 To compile and run the C++ server, use this command in the terminal:
+```
 make && make run
+```
 
 To stop the server, use Ctrl+C
 
@@ -10,3 +12,42 @@ Additional options:
 make        - Compile only
 make run    - Run the compiled server
 make clean  - Remove compiled files
+
+## Important: Port Availability Check
+
+Before running the services, ensure that port 55551 is available on your system. Follow these steps to check:
+
+### Windows:
+1. Open Command Prompt (cmd)
+2. Run the following command:
+
+```
+netstat -ano | findstr :55551
+```
+
+3. If there's no output, the port is available.
+
+### Linux/macOS:
+1. Open Terminal
+2. Run the following command:
+
+```
+lsof -i :55551
+```
+
+3. If there's no output, the port is available.
+
+If the port is in use, you may need to choose a different port or close the application using it.
+
+Note: If you change the port, remember to update it in both the :
+
+1) C++ server in main.cpp in the line on top:
+```
+const int SERVER_PORT = 55551;
+```
+
+2) NodeJS server in services\cppServerService.js in the line on top:
+```
+const CPP_SERVER_PORT = 55551;
+```
+ 
