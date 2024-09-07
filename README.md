@@ -4,7 +4,7 @@
 Welcome to the UTube Node.js Server branch, a key component of the UTube app developed as part of an Advanced System Programming course at Bar-Ilan University. This repository holds the server-side code that powers our UTube application, which simulates a simplified version of a video streaming service where users can watch, like, and comment on videos.
 
 ## Full Project Details
-For full details on the entire UTube project, including the Android app, React web app, and C++ server, please skip this README.md and refer to the wiki pages located in the NodeJs_Server_updated_2 branch under the wiki folder.
+For full details on the entire UTube project, including the Android app, React web app, and C++ server, please skip this README.md and refer to the wiki pages located in the the wiki folder .
 
 ### Features
 The server handles a variety of functions including:
