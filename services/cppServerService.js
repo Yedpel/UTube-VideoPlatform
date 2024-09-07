@@ -2,7 +2,7 @@ import net from 'net';
 import Video from '../models/videoPlay.js';
 
 const CPP_SERVER_HOST = 'localhost';
-const CPP_SERVER_PORT = 5555;
+const CPP_SERVER_PORT = 55551;
 
 function sendRequestToCppServer(action, data) {
     return new Promise((resolve, reject) => {
