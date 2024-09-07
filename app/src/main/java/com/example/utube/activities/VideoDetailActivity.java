@@ -46,6 +46,7 @@ import com.example.utube.models.Users;
 import com.example.utube.models.Video;
 import com.example.utube.utils.CommentResponse;
 import com.example.utube.utils.VideoResponse;
+import com.example.utube.viewmodels.UserViewModel;
 import com.example.utube.viewmodels.VideoDetailViewModel;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -70,7 +71,7 @@ public class VideoDetailActivity extends AppCompatActivity {
 
     private RecyclerView commentsRecyclerView;
     private ImageView expandCollapseButton;
-    private boolean isCommentsExpanded  = false;
+    private boolean isCommentsExpanded = false;
     private boolean isLiked = false;
     private String videoId;
     private int likes;
@@ -91,6 +92,8 @@ public class VideoDetailActivity extends AppCompatActivity {
     private RecyclerView recommendedVideosRecyclerView;
     private VideoAdapter recommendedVideosAdapter;
     private ProgressDialog loadingDialog;
+    private UserViewModel userViewModel;
+
 
 
     @SuppressLint("MissingInflatedId")
@@ -114,7 +117,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         commentsCountTextView = findViewById(R.id.comments_count);
         commentsHeaderContainer = findViewById(R.id.comments_header_container);
         commentsRecyclerView = findViewById(R.id.comments_recycler_view);
-        expandCollapseButton  = findViewById(R.id.expand_collapse_button);
+        expandCollapseButton = findViewById(R.id.expand_collapse_button);
 
         commentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         btnFullScreen = findViewById(R.id.btn_full_screen);
@@ -124,8 +127,11 @@ public class VideoDetailActivity extends AppCompatActivity {
         recommendedVideosRecyclerView = findViewById(R.id.recommended_videos_recycler_view);
 //        recommendedVideosRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         recommendedVideosRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recommendedVideosAdapter = new VideoAdapter(new ArrayList<>(),sharedPreferences);
+        recommendedVideosAdapter = new VideoAdapter(new ArrayList<>(), sharedPreferences);
         recommendedVideosRecyclerView.setAdapter(recommendedVideosAdapter);
+
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+
 
         commentsAdapter = new CommentsAdapter(new ArrayList<>());
         commentsRecyclerView.setAdapter(commentsAdapter);
@@ -142,10 +148,20 @@ public class VideoDetailActivity extends AppCompatActivity {
             isCommentsExpanded = !isCommentsExpanded;
         });
         // Initialize the recommended videos list
-        String  videoId = getIntent().getStringExtra("VIDEO_ID");
+         videoId = getIntent().getStringExtra("VIDEO_ID");
 //        String token = UserDetails.getInstance().getToken();
 
-        viewModel.fetchRecommendedVideos(UserDetails.getInstance().getToken(), videoId);
+
+        String token1 = UserDetails.getInstance().getToken();
+        Log.d("VideoDetailActivity", "Initial token: " + token1);
+        if (token1 == null || token1.isEmpty()) {
+            token1 = "guest";
+            Log.d("VideoDetailActivity", "Token was null or empty, set to guest");
+        }
+        Log.d("VideoDetailActivity", "Final token used: " + token1);
+        Log.d("VideoDetailActivity", "VideoId: " + videoId);
+        viewModel.fetchRecommendedVideos(token1, videoId);
+      //  viewModel.fetchRecommendedVideos(UserDetails.getInstance().getToken(), videoId);
 
         viewModel.getRecommendedVideos().observe(this, videos -> {
             recommendedVideosAdapter.updateVideos(videos);
@@ -157,7 +173,18 @@ public class VideoDetailActivity extends AppCompatActivity {
             }
         });
 
-        // Todo call notify_watch from here if the user is logged in(video id, token)
+        //if the user is logged in, get the token from the user details
+        String tokenFornotify = UserDetails.getInstance().getToken();
+        if (tokenFornotify != null && !tokenFornotify.isEmpty()) {
+            if (videoId != null) {
+                userViewModel.notifyVideoWatch(videoId, tokenFornotify);
+                Log.d("VideoDetailActivity", "Notified video watch: " + videoId);
+            } else {
+                Log.e("VideoDetailActivity", "VideoId is null, cannot notify video watch");
+            }
+        } else {
+            Log.d("VideoDetailActivity", "User not logged in, skipping notify video watch");
+        }
 
 
 
@@ -167,7 +194,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         videoView.setMediaController(mediaController);
 
         // Get video details from intent
-        //videoId = getIntent().getStringExtra("VIDEO_ID");
+      //  videoId = getIntent().getStringExtra("VIDEO_ID");
         String videoUrl = getIntent().getStringExtra("VIDEO_URL");
         String title = getIntent().getStringExtra("TITLE");
         String author = getIntent().getStringExtra("AUTHOR");
@@ -642,6 +669,13 @@ public class VideoDetailActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshVideoDetailsOnBack();
+        refreshCommentLikesOnResume();
+    }
+
     private void showLoginPromptDialog() { //try5
         LoginPromptDialog dialog = new LoginPromptDialog(); //try5
         dialog.show(getSupportFragmentManager(), "LoginPromptDialog"); //try5
@@ -695,7 +729,7 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         class CommentViewHolder extends RecyclerView.ViewHolder {
             TextView usernameTextView, commentTextView, uploadTimeTextView, commentLikesTextView;
-            ImageView profilePicImageView,expandCollapseIcon;
+            ImageView profilePicImageView, expandCollapseIcon;
             Button likeCommentButton, editCommentButton, deleteCommentButton;
             private boolean isCommentLiked = false;
 
@@ -997,6 +1031,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                 response.getServerId()
         );
     }
+
     private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
         private List<Video> videoList;
         private SharedPreferences sharedPreferences; //try90
@@ -1032,14 +1067,16 @@ public class VideoDetailActivity extends AppCompatActivity {
             String currentLoggedInUser = UserDetails.getInstance().getUsername();
             boolean isAuthor = currentLoggedInUser != null && currentLoggedInUser.equals(video.getAuthor());
 
-            // Set the visibility of the menu button based on authorship
-            holder.menuButton.setVisibility(isAuthor ? View.VISIBLE : View.GONE);
-            holder.menuButton.setOnClickListener(v -> {
-                PopupMenu popupMenu = new PopupMenu(holder.menuButton.getContext(), holder.menuButton);
-                MenuInflater inflater = popupMenu.getMenuInflater();
-                inflater.inflate(R.menu.video_item_menu, popupMenu.getMenu());
-                popupMenu.show();
-            });
+//            // Set the visibility of the menu button based on authorship
+//            holder.menuButton.setVisibility(isAuthor ? View.VISIBLE : View.GONE);
+//            holder.menuButton.setOnClickListener(v -> {
+//                PopupMenu popupMenu = new PopupMenu(holder.menuButton.getContext(), holder.menuButton);
+//                MenuInflater inflater = popupMenu.getMenuInflater();
+//                inflater.inflate(R.menu.video_item_menu, popupMenu.getMenu());
+//                popupMenu.show();
+//            });
+            //set the visibility of the menu button gone to all
+            holder.menuButton.setVisibility(View.GONE);
 
 
             holder.itemView.setOnClickListener(v -> {
@@ -1159,6 +1196,7 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         }
     }
+
     private void showLoadingDialog() {
         if (loadingDialog == null) {
             loadingDialog = new ProgressDialog(this);
@@ -1174,4 +1212,29 @@ public class VideoDetailActivity extends AppCompatActivity {
         }
     }
 
+    private void refreshVideoDetailsOnBack() {
+        Video videoForUpdate = VideoManager.getInstance(getApplication()).getVideoById(videoId);
+        int updatedLikes = videoForUpdate.getLikes();
+        likesTextView.setText(updatedLikes + " likes");
+
+        String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
+        isLiked = viewModel.isVideoLiked(videoId, currentLoggedInUser);
+        ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like");
+    }
+
+    private void refreshCommentLikesOnResume() {
+        List<Video.Comment> currentComments = viewModel.getComments().getValue();
+        if (currentComments != null && !currentComments.isEmpty()) {
+            for (int i = 0; i < currentComments.size(); i++) {
+                Video.Comment comment = currentComments.get(i);
+                CommentEntity updatedComment = commentRepository.getCommentById(comment.getId());
+                if (updatedComment != null) {
+                    comment.setLikes(updatedComment.getLikes());
+                }
+            }
+            if (commentsAdapter != null) {
+                commentsAdapter.notifyDataSetChanged();
+            }
+        }
+    }
 }

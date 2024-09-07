@@ -1,40 +1,13 @@
-# UTUBE_Android (Task 3 Compatible)
+# UTUBE_Android
 
-Welcome to the UTUBE Android App repository!
-This project was developed as part of the Advanced System Programming course at Bar-Ilan
-University (BIU).
+Welcome to the UTube Android branch, a key component of the UTube app developed as part of an Advanced System Programming course at Bar-Ilan University. This repository holds the server-side code that powers our UTube application, which simulates a simplified version of a video streaming service where users can watch, like, and comment on videos.
 
-## Project Team
-
-This application is the result of collaboration among three students:
-
-- Yedidya Peles
-- Shimon Rahamim
-- Avrham Bicha
-
-We faced many challenges during the development process but ultimately succeeded in creating a
-functional and user-friendly application.
-
-## About the App
-
-UTUBE is an application designed for sharing videos, inspired by the popular YouTube platform. It is
-developed for both Android and Web platforms. This repository contains the Android part of the
-application.
-
-## Branches
-
-- **Main branch**: This branch contains the original version of the Android app compatible with Task
-  1, which is a local UTUBE app without server connectivity.
-- **task3-android barnch**: This branch (current) contains the updated version of the app compatible
-  with Task 3, designed to work with a server.
-
-## Experience and Challenges
-
-Throughout our journey, we gained valuable experience and encountered numerous challenging problems,
-which we managed to overcome with determination and teamwork. We hope you find this app useful and
-enjoyable as much as we enjoyed developing it!
+## Full Project Details
+For full details on the entire UTube project, including the Android app, React web app, and C++ server, please skip this README.md and refer to the wiki pages located inside the nodeJS_server branch's wiki folder or on the wiki page of the entire repository.
 
 ## Getting Started
+
+Again - full explain is on the wiki.
 
 These instructions will get you a copy of the project up and running on your local machine for
 development and testing purposes. Follow these simple steps to get started.
@@ -51,7 +24,7 @@ development and testing purposes. Follow these simple steps to get started.
 1. **Clone the Repository**
    Open your terminal and run the following command:
    ```bash
-   git clone https://github.com/Yedpel/UTube_Android.git -b task3-android
+   git clone https://github.com/Yedpel/android_task_4
    cd UTube_Android
 
 2. **Open the Project in Android Studio**
@@ -59,16 +32,8 @@ development and testing purposes. Follow these simple steps to get started.
       go to File > Open... if you have another project open.
     - Navigate to the directory where you cloned the project and select it.
 
-3. **Configure Server Connection**
-    - Open the app/src/main/java/com/example/utube/network/ApiClient.kt file (or similar
-      configuration file).
-    - Update the BASE_URL constant with your server's IP address and port:
 
-      ```bash
-      const val BASE_URL = "http://your_server_ip:12345/"
-   Replace your_server_ip with the actual IP address of the machine running the UTUBE-Server.
-
-4. **Run the Application**
+3. **Run the Application**
     - After the project opens, let Android Studio build the project. If there are any dependencies
       to be downloaded, Android Studio will manage this automatically.
 
@@ -77,16 +42,8 @@ development and testing purposes. Follow these simple steps to get started.
     - Click on the Run button (green triangle) in the toolbar. Android Studio will build
       the application and install it on the selected device or emulator.
 
-**Running the Project with the Server**
-1.Ensure the UTUBE-Server (Task 3 Compatible) is running. Refer to the server's README for
-instructions on starting the server.
+**Running the Project with the rest of the other beanches - full explain on the wiki**
 
-2.Make sure your Android device or emulator is connected to the same network as the server.
-
-3.Run the Android app as described in step 4 of "Setting up the Project".
-
-4.The app should now be able to communicate with the server, allowing you to access all features
-that require server connectivity.
 
 **Troubleshooting**
 

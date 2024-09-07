@@ -187,4 +187,6 @@ public interface WebServiceApi {
     @POST("cpp/close-thread")
     Call<Void> closeUserThread(@Header("Authorization") String token);
 
+    @POST("cpp/notify-watch")
+    Call<Void> notifyVideoWatch(@Body RequestBody body, @Header("Authorization") String token);
 }
