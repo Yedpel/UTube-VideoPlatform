@@ -21,17 +21,12 @@ To set up and run the server locally, follow these steps:
    ```bash
    git clone https://github.com/[username]/task4_UTube.git
    cd task4_UTube
-   git checkout NodeJs_Server_updated_2
+   git checkout NodeJs_Server
 3. **Install dependencies**
 Ensure that you have Node.js installed on your system. Then run:
    ```bash
    npm install
    npm i express
-4. **Environment Setup**
-Create a .env file in the root directory and add the necessary environment variables:
-    ```makefile
-    CONNECTION_STRING=mongodb://localhost:27017/UTube
-    PORT=12345
     
 5. Run the application
 Start the server using:
