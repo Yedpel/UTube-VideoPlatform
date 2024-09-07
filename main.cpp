@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include "request_handler.hpp"
 
-const int SERVER_PORT = 5555;
+const int SERVER_PORT = 55551;
 
 int main() {
     int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
