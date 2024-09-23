@@ -12,9 +12,12 @@ This project is split into 4 main branches:
 3. Web client-side (React)
 4. Android client-side
 
-Detailed instructions for running and using the entire application, along with examples, can be found in the project's wiki. Each branch's README also contains brief instructions specific to that component.
+## Wiki - Full Documentation
+**For complete details, explanations, screenshots, and usage instructions, please visit the [Wiki tab](https://github.com/Yedpel/UTube-VideoPlatform/wiki) in the toolbar at the top of this GitHub page.**
 
-This branch contains the Node.js server component of the UTube project.
+The wiki contains comprehensive information about all components of the UTube project, including setup guides, API documentation, and user manuals.
+
+This branch contains the Node.js server component of the UTube project. Below, you'll find a brief overview and setup instructions specific to this component.
 
 ---
 
