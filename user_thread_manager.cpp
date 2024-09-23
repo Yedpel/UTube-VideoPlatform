@@ -25,20 +25,6 @@ UserThreadManager &UserThreadManager::getInstance()
     return instance;
 }
 
-// UserThreadManager &UserThreadManager::getInstance()
-// {
-//     static UserThreadManager instance;
-//     return instance;
-// }
-// UserThreadManager &UserThreadManager::getInstance()
-// {
-//     static UserThreadManager instance;
-//     static std::once_flag flag;
-//     std::call_once(flag, [&]()
-//                    { instance.guestThread = std::thread(&UserThreadManager::handleGuestRequests, &instance); });
-//     return instance;
-// }
-
 std::string UserThreadManager::createThreadForUser(const std::string &userId)
 {
     std::lock_guard<std::mutex> lock(threadMapMutex);
@@ -178,32 +164,9 @@ void UserThreadManager::handleGuestRequests()
         {
             std::cout << "Guest thread " << thread_id << " - Generating recommendations for video " << message.videoId << std::endl;
         }
-        // Add other actions here as needed
 
         message.threadIdPromise.set_value(thread_id);
     }
 
     std::cout << "Guest thread " << thread_id << " ended" << std::endl;
 }
-
-// In the constructor or initialization method of UserThreadManager
-// UserThreadManager::UserThreadManager() {
-//     guestThread = std::thread(&UserThreadManager::handleGuestRequests, this);
-// }
-
-// In the destructor of UserThreadManager
-// UserThreadManager::~UserThreadManager() {
-//     guestThreadActive = false;
-//     guestCondVar.notify_one();
-//     if (guestThread.joinable()) {
-//         guestThread.join();
-//     }
-// }
-
-// UserThreadManager::~UserThreadManager() {
-//     guestThreadActive = false;
-//     guestCondVar.notify_one();
-//     if (guestThread.joinable()) {
-//         guestThread.join();
-//     }
-// }

@@ -62,14 +62,6 @@ std::vector<std::string> VideoManager::getRecommendedVideos(const std::string &c
         }
     }
 
-    // Sort by common viewers, then by total views
-    // std::sort(commonViewers.begin(), commonViewers.end(),
-    //           [this](const auto &a, const auto &b)
-    //           {
-    //               if (a.second != b.second)
-    //                   return a.second > b.second;
-    //               return videos[a.first].totalViews > videos[b.first].totalViews;
-    //           });
     std::sort(commonViewers.begin(), commonViewers.end(),
               [this](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b)
               {
@@ -98,9 +90,6 @@ std::vector<std::string> VideoManager::getRecommendedVideos(const std::string &c
             }
         }
 
-        // std::sort(allVideos.begin(), allVideos.end(),
-        //           [](const auto &a, const auto &b)
-        //           { return a.second > b.second; });
         std::sort(allVideos.begin(), allVideos.end(),
                   [](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b)
                   { return a.second > b.second; });

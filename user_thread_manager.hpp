@@ -33,7 +33,6 @@ private:
     UserThreadManager(); // Declare the constructor as private
     UserThreadManager(const UserThreadManager &) = delete;
     UserThreadManager &operator=(const UserThreadManager &) = delete;
-    // UserThreadManager() = default;
     std::unordered_map<std::string, std::thread> userThreads;
     std::unordered_map<std::string, std::queue<UserMessage>> userMessageQueues;
     std::unordered_map<std::string, std::mutex> userMutexes;
