@@ -1,4 +1,3 @@
-//import userService from '../services/users.js'
 import * as userService from '../services/users.js';
 import jwt from 'jsonwebtoken'
 const key = "secretkey"
@@ -9,7 +8,6 @@ export const checkUserNameAndPassword = async (req, res) => {
     const { username, password } = req.body;
   
     try {
-     //   const user = await userService.findUser(username);
         const user = await userService.getUserbyUsername(username);
         const match = password===user.password;
 
@@ -22,7 +20,7 @@ export const checkUserNameAndPassword = async (req, res) => {
             res.status(401).json({ message: 'Invalid username or password' });
         }
     } catch (err) {
-        console.error('Login error:', err.message);  // This will print more specific error info to the console.
+        console.error('Login error:', err.message); 
         res.status(500).json({ message: 'Internal server error' });
     }
 };

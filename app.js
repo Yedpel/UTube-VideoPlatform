@@ -8,9 +8,7 @@ import customEnv from 'custom-env';
 import dotenv from 'dotenv';
 // mediaRoutes is for uploading and replacing media files
 import mediaRoutes from './routes/mediaRoutes.js';
-// import jwt from 'jsonwebtoken';
 import routerVideoPlay from './routes/videoPlay.js';
-//import routerSignUp from './routes/signUp.js';
 import routerToken from './routes/tokens.js';
 import userRouter from './routes/users.js';
 import routerComments from './routes/comments.js';
@@ -21,16 +19,13 @@ import {
     createVideoModel, updateVideoModel, deleteVideoModel, unlikeVideo, isUserLikedVideo,
     isUserTheAuthor, getVideosbyUserId
 } from './services/videoPlay.js';
-//import { registerUser } from './controllers/signUp.js'; 
 import { updateUserModel, deleteUserModel } from './services/users.js';
 import {
     createCommentModel, editCommentModel, deleteCommentModel, isUserTheAuthorOfComment,
     LikeComment, UnlikeComment, isUserLikedComment, countCommentsByVideoId
 } from './services/comments.js';
-// import { checkUserNameAndPassword } from './services/tokens.js'; 
 import { fetchMixedVideos, fetchVideosByCategory } from './controllers/videoPlay.js';
 import request from 'supertest';  // npm install supertest --save-dev
-//import server from './server'; // Assuming your Express instance is exported from a file named 'server.js'
 import cppServerRouter from './routes/cppServer.js';
 import http from 'http';
 import { createThreadForUser, closeThreadForUser, sendWatchNotification } from './services/cppServerService.js';
@@ -65,7 +60,7 @@ server.use('/api/cpp', cppServerRouter);
         .then(() => {
             console.log('MongoDB connected');
             checkAndLoadData();  // check if the mongoDB is empty and load the data
-            //testRecommendationSystem();  // Run the recommendation test
+            //use test functions here, they are commented out below
         })
         .catch(err => console.error('MongoDB connection error:', err));
 })()
@@ -102,7 +97,6 @@ async function loadData() {
             ...video,
             authorId: usernameToIdMap[video.author],  // Map the username to ObjectId
             authorName: video.author,  // Optionally keep authorName if needed
-            // uploadTime: new Date() // Convert to actual Date if necessary
         }));
 
         await Video.deleteMany({});

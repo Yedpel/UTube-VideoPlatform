@@ -10,7 +10,6 @@ import { LikeVideo as toggleLikeVideo } from '../services/videoPlay.js';
 
 export async function getVideos(req, res) {
     try {
-        //  const videos = await getVideosModel();
         const videos = await getVideosWithAuthorDetails();
         res.render('allVideos', { videos });
     } catch (error) {
@@ -120,7 +119,7 @@ export async function fetchMixedVideos(req, res) {
 
 export async function fetchVideosByCategory(req, res) {
     try {
-        const category = req.params.category;  // Assumes category is passed as a URL parameter
+        const category = req.params.category;  
         const videos = await getVideosByCategory(category);
         res.json(videos);
     } catch (error) {
@@ -130,9 +129,7 @@ export async function fetchVideosByCategory(req, res) {
 
 export const likeVideo = async (req, res) => {
     const { pid: videoId } = req.params;
-    const userId = req.user.id; // Assuming req.user is set by your authentication middleware
-    //console.log("Video ID:", videoId);
-    //console.log("User ID:", userId);
+    const userId = req.user.id; 
 
     try {
         const video = await toggleLikeVideo(videoId, userId);
@@ -145,7 +142,7 @@ export const likeVideo = async (req, res) => {
 //unlike video to unlikeVideo in services/videoPlay.js
 export const UnlikeVideo = async (req, res) => {
     const { pid: videoId } = req.params;
-    const userId = req.user.id; // Assuming req.user is set by your authentication middleware
+    const userId = req.user.id; 
 
     try {
         // Call the service function to toggle unlike the video
@@ -181,7 +178,7 @@ export async function getVideosByUsername(req, res) {
 //deal isUserLikedVideo in services/videoPlay.js
 export async function getUserLikedVideo(req, res) {
     const videoId = req.params.pid;
-    const userId = req.user._id; // Assuming req.user is set by your authentication middleware
+    const userId = req.user._id; 
     //if it is a guest, then isLiked will be false
     if (!userId) {
         return res.json({ isLiked: false });
@@ -197,7 +194,7 @@ export async function getUserLikedVideo(req, res) {
 
 
 export async function addView(req, res) {
-    const { pid } = req.params;  // Assuming 'pid' stands for 'videoId'
+    const { pid } = req.params;  
 
     try {
         const updatedVideo = await incrementVideoViews(pid);
@@ -249,22 +246,3 @@ export async function getVideoComments(req, res) {
     }
 }
 
-///optional code for get watch page data in react///
-/*
-useEffect(() => {
-    const fetchVideoData = async () => {
-        const response = await fetch(`/api/users/${userId}/videos/${videoId}/watch`);
-        const data = await response.json();
-        if (response.ok) {
-            setVideo(data.video);
-            setComments(data.comments);
-            setCommentCount(data.commentCount);
-        } else {
-            console.error('Failed to load video data:', data.message);
-        }
-    };
-
-    fetchVideoData();
-}, [userId, videoId]);
-*/
-///end of optional code for get watch page data in react///

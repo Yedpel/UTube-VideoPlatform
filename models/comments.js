@@ -1,4 +1,3 @@
-// models/comments.js
 import mongoose from 'mongoose';
 import { upload } from '../routes/mediaRoutes.js';
 

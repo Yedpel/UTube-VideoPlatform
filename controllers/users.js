@@ -1,7 +1,3 @@
-// import { updateUserModel, deleteUserModel } from '../services/users.js';
-
-
-// import User from '../services/users.js';
 import * as userService from '../services/users.js';
 import jwt from 'jsonwebtoken';
 const key = "secretkey"; // Ensure this key is stored securely and consistently
@@ -9,7 +5,6 @@ const key = "secretkey"; // Ensure this key is stored securely and consistently
 
 export const registerUser = async (req, res) => {
     const { firstName, lastName, date, email, username, password } = req.body;
-   // public\media\Profile_Images\ic_profile_placeholder.webp
     const profilePic = req.file ? `/media/${req.file.filename}` : '/media/Profile_Images/ic_profile_placeholder.webp';
 
     try {
@@ -25,27 +20,7 @@ export const registerUser = async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 };
-/*
-export const registerUser = async (req, res) => {
-    //const { firstName, lastName, date, email, profilePic, username, password } = req.body.newUser;
-    const { firstName, lastName, date, email, profilePic, username, password } = req.body.newUser || req.body;
-    try {
-        // Check if the username is already taken
-        const usernameExists = await userService.findUser(username);
-        if (usernameExists) {
-            return res.status(400).json({ message: 'Username is already in use' });
-        }
 
-        // Create a new user
-        const newUser = { firstName, lastName, date, email, profilePic, username, password };
-       // userService.createUser({ newUser })
-       const createdUser = await userService.createUser(newUser); // Pass newUser directly
-        res.status(201).json({ message: 'User registered successfully' });
-    } catch (err) {
-        res.status(400).json({ message: err.message });
-    }
-};
-*/
 export const getUserFullDetails = async (req, res) => {
     // console.log(req.params.id)
     ;
@@ -53,7 +28,6 @@ export const getUserFullDetails = async (req, res) => {
         const user = await userService.getUserbyId(req.params.id);
         if (user !== null) {
            console.log('login successful the user is :', user.username);
-          //  console.log(user);
             res.json(user);
         } else {
             res.status(404).send('User not found');
@@ -102,7 +76,6 @@ export async function deleteUser(req, res) {
 
 export async function updateUser(req, res) {
     console.log('update user');
-  //   console.log(req.body.username);
     const userId = req.params.id;
     const oldUser = await userService.getUserbyId(userId);
   
@@ -127,7 +100,6 @@ export async function updateUser(req, res) {
         // Issue a new token if username was part of the update
         if (req.body.username) {
           const newToken = jwt.sign({ username: updatedUser.username }, key, { expiresIn: '5h' });
-          // i need to change it
           res.json({ message: 'User updated successfully', token: newToken , username: updatedUser.username, profilePic: updatedUser.profilePic});
         } else {
           res.json({ message: 'User updated successfully', profilePic: updatedUser.profilePic });

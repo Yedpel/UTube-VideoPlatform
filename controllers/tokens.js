@@ -7,7 +7,6 @@ export const createToken = async (req, res) => {
     try {
         const id = await getUserid(username);
         if (id) {
-           // console.log(id);
             // Generate JWT token
             const token = jwt.sign(username, key);
             res.status(200).json({

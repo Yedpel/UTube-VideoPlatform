@@ -1,6 +1,5 @@
 import express from 'express'
 
-//const commentsController = require('../controllers/comments');
 const router = express.Router();
 
 import {

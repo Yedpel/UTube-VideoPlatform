@@ -57,7 +57,7 @@ export const getVideoRecommendations = async (req, res) => {
 
 export const notifyVideoWatch = async (req, res) => {
     try {
-        const userId = req.user.id; // Assuming the user ID is stored in req.user after authentication
+        const userId = req.user.id; 
         const { videoId } = req.body;
        
         if (!videoId) {
@@ -74,7 +74,7 @@ export const notifyVideoWatch = async (req, res) => {
 
 export const createUserThread = async (req, res) => {
     try {
-        const userId = req.user.id.toString(); // Assuming the user ID is stored in req.user after authentication
+        const userId = req.user.id.toString(); 
        console.log('in create user thread ---- user id: ',userId)
         const result = await createThreadForUser(userId);
         res.status(200).json({ message: 'Thread created successfully', result });
@@ -87,7 +87,7 @@ export const createUserThread = async (req, res) => {
 export const closeUserThread = async (req, res) => {
     console.log("entered to closeUserThread in server.....")
     try {
-        const userId = req.user.id; // Assuming the user ID is stored in req.user after authentication
+        const userId = req.user.id; 
         console.log("userId",userId);
         const result = await closeThreadForUser(userId);
         res.status(200).json({ message: 'Thread closed successfully', result });

@@ -34,19 +34,6 @@ export const deleteComment = async (req, res) => {
     }
 }
 
-// export const updateComment = async (req, res) => {
-//     const { cid } = req.params;
-//     const { content } = req.body;
-//     const {text} = req.body;
-//     console.log('content:', content);
-
-//     try {
-//         const comment = await editCommentModel(cid, content);
-//         res.status(200).json(comment);
-//     } catch (err) {
-//         res.status(400).json({ message: err.message });
-//     }
-// };
 export const updateComment = async (req, res) => {
     const { cid } = req.params;
     const { content, text } = req.body;
