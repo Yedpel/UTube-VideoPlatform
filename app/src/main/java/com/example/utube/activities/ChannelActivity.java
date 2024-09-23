@@ -62,15 +62,15 @@ public class ChannelActivity extends AppCompatActivity {
     private Button deleteUserButton;
     private RecyclerView recyclerView;
     private VideoAdapter videoAdapter;
-    private SwipeRefreshLayout swipeRefreshLayout; //try-swip
-    private String authorName; //try-swip
-    private static final int REQUEST_VIDEO_DETAIL = 1; //try-chanUpd
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private String authorName;
+    private static final int REQUEST_VIDEO_DETAIL = 1;
 
-    private ChannelViewModel viewModel; //try-ch-mvvm
+    private ChannelViewModel viewModel;
 
-    private VideoRepository videoRepository = new VideoRepository(getApplication()); //try-channle-server
+    private VideoRepository videoRepository = new VideoRepository(getApplication());
 
-    private ProgressDialog loadingDialog; //try-channle-server
+    private ProgressDialog loadingDialog;
 
     private String loggedInUser;
     public static final String LOGGED_IN_USER = "logged_in_user";
@@ -93,12 +93,11 @@ public class ChannelActivity extends AppCompatActivity {
 
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
-        viewModel = new ViewModelProvider(this).get(ChannelViewModel.class); //try-ch-mvvm
+        viewModel = new ViewModelProvider(this).get(ChannelViewModel.class);
         loggedInUser = sharedPreferences.getString(LOGGED_IN_USER, null);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //  getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         channelTitle = findViewById(R.id.channel_title);
         editUserButton = findViewById(R.id.edit_user_button);
@@ -109,22 +108,13 @@ public class ChannelActivity extends AppCompatActivity {
         channelTitle.setText(authorName + "'s Channel");
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        videoAdapter = new VideoAdapter(new ArrayList<>(), this); //try-ch-mvvm
-        //videoAdapter = new VideoAdapter(VideoManager.getInstance(getApplication()).getVideosForAuthor(authorName), this);
+        videoAdapter = new VideoAdapter(new ArrayList<>(), this);
         recyclerView.setAdapter(videoAdapter);
 
-        // authorName = getIntent().getStringExtra("AUTHOR_NAME"); //try-swip
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout); //try-swip
-        swipeRefreshLayout.setOnRefreshListener(this::refreshVideoList); //try-swip
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(this::refreshVideoList);
 
-        //try-channle-server
         setupObservers();
-
-
-//        viewModel.getVideos().observe(this, videos -> { //try-ch-mvvm
-//            videoAdapter.updateVideos(videos);
-//            swipeRefreshLayout.setRefreshing(false);
-//        });
 
         userEditDialog = new UserEditDialog(this, channelViewModel);
         userEditDialog.setOnDismissListener(() -> refreshVideoList());
@@ -164,7 +154,7 @@ public class ChannelActivity extends AppCompatActivity {
             }
         });
 
-        loadVideos(); //try-ch-mvvm
+        loadVideos();
     }//end onCreate
 
     private void checkUserStatus() {
@@ -189,7 +179,7 @@ public class ChannelActivity extends AppCompatActivity {
         deleteUserButton.setVisibility(View.VISIBLE);
     }
 
-    //try-channle-server
+
     private void setupObservers() {
         viewModel.getVideos().observe(this, videos -> {
             videoAdapter.updateVideos(videos);
@@ -211,35 +201,23 @@ public class ChannelActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_VIDEO_DETAIL && resultCode == RESULT_OK) {
-            refreshVideoList(); //try-chanUpd
+            refreshVideoList();
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        refreshVideoList(); //try-chanUpd
+        refreshVideoList();
     }
 
-    private void refreshVideoList() { //try-ch-mvvm
+    private void refreshVideoList() {
         viewModel.loadVideosForAuthor(authorName);
     }
 
-    private void loadVideos() { //try-ch-mvvm
+    private void loadVideos() {
         viewModel.loadVideosForAuthor(authorName);
     }
-
-//    private void refreshVideoList() { //try-swip
-//        List<Video> updatedVideos = VideoManager.getInstance(getApplication()).getVideosForAuthor(authorName);
-//        if (updatedVideos != null && !updatedVideos.isEmpty()) {
-//            videoAdapter.updateVideos(updatedVideos);
-//        } else {
-//            // If the list is empty, we might want to show a message to the user
-//            Toast.makeText(this, "No videos found for this author", Toast.LENGTH_SHORT).show();
-//        }
-//        swipeRefreshLayout.setRefreshing(false);
-//        Log.d("ChannelActivity", "Refreshed videos count: " + (updatedVideos != null ? updatedVideos.size() : 0)); //try-swip
-//    } //try-swip
 
     private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
         private List<Video> videoList;
@@ -247,8 +225,7 @@ public class ChannelActivity extends AppCompatActivity {
         private EditVideoViewModel editVideoViewModel;
 
         public VideoAdapter(List<Video> videoList, Context context) {
-            //this.videoList = videoList;
-            this.videoList = videoList != null ? videoList : new ArrayList<>(); //try-ch-mvvm
+            this.videoList = videoList != null ? videoList : new ArrayList<>();
             this.context = context;
             this.editVideoViewModel = new ViewModelProvider((ViewModelStoreOwner) context).get(EditVideoViewModel.class);
         }
@@ -259,95 +236,18 @@ public class ChannelActivity extends AppCompatActivity {
             return new VideoViewHolder(view);
         }
 
-//        public void updateVideos(List<Video> newVideos) { //try-swip
-//            this.videoList.clear(); //try-swip
-//            this.videoList.addAll(newVideos); //try-swip
-//            notifyDataSetChanged(); //try-swip
-//        } //try-swip
+
 
         public void updateVideos(List<Video> newVideos) {
-            if (this.videoList == null) { //try-ch-mvvm
-                this.videoList = new ArrayList<>(); //try-ch-mvvm
-            } //try-ch-mvvm
+            if (this.videoList == null) {
+                this.videoList = new ArrayList<>();
+            }
             this.videoList.clear();
-            if (newVideos != null) { //try-ch-mvvm
+            if (newVideos != null) {
                 this.videoList.addAll(newVideos);
-            } //try-ch-mvvm
+            }
             notifyDataSetChanged();
         }
-
-//        @Override
-//        public void onBindViewHolder(VideoViewHolder holder, int position) {
-//            Video video = videoList.get(position);
-//            holder.bind(video);
-//
-//            holder.itemView.setOnClickListener(v -> {
-//                Intent intent = new Intent(context, VideoDetailActivity.class);
-//                intent.putExtra("VIDEO_ID", video.getId());
-//                intent.putExtra("VIDEO_URL", video.getVideoUrl());
-//                intent.putExtra("TITLE", video.getTitle());
-//                intent.putExtra("AUTHOR", video.getAuthor());
-//                intent.putExtra("VIEWS", video.getViews());
-//                intent.putExtra("UPLOAD_TIME", video.getUploadTime());
-//                intent.putExtra("AUTHOR_PROFILE_PIC_URL", video.getAuthorProfilePicUrl());
-//                intent.putExtra("LIKES", video.getLikes());
-//                //log the likes
-//                Log.d("VideoAdapter", "Likes: " + video.getLikes());
-//                ((Activity) context).startActivityForResult(intent, REQUEST_VIDEO_DETAIL); //try-chanUpd
-//                // context.startActivity(intent);
-//            });
-//
-//            // You can keep the menu button functionality if needed, or remove it for the channel page
-//        }
-
-//        @Override
-//        public void onBindViewHolder(VideoViewHolder holder, int position) {
-//            Video video = videoList.get(position);
-//            holder.bind(video);
-//
-//            String currentLoggedInUser = UserDetails.getInstance().getUsername();
-//            boolean isAuthor = currentLoggedInUser != null && currentLoggedInUser.equals(video.getAuthor());
-//
-//
-//            //try-channle-server
-//            holder.itemView.setOnClickListener(v -> {
-//                // Show loading indicator
-//                showLoadingDialog();
-//
-//                // Fetch latest video details from server
-//                viewModel.fetchVideoDetailsFromServer(video.getId(), new Callback<VideoResponse>() {
-//                    @Override
-//                    public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
-//                        hideLoadingDialog();
-//                        if (response.isSuccessful() && response.body() != null) {
-//                            VideoResponse updatedVideo = response.body();
-//
-//                            // Start VideoDetailActivity
-//                            Intent intent = new Intent(ChannelActivity.this, VideoDetailActivity.class);
-//                            intent.putExtra("VIDEO_ID", updatedVideo.getId());
-//                            intent.putExtra("VIDEO_URL", updatedVideo.getVideoUrl());
-//                            intent.putExtra("TITLE", updatedVideo.getTitle());
-//                            intent.putExtra("AUTHOR", updatedVideo.getAuthor());
-//                            Log.d("ChannelActivity", "Updated video author: " + updatedVideo.getAuthor());
-//                            intent.putExtra("VIEWS", updatedVideo.getViews());
-//                            intent.putExtra("UPLOAD_TIME", updatedVideo.getUploadTime());
-//                            intent.putExtra("AUTHOR_PROFILE_PIC_URL", updatedVideo.getAuthorProfilePic());
-//                            intent.putExtra("LIKES", updatedVideo.getLikes());
-//                            startActivityForResult(intent, REQUEST_VIDEO_DETAIL);
-//                        } else {
-//                            // Show error message
-//                            Toast.makeText(ChannelActivity.this, "Failed to fetch latest video details", Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<VideoResponse> call, Throwable t) {
-//                        hideLoadingDialog();
-//                        // Show error message
-//                        Toast.makeText(ChannelActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//            });
 
         @Override
         public void onBindViewHolder(VideoViewHolder holder, int position) {
@@ -478,20 +378,6 @@ public class ChannelActivity extends AppCompatActivity {
                 loadImageView(authorProfilePic, video.getAuthorProfilePicUrl());
             }
 
-            //            private void loadImageView(ImageView imageView, String imageUrl) {
-//                if (imageUrl.startsWith("drawable/")) {
-//                    int imageResId = context.getResources().getIdentifier(imageUrl, null, context.getPackageName());
-//                    if (imageResId != 0) {
-//                        imageView.setImageResource(imageResId);
-//                    } else {
-//                        imageView.setImageResource(R.drawable.policy);
-//                    }
-//                } else if (imageUrl != null) {
-//                    Picasso.get().load(imageUrl).error(R.drawable.policy).into(imageView);
-//                } else {
-//                    imageView.setImageResource(R.drawable.policy);
-//                }
-//            }
             private void loadImageView(ImageView imageView, String imageUrl) {
                 if (imageUrl == null || imageUrl.isEmpty()) {
                     imageView.setImageResource(R.drawable.policy);

@@ -30,8 +30,6 @@ public interface WebServiceApi {
     @POST("tokens")
     Call<LoginResponse> checkUserNameAndPassword(@Body LoginRequest loginRequest);
 
-    //    @GET("users/{id}")
-//    Call<UserDetails> getUser(@Path("id") String id);
     @GET("users/{id}")
     Call<UserDetails> getUser(@Path("id") String id, @Header("Authorization") String token);
 
@@ -51,34 +49,16 @@ public interface WebServiceApi {
     @GET("videos")
     Call<List<VideoResponse>> getVideos();
 
-//    @Multipart
-//    @POST("cpp/get-recommendations")
-//    Call<List<VideoResponse>> getRecommendedVideos(
-//            @Part("videoId") RequestBody videoId,
-//            @Part("token") RequestBody token);
-//    @Multipart
-//    @POST("cpp/get-recommendations")
-//    Call<List<VideoResponse>> getRecommendedVideos(
-//            @Part("videoId") RequestBody videoId,
-//            @Header("Authorization") String token);
-
 
     @FormUrlEncoded
     @POST("cpp/get-recommendations")
     Call<List<VideoResponse>> getRecommendedVideos(
             @Field("videoId") String videoId,
             @Field("token") String token);
-//
 
-//    @FormUrlEncoded
-//    @POST("videos")
-//    Call<List<VideoResponse>> getRecommendedVideos(
-//            @Field("videoId") String videoId,
-//            @Field("token") String token);
 
     @GET("users/{userId}/videos/{videoId}")
     Call<VideoResponse> getVideo(@Path("videoId") String videoId);
-    //start like server 21:43
 
     @PUT("users/{userId}/videos/{videoId}/likes")
     Call<VideoResponse> likeVideo(@Path("userId") String userId, @Path("videoId") String videoId, @Header("Authorization") String token);
@@ -117,15 +97,11 @@ public interface WebServiceApi {
             @Header("Authorization") String token
     );
 
-    //try-channle-server
     @GET("users/name/{username}/videos")
     Call<List<VideoResponse>> getVideosByUsername(@Path("username") String username);
 
     @GET("users/{id}/page")
     Call<UserDetails> getUserPage(@Path("id") String id);
-
-//    @GET("users/{id}/page")
-//    Call<UserDetails> getUser(@Path("id") String id);
 
     @GET("users/{id}/videos")
     Call<List<VideoResponse>> getUserVideos(@Path("id") String id);

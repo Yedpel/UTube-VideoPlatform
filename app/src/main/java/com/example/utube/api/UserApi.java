@@ -38,7 +38,7 @@ public class UserApi {
                    MutableLiveData<Boolean> deleteUserResult) {
         this.authenticateResult = authenticateResult;
         this.userData = userData;
-        this.registrationResult = registrationResult; // New line
+        this.registrationResult = registrationResult;
         this.deleteUserResult = deleteUserResult;
 
         this.retrofit = new Retrofit.Builder()
@@ -90,7 +90,6 @@ public class UserApi {
             @Override
             public void onResponse(Call<UserDetails> call, Response<UserDetails> response) {
                 if (response.isSuccessful()) {
-                    //Log.e("UserApi", "User details fetched successfully: " + response.body());
                     UserDetails userDetails = UserDetails.getInstance();
                     UserDetails fetchedUserDetails = response.body();
                     if (fetchedUserDetails != null) {
@@ -127,7 +126,6 @@ public class UserApi {
         RequestBody password = RequestBody.create(MediaType.parse("text/plain"), user.getPassword());
         MultipartBody.Part profilePicPart = null;
         if (user.getProfilePicFile() != null) {
-            // CHANGE: Specify image/* as the media type
             RequestBody profilePicBody = RequestBody.create(MediaType.parse("image/*"), user.getProfilePicFile());
             profilePicPart = MultipartBody.Part.createFormData("profilePic", user.getProfilePicFile().getName(), profilePicBody);
         }
@@ -140,18 +138,6 @@ public class UserApi {
                     Log.d("UserApi", "Sign up successful: " + response.body());
                     Toast.makeText(MyApplication.context, "Registration Successful", Toast.LENGTH_SHORT).show();
                     registrationResult.setValue(true); // Update the registration result
-//                    UserDetails userDetails = UserDetails.getInstance();
-//                    UserDetails fetchedUserDetails = response.body();
-//                    if (fetchedUserDetails != null) {
-//                        userDetails.setFirstName(fetchedUserDetails.getFirstName());
-//                        userDetails.setLastName(fetchedUserDetails.getLastName());
-//                        userDetails.setProfilePic(fetchedUserDetails.getProfilePic());
-//                        userDetails.setUsername(fetchedUserDetails.getUsername());
-//                        userDetails.setEmail(fetchedUserDetails.getEmail());
-//                        userDetails.setDate(fetchedUserDetails.getDate());
-//                        userDetails.set_id(fetchedUserDetails.get_id());
-//                    }
-//                    userData.setValue(fetchedUserDetails);
                 } else {
                     Toast.makeText(MyApplication.context, "SignUp failed, try replace user name", Toast.LENGTH_LONG).show();
                     registrationResult.setValue(false); // Update the registration result
@@ -173,14 +159,11 @@ public class UserApi {
 
     public void fetchUserPage(UserDetails user) {
         Log.e("UserApi", "Fetching user page for: " + user.getToken());
-        //Log.e("UserApi","Fetching user details for: " + user.get_id());
-
         Call<UserDetails> call = webApi.getUserPage(user.get_id());
         call.enqueue(new Callback<UserDetails>() {
             @Override
             public void onResponse(Call<UserDetails> call, Response<UserDetails> response) {
                 if (response.isSuccessful()) {
-                    //Log.e("UserApi", "User details fetched successfully: " + response.body());
                     UserDetails userDetails = UserDetails.getInstance();
                     UserDetails fetchedUserDetails = response.body();
                     if (fetchedUserDetails != null) {

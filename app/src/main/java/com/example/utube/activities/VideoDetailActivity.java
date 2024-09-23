@@ -86,8 +86,8 @@ public class VideoDetailActivity extends AppCompatActivity {
     private CommentRepository commentRepository;
     private SharedPreferences sharedPreferences;
     public static final String PREFS_NAME = "theme_prefs";
-    private VideoDetailViewModel viewModel; //mvvm-change
-    private ProgressBar likeProgressBar;//try-com-ui-like
+    private VideoDetailViewModel viewModel;
+    private ProgressBar likeProgressBar;
     private ProgressBar commentProgressBar;
     private RecyclerView recommendedVideosRecyclerView;
     private VideoAdapter recommendedVideosAdapter;
@@ -149,7 +149,6 @@ public class VideoDetailActivity extends AppCompatActivity {
         });
         // Initialize the recommended videos list
          videoId = getIntent().getStringExtra("VIDEO_ID");
-//        String token = UserDetails.getInstance().getToken();
 
 
         String token1 = UserDetails.getInstance().getToken();
@@ -161,7 +160,6 @@ public class VideoDetailActivity extends AppCompatActivity {
         Log.d("VideoDetailActivity", "Final token used: " + token1);
         Log.d("VideoDetailActivity", "VideoId: " + videoId);
         viewModel.fetchRecommendedVideos(token1, videoId);
-      //  viewModel.fetchRecommendedVideos(UserDetails.getInstance().getToken(), videoId);
 
         viewModel.getRecommendedVideos().observe(this, videos -> {
             recommendedVideosAdapter.updateVideos(videos);
@@ -194,39 +192,25 @@ public class VideoDetailActivity extends AppCompatActivity {
         videoView.setMediaController(mediaController);
 
         // Get video details from intent
-      //  videoId = getIntent().getStringExtra("VIDEO_ID");
         String videoUrl = getIntent().getStringExtra("VIDEO_URL");
         String title = getIntent().getStringExtra("TITLE");
         String author = getIntent().getStringExtra("AUTHOR");
         views = getIntent().getIntExtra("VIEWS", 0);
         String uploadTime = getIntent().getStringExtra("UPLOAD_TIME");
         String authorProfilePicUrl = getIntent().getStringExtra("AUTHOR_PROFILE_PIC_URL");
-        // likes = getIntent().getIntExtra("LIKES", 0);
 
-        // Increment the views count
-        // views++;
-        // viewsTextView.setText(views + " views");
+
 
         // Load likes state from memory
         isLiked = VideoManager.getInstance(getApplication()).getLikedStateMap().getOrDefault(videoId, false);
-        // likes = VideoManager.getInstance(getApplication()).getLikesCountMap().getOrDefault(videoId, likes);
 
 
         viewModel.refreshComments(videoId);
         // MVVM changes
-        viewModel.loadVideo(videoId); //mvvm-change
-        viewModel.loadComments(videoId); //mvvm-change
-        // viewModel.incrementViews(); //mvvm-change
+        viewModel.loadVideo(videoId);
+        viewModel.loadComments(videoId);
 
         // Observe only the changing parts of the video data
-//        viewModel.getVideo().observe(this, video -> { //mvvm-change
-//            if (video != null) {
-//                viewsTextView.setText(video.getViews()-1 + " views");
-//                likesTextView.setText(video.getLikes() + " likes");
-//                titleTextView.setText(video.getTitle());
-//                authorTextView.setText(video.getAuthor());
-//            }
-//        }); //mvvm-change
         viewModel.getVideo().observe(this, video -> { //mvvm-change
             if (video != null) {
                 viewsTextView.setText(video.getViews() - 1 + " views");
@@ -237,7 +221,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                 loadAuthorProfilePic(video.getAuthorProfilePicUrl());
                 // setupVideoPlayer(video.getVideoUrl());
             }
-        }); //mvvm-change
+        });
 
         // Log the URL for debugging
         Log.d("VideoDetailActivity", "Video URL: " + videoUrl);
@@ -336,12 +320,6 @@ public class VideoDetailActivity extends AppCompatActivity {
             // If URL is null or empty, set to default error image
             authorProfilePic.setImageResource(R.drawable.policy);
         }
-//        // Set the profile picture click listener to open the author's channel
-//        authorProfilePic.setOnClickListener(v -> {
-//            Intent intent = new Intent(VideoDetailActivity.this, ChannelActivity.class);
-//            intent.putExtra("AUTHOR_NAME", authorTextView.getText().toString());
-//            startActivity(intent);
-//        });
 
 
         // Set initial like button state
@@ -356,28 +334,11 @@ public class VideoDetailActivity extends AppCompatActivity {
                 commentsAdapter.updateComments(comments);
                 updateCommentsCount();
             }
-        }); //mvvm-change
+        });
 
         // Add comment button click listener
         String finalAuthorProfilePicUrl = authorProfilePicUrl;
 
-//        findViewById(R.id.add_comment_button).setOnClickListener(v -> {
-//            if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) {
-//                AddCommentDialog dialog = new AddCommentDialog();
-//                dialog.setAddCommentListener(text -> {
-//                    if (!text.trim().isEmpty()) {
-//                        String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
-//                        //get the profile pic of the current user from user details
-//                        String profilePicUrl = UserDetails.getInstance().getProfilePic();
-//                    //    String profilePicUrl = Users.getInstance().getUser(currentLoggedInUser).getProfilePic();
-//                        viewModel.addComment(videoId, currentLoggedInUser, text, profilePicUrl); //mvvm-change
-//                    }
-//                });
-//                dialog.show(getSupportFragmentManager(), "AddCommentDialog");
-//            } else {
-//                showLoginPromptDialog();
-//            }
-//        });
         findViewById(R.id.add_comment_button).setOnClickListener(v -> {
             if (sharedPreferences.getBoolean("logged_in", false)) {
                 AddCommentDialog dialog = new AddCommentDialog();
@@ -395,7 +356,6 @@ public class VideoDetailActivity extends AppCompatActivity {
                             public void onSuccess(CommentResponse commentResponse) {
                                 hideCommentProgressBar();
                                 CommentEntity newComment = convertResponseToEntity(commentResponse);
-                                //String videoId, String username, String text, String profilePicUrl
                                 //make the username be the current logged in user
                                 String username = UserDetails.getInstance().getUsername();
                                 viewModel.addComment(newComment.videoId, username, newComment.text, profilePicUrl, newComment.uploadTime, newComment.serverId);
@@ -435,7 +395,7 @@ public class VideoDetailActivity extends AppCompatActivity {
             }
         });
 
-        likeProgressBar = findViewById(R.id.like_progress_bar);//try-com-ui-like
+        likeProgressBar = findViewById(R.id.like_progress_bar);
 
     }//end onCreate
 
@@ -503,10 +463,6 @@ public class VideoDetailActivity extends AppCompatActivity {
         }
     }
 
-//    private Video.Comment convertToVideoComment(CommentEntity entity) {
-//        return new Video.Comment(entity.getId(), entity.getUsername(), entity.getText(),
-//                entity.getUploadTime(), entity.getLikes(), entity.getProfilePicUrl(), entity.getVideoId());
-//    }
 
     private void enterFullScreen() {
         isFullScreen = true;
@@ -535,7 +491,6 @@ public class VideoDetailActivity extends AppCompatActivity {
         findViewById(R.id.add_comment_button).setVisibility(View.GONE);
         findViewById(R.id.share_button).setVisibility(View.GONE);
         findViewById(R.id.like_button).setVisibility(View.GONE);
-//        findViewById(R.id.comments_headline).setVisibility(View.GONE);
         //make toast to exit full screen scroll down to see the button
         Toast.makeText(this, "To exit full screen, scroll down and press the Exit Full Screen button", Toast.LENGTH_LONG).show();
     }
@@ -567,28 +522,8 @@ public class VideoDetailActivity extends AppCompatActivity {
         findViewById(R.id.add_comment_button).setVisibility(View.VISIBLE);
         findViewById(R.id.share_button).setVisibility(View.VISIBLE);
         findViewById(R.id.like_button).setVisibility(View.VISIBLE);
-//        findViewById(R.id.comments_headline).setVisibility(View.VISIBLE);
     }
 
-    //    private void updateLikeButton() {
-//        String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
-//        isLiked = viewModel.isVideoLiked(videoId, currentLoggedInUser); //mvvm-change
-//
-//        viewModel.getIsLiked().observe(this, liked -> { //mvvm-change
-//            isLiked = liked;
-//            ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like");
-//        }); //mvvm-change
-//
-//        findViewById(R.id.like_button).setOnClickListener(v -> {
-//            if (sharedPreferences.getBoolean("logged_in", false)) {
-//                boolean newLikeStatus = !isLiked;
-//                viewModel.updateLikeStatus(videoId, currentLoggedInUser, newLikeStatus); //mvvm-change
-//            } else {
-//                showLoginPromptDialog();
-//            }
-//        });
-//        ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like");
-//    }
     private void updateLikeButton() {
         String currentLoggedInUser = sharedPreferences.getString(LOGGED_IN_USER, "");
         isLiked = viewModel.isVideoLiked(videoId, currentLoggedInUser);
@@ -598,29 +533,6 @@ public class VideoDetailActivity extends AppCompatActivity {
             ((TextView) findViewById(R.id.like_button)).setText(isLiked ? "Unlike" : "Like");
         });
 
-//        findViewById(R.id.like_button).setOnClickListener(v -> {
-//            if (sharedPreferences.getBoolean("logged_in", false)) {
-//                String userId = sharedPreferences.getString(LOGGED_IN_USER, "");
-//                String token = UserDetails.getInstance().getToken();
-//                boolean newLikeStatus = !isLiked;
-//
-//                // Call server to update like status
-//                viewModel.toggleLikeOnServer(videoId, userId, token, newLikeStatus, new VideoDetailViewModel.ToggleLikeCallback() {
-//                    @Override
-//                    public void onSuccess() {
-//                        // Existing local update logic
-//                        viewModel.updateLikeStatus(videoId, userId, newLikeStatus);
-//                    }
-//
-//                    @Override
-//                    public void onError(String errorMessage) {
-//                        Toast.makeText(VideoDetailActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//            } else {
-//                showLoginPromptDialog();
-//            }
-//        });
         findViewById(R.id.like_button).setOnClickListener(v -> {
             if (sharedPreferences.getBoolean("logged_in", false)) {
                 String userId = sharedPreferences.getString(LOGGED_IN_USER, "");
@@ -660,11 +572,11 @@ public class VideoDetailActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Video video = VideoManager.getInstance(getApplication()).getVideoById(videoId); //try-behave
-        if (video != null) { //try-behave
-            video.setViews(views); //try-behave
-            VideoManager.getInstance(getApplication()).updateVideo(video); //try-behave
-        } //try-behave
+        Video video = VideoManager.getInstance(getApplication()).getVideoById(videoId);
+        if (video != null) {
+            video.setViews(views);
+            VideoManager.getInstance(getApplication()).updateVideo(video);
+        }
         setResult(RESULT_OK);
         super.onBackPressed();
     }
@@ -676,10 +588,10 @@ public class VideoDetailActivity extends AppCompatActivity {
         refreshCommentLikesOnResume();
     }
 
-    private void showLoginPromptDialog() { //try5
-        LoginPromptDialog dialog = new LoginPromptDialog(); //try5
-        dialog.show(getSupportFragmentManager(), "LoginPromptDialog"); //try5
-    } //try5
+    private void showLoginPromptDialog() {
+        LoginPromptDialog dialog = new LoginPromptDialog();
+        dialog.show(getSupportFragmentManager(), "LoginPromptDialog");
+    }
 
 
     private class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentViewHolder> {
@@ -773,16 +685,7 @@ public class VideoDetailActivity extends AppCompatActivity {
 
                 updateLikeCommentButton();
 
-//                likeCommentButton.setOnClickListener(v -> {
-//                    if (sharedPreferences.getBoolean("logged_in", false)) {
-//                        isCommentLiked = !isCommentLiked;
-//                        viewModel.updateCommentLikeStatus(videoId, comment.getId(), currentLoggedInUser, isCommentLiked);
-//                        updateLikeCommentButton();
-//                        updateLikeCount(comment); //try-com-ui-like
-//                    } else {
-//                        showLoginPromptDialog();
-//                    }
-//                });
+
                 likeCommentButton.setOnClickListener(v -> {
                     if (sharedPreferences.getBoolean("logged_in", false)) {
                         String userId = sharedPreferences.getString(LOGGED_IN_USER, "");
@@ -812,22 +715,6 @@ public class VideoDetailActivity extends AppCompatActivity {
                     }
                 });
 
-//                editCommentButton.setOnClickListener(v -> {
-//                    if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) {
-//                        AddCommentDialog dialog = AddCommentDialog.newInstance(comment.getText());
-//                        dialog.setAddCommentListener(text -> {
-//                            if (!text.trim().isEmpty()) {
-//                                Log.d("VideoDetailActivity", "Editing comment: " + comment.getId() + ", New text: " + text);
-//                                CommentEntity updatedComment = new CommentEntity(videoId, comment.getUsername(), text, comment.getUploadTime(), comment.getLikes(), comment.getProfilePicUrl(), comment.getServerId());
-//                                updatedComment.setId(comment.getId());
-//                                viewModel.updateComment(updatedComment);
-//                            }
-//                        });
-//                        dialog.show(getSupportFragmentManager(), "EditCommentDialog");
-//                    } else {
-//                        showLoginPromptDialog();
-//                    }
-//                });
                 editCommentButton.setOnClickListener(v -> {
                     if (sharedPreferences.getBoolean("logged_in", false)) {
                         AddCommentDialog dialog = AddCommentDialog.newInstance(comment.getText());
@@ -870,14 +757,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                     }
                 });
 
-//                deleteCommentButton.setOnClickListener(v -> {
-//                    if (getSharedPreferences("theme_prefs", MODE_PRIVATE).getBoolean("logged_in", false)) {
-//                        CommentEntity commentEntity = convertToCommentEntity(comment);
-//                        viewModel.deleteComment(commentEntity); //mvvm-change
-//                    } else {
-//                        showLoginPromptDialog();
-//                    }
-//                });
+
                 deleteCommentButton.setOnClickListener(v -> {
                     if (sharedPreferences.getBoolean("logged_in", false)) {
                         String userId = sharedPreferences.getString(LOGGED_IN_USER, "");
@@ -917,25 +797,7 @@ public class VideoDetailActivity extends AppCompatActivity {
             }
 
 
-            //            private void loadImageView(ImageView imageView, String imageUrl) {
-//                if (imageUrl != null && imageUrl.startsWith("drawable/")) {
-//                    // Handle drawable resources
-//                    int imageResId = getResources().getIdentifier(imageUrl, null, getPackageName());
-//                    if (imageResId != 0) {
-//                        imageView.setImageResource(imageResId);
-//                    } else {
-//                        imageView.setImageResource(R.drawable.policy); // Fallback to policy image if resource not found
-//                    }
-//                } else if (imageUrl != null) {
-//                    // Handle remote images or local file URIs
-//                    Picasso.get().load(imageUrl)
-//                            .error(R.drawable.policy) // Use a policy image as the error fallback
-//                            .into(imageView);
-//                } else {
-//                    // Fallback for null or unexpected image URL formats
-//                    imageView.setImageResource(R.drawable.policy);
-//                }
-//            }
+
             private void loadImageView(ImageView imageView, String imageUrl) {
                 if (imageUrl == null || imageUrl.isEmpty()) {
                     imageView.setImageResource(R.drawable.policy);
@@ -959,12 +821,12 @@ public class VideoDetailActivity extends AppCompatActivity {
                 likeCommentButton.setText(isCommentLiked ? "Unlike" : "Like");
             }
 
-            private void updateLikeCount(Video.Comment comment) { //try-com-ui-like
+            private void updateLikeCount(Video.Comment comment) {
                 commentLikesTextView.setText(comment.getLikes() + " likes");
             }
         }
 
-        private class CommentDiffCallback extends DiffUtil.Callback { //try-edit-fix
+        private class CommentDiffCallback extends DiffUtil.Callback {
             private final List<Video.Comment> oldList;
             private final List<Video.Comment> newList;
 
@@ -1034,7 +896,7 @@ public class VideoDetailActivity extends AppCompatActivity {
 
     private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
         private List<Video> videoList;
-        private SharedPreferences sharedPreferences; //try90
+        private SharedPreferences sharedPreferences;
 
         public VideoAdapter(List<Video> videoList, SharedPreferences sharedPreferences) {
             this.videoList = videoList != null ? videoList : new ArrayList<>();
@@ -1067,14 +929,6 @@ public class VideoDetailActivity extends AppCompatActivity {
             String currentLoggedInUser = UserDetails.getInstance().getUsername();
             boolean isAuthor = currentLoggedInUser != null && currentLoggedInUser.equals(video.getAuthor());
 
-//            // Set the visibility of the menu button based on authorship
-//            holder.menuButton.setVisibility(isAuthor ? View.VISIBLE : View.GONE);
-//            holder.menuButton.setOnClickListener(v -> {
-//                PopupMenu popupMenu = new PopupMenu(holder.menuButton.getContext(), holder.menuButton);
-//                MenuInflater inflater = popupMenu.getMenuInflater();
-//                inflater.inflate(R.menu.video_item_menu, popupMenu.getMenu());
-//                popupMenu.show();
-//            });
             //set the visibility of the menu button gone to all
             holder.menuButton.setVisibility(View.GONE);
 
@@ -1159,23 +1013,6 @@ public class VideoDetailActivity extends AppCompatActivity {
 
             }
 
-            //            private void loadImageView(ImageView imageView, String imageUrl) {
-//                if (imageUrl.startsWith("drawable/")) {
-//                    // Handle drawable resources
-//                    int imageResId = getResources().getIdentifier(imageUrl, null, getPackageName());
-//                    if (imageResId != 0) {
-//                        imageView.setImageResource(imageResId);
-//                    } else {
-//                        imageView.setImageResource(R.drawable.policy); // Fallback to error image if resource not found
-//                    }
-//                } else if (imageUrl != null) {
-//                    // Handle remote images or local file URIs
-//                    Picasso.get().load(imageUrl).error(R.drawable.policy).into(imageView);
-//                } else {
-//                    // Fallback for unexpected image URL formats
-//                    imageView.setImageResource(R.drawable.policy);
-//                }
-//            }
             private void loadImageView(ImageView imageView, String imageUrl) {
                 if (imageUrl == null || imageUrl.isEmpty()) {
                     imageView.setImageResource(R.drawable.policy);

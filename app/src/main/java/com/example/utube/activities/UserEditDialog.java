@@ -40,16 +40,12 @@ public class UserEditDialog extends DialogFragment {
     private UserViewModel userViewModel;
     private ImageView profileImageView;
     private Uri selectedImageUri;
-    //private ChannelViewModel channelViewModel;
     UserDetails userDetails = UserDetails.getInstance();
     private Runnable onDismissListener;
 
 
     public UserEditDialog(Activity activity, ChannelViewModel channelViewModel) {
         this.activity = activity;
-
-        //userViewModel = new ViewModelProvider(activity).get(UserViewModel.class); // Initialize UserViewModel
-
     }
 
     @Override
@@ -78,19 +74,11 @@ public class UserEditDialog extends DialogFragment {
         dateEditText.setText(userDetails.getDate());
         // Load existing profile picture if available
 
-        /*
-          selectedImageUri = data.getData();
-            profileImageView.setImageURI(selectedImageUri);
-            File profilePicFile = uriToFile(selectedImageUri);
-            userDetails.setProfilePicFile(profilePicFile);
-         */
+
         // Load existing profile picture if available
         if (userDetails.getProfilePic() != null && !userDetails.getProfilePic().isEmpty()) {
             // Log user profile pic
             Log.d("UserEditDialog", "User profile pic: " + userDetails.getProfilePic());
-            //give the string the server start like:
-//            String fullUrl = "http://10.0.2.2:12345" + imageUrl; // Adjust the base URL as needed
-//            Picasso.get().load(fullUrl).error(R.drawable.policy).into(imageView);
             String fullUrl = "http://10.0.2.2:12345" + userDetails.getProfilePic();
             //set the string into the image view
             profileImageView.setImageURI(Uri.parse(fullUrl));
@@ -161,7 +149,6 @@ public class UserEditDialog extends DialogFragment {
         Toast.makeText(MyApplication.getAppContext(), "No media? Go to camera, then back. Ensure gallery permissions.", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");  // This limits selection to image files
-        //activity.startActivityForResult(intent, 1);
         startActivityForResult(intent, 1);
     }
 
@@ -193,13 +180,6 @@ public class UserEditDialog extends DialogFragment {
             Picasso.get()
                     .load(selectedImageUri)
                     .into(profileImageView);
-
-//            try {
-//                Bitmap bitmap = MediaStore.Images.Media.getBitmap(activity.getContentResolver(), selectedImageUri);
-//                profileImageView.setImageBitmap(bitmap);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
         }
     }
 

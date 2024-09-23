@@ -142,7 +142,6 @@ public class UserDetails {
         this.profilePicFile = null;
         this.password = null;
         this.passwordConfirm = null;
-        // Reset any other fields you have
     }
 
 

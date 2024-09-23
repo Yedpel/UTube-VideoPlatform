@@ -40,7 +40,6 @@ public class MainViewModel extends AndroidViewModel {
         super(application);
         videoManager = VideoManager.getInstance(application);
         videos = new MutableLiveData<>();
-        //  loadVideos();  // Load videos immediately on ViewModel creation
         videoRepository = new VideoRepository(application);
         isLoading = new MutableLiveData<>(false);
     }
@@ -50,20 +49,9 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<Video>> getVideos() {
-//        if (videos.getValue() == null) {
-//            loadVideos();
-//        }
         return videos;
     }
 
-    //    public void loadVideos() {
-//        List<Video> videoList = videoManager.getVideoList();
-//        Log.d("MainViewModel", "Loaded " + videoList.size() + " videos");
-//        for (Video video : videoList) {
-//            Log.d("MainViewModel", "Video " + video.getId() + " has " + video.getViews() + " views");
-//        }
-//        videos.postValue(videoList != null ? videoList : new ArrayList<>());
-//    }
     public void loadVideos() {
         isLoading.setValue(true);
         List<Video> videoList = videoManager.getVideoList();
@@ -115,7 +103,6 @@ public class MainViewModel extends AndroidViewModel {
                     response.getThumbnailUrl(),
                     response.getAuthorProfilePic(),
                     response.getVideoUrl() != null ? response.getVideoUrl() : "",
-                    //"",  // videoUrl
                     response.getCategory(),
                     0  // likes
             );
@@ -233,16 +220,6 @@ public class MainViewModel extends AndroidViewModel {
         return sharedPreferences.getInt(videoId + "_likes", defaultLikes);
     }
 
-    //    public void filterVideos(String query) {
-//        List<Video> filteredList = new ArrayList<>();
-//        for (Video video : videoManager.getVideoList()) {
-//            if (video.getTitle().toLowerCase().contains(query.toLowerCase()) ||
-//                    video.getAuthor().toLowerCase().contains(query.toLowerCase())) {
-//                filteredList.add(video);
-//            }
-//        }
-//        videos.postValue(filteredList);
-//    }
     public void filterVideos(String query) {
         if (query == null) {
             videos.postValue(videoManager.getVideoList());
@@ -291,9 +268,6 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
-    //    public void fetchVideoDetailsFromServer(String videoId, Callback<VideoResponse> callback) {
-//        videoRepository.fetchVideoDetailsFromServer(videoId, callback);
-//    }
     public void fetchVideoDetailsFromServer(String videoId, Callback<VideoResponse> callback) {
         videoRepository.fetchVideoDetailsFromServer(videoId, new Callback<VideoResponse>() {
             @Override
@@ -314,11 +288,6 @@ public class MainViewModel extends AndroidViewModel {
             }
         });
     }
-
-//    public void updateVideoInRoom(VideoResponse videoResponse) {
-//        Video video = convertVideoResponseToVideo(videoResponse);
-//        videoRepository.updateVideoFromModel(video);
-//    }
 
     private Video convertVideoResponseToVideo(VideoResponse videoResponse) {
         return new Video(

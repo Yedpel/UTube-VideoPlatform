@@ -63,7 +63,7 @@ public class VideoDetailViewModel extends AndroidViewModel {
             Log.d("VideoDetailViewModel", "Updated views for video " + videoId + ": " + loadedVideo.getViews());
         }
     }
-    //bla bla
+
     public LiveData<List<Video>> getRecommendedVideos() {
         return recommendedVideos;
     }
@@ -163,7 +163,7 @@ public class VideoDetailViewModel extends AndroidViewModel {
         long commentId = commentRepository.insert(newComment);
 
         if (commentId != -1) {
-            newComment.setId((int) commentId); // Assuming your ID is an int
+            newComment.setId((int) commentId);
             List<Video.Comment> currentComments = comments.getValue();
             if (currentComments == null) {
                 currentComments = new ArrayList<>();
@@ -176,58 +176,6 @@ public class VideoDetailViewModel extends AndroidViewModel {
             Log.e("VideoDetailViewModel", "Failed to add comment");
         }
     }
-//try to stay calm
-//    public void updateComment(CommentEntity updatedComment) {
-//        commentRepository.updateComment(updatedComment);
-//
-//        List<Video.Comment> currentComments = comments.getValue();
-//        if (currentComments != null) {
-//            List<Video.Comment> newComments = new ArrayList<>(currentComments);
-//            for (int i = 0; i < newComments.size(); i++) {
-//                if (newComments.get(i).getId() == updatedComment.getId()) {
-//                    Video.Comment updated = convertToVideoComment(updatedComment);
-//                    newComments.set(i, updated);
-//                    Log.d("VideoDetailViewModel", "Updated comment: " + updated.getId() + ", " + updated.getText());
-//                    break;
-//                }
-//            }
-//            comments.postValue(newComments);
-//        }
-//    }
-//    public void addComment(String videoId, String username, String text, String profilePicUrl) {
-//        String currentTime = "Just now"; // You might want to use a proper timestamp
-//        CommentEntity newComment = new CommentEntity(videoId, username, text, currentTime, 0, profilePicUrl);
-//        commentRepository.insert(newComment);
-//
-//        // Update the LiveData directly instead of reloading all comments
-//        List<Video.Comment> currentComments = comments.getValue();
-//        if (currentComments == null) {
-//            currentComments = new ArrayList<>();
-//        }
-//        currentComments.add(convertToVideoComment(newComment));
-//        comments.postValue(currentComments);
-//    }
-//
-//    //    public void updateComment(CommentEntity comment) {
-////        commentRepository.updateComment(comment);
-////        loadComments(comment.getVideoId()); // Reload comments after updating
-////    }
-//    public void updateComment(CommentEntity updatedComment) {
-//        commentRepository.updateComment(updatedComment);
-//
-//        // Update the comment in the current list
-//        List<Video.Comment> currentComments = comments.getValue();
-//        if (currentComments != null) {
-//            for (int i = 0; i < currentComments.size(); i++) {
-//                if (currentComments.get(i).getId() == updatedComment.getId()) {
-//                    currentComments.set(i, convertToVideoComment(updatedComment));
-//                    break;
-//                }
-//            }
-//            comments.postValue(currentComments);
-//        }
-//    }
-
 
     public void updateLikesCount(boolean isLiked) {
         Video currentVideo = video.getValue();
@@ -282,12 +230,6 @@ public class VideoDetailViewModel extends AndroidViewModel {
         }
     }
 
-    //    public void updateCommentLikeStatus(String videoId, Video.Comment comment, boolean isLiked) {
-//        CommentEntity commentEntity = convertToCommentEntity(videoId, comment);
-//        commentEntity.setLikes(isLiked ? commentEntity.getLikes() + 1 : commentEntity.getLikes() - 1);
-//        commentRepository.updateComment(commentEntity);
-//        loadComments(videoId);
-//    }
     public void updateCommentLikeStatus(String videoId, int commentId, String currentLoggedInUser, boolean liked) {
         String likeKey = videoId + "_" + commentId + "_" + currentLoggedInUser + "_liked";
         sharedPreferences.edit().putBoolean(likeKey, liked).apply();
@@ -316,13 +258,6 @@ public class VideoDetailViewModel extends AndroidViewModel {
         String likeKey = videoId + "_" + commentId + "_" + currentLoggedInUser + "_liked";
         return sharedPreferences.getBoolean(likeKey, false);
     }
-
-//    private CommentEntity convertToCommentEntity(String videoId, Video.Comment comment) {
-//        CommentEntity entity = new CommentEntity(videoId, comment.getUsername(), comment.getText(),
-//                comment.getUploadTime(), comment.getLikes(), comment.getProfilePicUrl());
-//        entity.setId(comment.getId());
-//        return entity;
-//    }
 
     public VideoManager getVideoManager() {
         return videoManager;
@@ -557,16 +492,6 @@ public class VideoDetailViewModel extends AndroidViewModel {
             Log.d("VideoDetailViewModel", "Profile pic url: " + response.getProfilePicUrl());
             entities.add(entity);
         }
-//            CommentEntity entity = new CommentEntity();
-//            entity.serverId = response.getId();
-//            entity.videoId = videoId;
-//            entity.text = response.getText();
-//            entity.username = response.getUsername();
-//            entity.likes = response.getLikes();
-//            entity.uploadTime = response.getUploadTime();
-//            // Set other fields as necessary
-//            entities.add(entity);
-        //  }
         return entities;
     }
 

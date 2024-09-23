@@ -24,20 +24,16 @@ import retrofit2.Response;
 public class ChannelViewModel extends AndroidViewModel {
     private VideoManager videoManager;
     private MutableLiveData<List<Video>> videos = new MutableLiveData<>();
-
     private VideoRepository videoRepository;
-    //try-channle-server
     private MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
     private MutableLiveData<String> error = new MutableLiveData<>();
 
     public ChannelViewModel(Application application) {
         super(application);
         videoManager = VideoManager.getInstance(application);
-        //try-channle-server
         videoRepository = new VideoRepository(application);
     }
 
-    //try-channle-server
     public void loadVideosForAuthor(String authorName) {
         isLoading.setValue(true);
         videoRepository.fetchVideosByUsernameFromServer(authorName, new Callback<List<VideoResponse>>() {
@@ -65,14 +61,12 @@ public class ChannelViewModel extends AndroidViewModel {
         });
     }
 
-    //try-channle-server
     private void loadVideosFromLocal(String authorName) {
         List<Video> localVideos = videoManager.getVideosForAuthor(authorName);
         videos.postValue(localVideos);
         Log.d("ChannelViewModel", "Loaded " + localVideos.size() + " local videos for author: " + authorName);
     }
 
-    //try-channle-server
     private List<Video> convertToVideoList(List<VideoResponse> videoResponses) {
         List<Video> videoList = new ArrayList<>();
         for (VideoResponse response : videoResponses) {
@@ -97,26 +91,14 @@ public class ChannelViewModel extends AndroidViewModel {
         return videos;
     }
 
-    //try-channle-server
     public LiveData<Boolean> getIsLoading() {
         return isLoading;
     }
 
-    //try-channle-server
     public LiveData<String> getError() {
         return error;
     }
 
-//    public void loadVideosForAuthor(String authorName) {
-//        List<Video> authorVideos = videoManager.getVideosForAuthor(authorName);
-//        videos.postValue(authorVideos);
-//    }
-//
-//    public LiveData<List<Video>> getVideos() {
-//        return videos;
-//    }
-
-    //try-channle-server
     public void fetchVideoDetailsFromServer(String videoId, Callback<VideoResponse> callback) {
         videoRepository.fetchVideoDetailsFromServer(videoId, new Callback<VideoResponse>() {
             @Override
@@ -138,7 +120,6 @@ public class ChannelViewModel extends AndroidViewModel {
         });
     }
 
-    //try-channle-server
     private Video convertVideoResponseToVideo(VideoResponse videoResponse) {
         return new Video(
                 videoResponse.getId(),

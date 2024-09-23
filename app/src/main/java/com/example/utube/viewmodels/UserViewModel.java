@@ -14,7 +14,7 @@ public class UserViewModel extends ViewModel {
     private UserApi userApi;
     private MutableLiveData<Boolean> authenticateResult;
     private MutableLiveData<UserDetails> userDetails;
-    private MutableLiveData<Boolean> registrationStatus; // Add this field
+    private MutableLiveData<Boolean> registrationStatus;
     private MutableLiveData<Boolean> deleteUserResult;
     private MutableLiveData<Boolean> threadCreationStatus = new MutableLiveData<>();
     private MutableLiveData<Boolean> threadClosureStatus = new MutableLiveData<>();

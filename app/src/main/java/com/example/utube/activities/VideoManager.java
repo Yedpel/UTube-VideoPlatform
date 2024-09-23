@@ -70,15 +70,6 @@ public class VideoManager {
         return likesCountMap;
     }
 
-//    public void addVideo(Video video) {
-//        Log.d("VideoManager", "Adding video: " + video.getId()); //try-behave
-//        videoRepository.insert(videoToEntity(video));
-//        filteredVideoList.add(video);
-//        List<Video> updatedList = getVideoList(); //try-behave
-//        Log.d("VideoManager", "After add list size: " + updatedList.size()); //try-behave
-//        filteredVideoList.clear(); //try-behave
-//        filteredVideoList.addAll(updatedList); //try-behave
-//    }
 public void addVideo(Video video) {
     Log.d("VideoManager", "Adding video: " + video.getId());
     VideoEntity existingVideo = videoRepository.getVideoById(video.getId());
@@ -95,40 +86,28 @@ public void addVideo(Video video) {
 }
 
     public void removeVideo(String videoId) {
-        Log.d("VideoManager", "Deleting video: " + videoId); //try-behave
+        Log.d("VideoManager", "Deleting video: " + videoId);
         VideoEntity entity = videoRepository.getVideoById(videoId);
         if (entity != null) {
             videoRepository.deleteVideo(entity);
-            //   filteredVideoList.removeIf(v -> v.getId().equals(videoId));
-            List<Video> updatedList = getVideoList(); //try-behave
-            Log.d("VideoManager", "after delete list size: " + updatedList.size()); //try-behave
-            filteredVideoList.clear(); //try-behave
-            filteredVideoList.addAll(updatedList); //try-behave
+            List<Video> updatedList = getVideoList();
+            Log.d("VideoManager", "after delete list size: " + updatedList.size());
+            filteredVideoList.clear();
+            filteredVideoList.addAll(updatedList);
         }
     }
 
     public void updateVideo(Video video) {
-        Log.d("VideoManager", "Updating video: " + video.getId()); //try-behave
+        Log.d("VideoManager", "Updating video: " + video.getId());
         videoRepository.updateVideo(videoToEntity(video));
         Log.d("VideoManager", "Updating video " + video.getId() + " with views: " + video.getViews());
-//        int index = filteredVideoList.indexOf(video);
-//        if (index != -1) {
-//            filteredVideoList.set(index, video);
-//        }
-        List<Video> updatedList = getVideoList(); //try-behave
-        Log.d("VideoManager", "Updated list size: " + updatedList.size()); //try-behave
-        filteredVideoList.clear(); //try-behave
-        filteredVideoList.addAll(updatedList); //try-behave
+
+        List<Video> updatedList = getVideoList();
+        Log.d("VideoManager", "Updated list size: " + updatedList.size());
+        filteredVideoList.clear();
+        filteredVideoList.addAll(updatedList);
     }
 
-    //    public void setVideoList(List<Video> videos) {
-//        for (Video video : videos) {
-//            videoRepository.insert(videoToEntity(video));
-//        }
-//        filteredVideoList.clear();
-//        filteredVideoList.addAll(videos);
-//        Log.d("VideoManager", "setVideoList: filteredVideoList size after update: " + filteredVideoList.size());
-//    }
     public void setVideoList(List<Video> videos) {
         for (Video video : videos) {
             VideoEntity existingVideo = videoRepository.getVideoById(video.getId());
@@ -146,7 +125,7 @@ public void addVideo(Video video) {
     public List<Video> getVideosForAuthor(String author) {
         List<VideoEntity> entities = videoRepository.getVideosForAuthor(author);
         List<Video> videos = entities.stream().map(this::entityToVideo).collect(Collectors.toList());
-        Log.d("VideoManager", "Fetched " + videos.size() + " videos for author: " + author); //try-swip
+        Log.d("VideoManager", "Fetched " + videos.size() + " videos for author: " + author);
         return videos;
     }
 

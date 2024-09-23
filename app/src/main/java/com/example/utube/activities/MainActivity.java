@@ -83,14 +83,12 @@ public class MainActivity extends AppCompatActivity {
     private Uri selectedVideoUri;
     private String loggedInUser;
     private static boolean isFirstThemeApplication = true;
-    private SwipeRefreshLayout swipeRefreshLayout; //try-swip
-
+    private SwipeRefreshLayout swipeRefreshLayout;
     private MainViewModel viewModel;
     private ProgressDialog loadingDialog;
     private final UserDetails userDetails = UserDetails.getInstance();
     private AddVideoViewModel addVideoViewModel;
     private EditVideoViewModel editVideoViewModel;
-
     private UserViewModel userViewModel;
 
 
@@ -124,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        //   videoAdapter = new VideoAdapter(new ArrayList<>(), sharedPreferences);
         videoAdapter = new VideoAdapter(viewModel.getVideos().getValue() != null ? viewModel.getVideos().getValue() : new ArrayList<>(), sharedPreferences);
         recyclerView.setAdapter(videoAdapter);
 
@@ -135,17 +132,13 @@ public class MainActivity extends AppCompatActivity {
 
         viewModel.getIsLoading().observe(this, isLoading -> {
             swipeRefreshLayout.setRefreshing(isLoading);
-        }); //try-server
+        });
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(() -> {
-            // viewModel.loadVideos();
-            /// viewModel.loadVideosFromDatabase();
-            ///  swipeRefreshLayout.setRefreshing(false);
-            viewModel.refreshVideos(); //try-server
+            viewModel.refreshVideos();
         });
 
-        // viewModel.loadVideos();
 
         btnLogin = findViewById(R.id.login_button);
         btnThemeSwitch = findViewById(R.id.theme_button);
@@ -235,17 +228,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        viewModel.loadVideos(); //try-behave
-        //  new Handler().postDelayed(() -> viewModel.loadVideos(), 100); // 100ms delay
+        viewModel.loadVideos();
         Log.d("MainActivity", "onResume called, reloading videos after delay");
     }
 
 
     private void applyTheme() {
-        // if (!isFirstThemeApplication) {
         setTheme(isNightMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light);
         updateUIWithTheme(); // Refresh UI elements manually after theme change
-        //}
     }
 
     private void updateUIWithTheme() {
@@ -293,38 +283,34 @@ public class MainActivity extends AppCompatActivity {
     private void switchTheme() {
         isNightMode = !isNightMode;
         sharedPreferences.edit().putBoolean("isNightMode", isNightMode).apply();
-        viewModel.clearFilteredList(); //try-behave
+        viewModel.clearFilteredList();
         applyTheme();
         recreate();
     }
 
     private void saveUserAddedVideos() {
-        viewModel.saveUserAddedVideos(sharedPreferences); //try-behave
+        viewModel.saveUserAddedVideos(sharedPreferences);
     }
 
     private void restoreUserAddedVideos() {
-        viewModel.restoreUserAddedVideos(sharedPreferences); //try-behave
+        viewModel.restoreUserAddedVideos(sharedPreferences);
         reinitializeAdapter();
     }
 
     private void reinitializeAdapter() {
-        videoAdapter = new VideoAdapter(viewModel.getVideos().getValue(), sharedPreferences); //try-behave
+        videoAdapter = new VideoAdapter(viewModel.getVideos().getValue(), sharedPreferences);
         recyclerView.setAdapter(videoAdapter);
         videoAdapter.notifyDataSetChanged();
     }
 
     public void refreshVideoList() {
-        viewModel.refreshVideos(); //try-server
-//        viewModel.loadVideos(); //try-behave
-//        if (swipeRefreshLayout != null) {
-//            swipeRefreshLayout.setRefreshing(false);
-//        }
+        viewModel.refreshVideos();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList("video_list", new ArrayList<>(viewModel.getVideos().getValue())); //try-behave
+        outState.putParcelableArrayList("video_list", new ArrayList<>(viewModel.getVideos().getValue()));
         outState.putParcelable("recycler_state", recyclerView.getLayoutManager().onSaveInstanceState());
     }
 
@@ -334,31 +320,13 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             ArrayList<Video> videoList = savedInstanceState.getParcelableArrayList("video_list");
             if (videoList != null) {
-                viewModel.setVideoList(videoList); //try-behave
+                viewModel.setVideoList(videoList);
             }
             recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("recycler_state"));
         }
         restoreUserAddedVideos();
     }
 
-    //    private void showAddVideoDialog(String videoFilePath) {
-//        AddVideoDialog dialog = new AddVideoDialog();
-//        dialog.setAddVideoListener((title, category, previewImageUrl) -> {
-//            String id = "new_" + System.currentTimeMillis();
-//            String author = loggedInUser != null ? loggedInUser : "guest";
-//            String uploadTime = "Just now";
-//            int views = 0;
-//            int likes = 0;
-//
-//            //  String authorProfilePicUrl = Users.getInstance().getUser(loggedInUser).getProfilePic();
-//            String authorProfilePicUrl = userDetails.getProfilePic();
-//            Video video = new Video(id, title, author, views, uploadTime, previewImageUrl, authorProfilePicUrl, videoFilePath, category, likes);
-//            viewModel.addVideo(video); //try-behave
-//            sharedPreferences.edit().putString(id + "_videoPath", videoFilePath).apply();
-//            refreshVideoList(); //try-behave
-//        });
-//        dialog.show(getSupportFragmentManager(), "AddVideoDialog");
-//    }
     private void showAddVideoDialog(String videoFilePath) {
         AddVideoDialog dialog = new AddVideoDialog();
         dialog.setAddVideoListener((title, category, thumbnailUri) -> {
@@ -371,7 +339,6 @@ public class MainActivity extends AppCompatActivity {
 
             if (videoFile.exists() && thumbnailFile != null) {
                 addVideoViewModel.uploadVideo(title, category, videoFile, thumbnailFile, userId, author, token);
-                // Add this observer here
                 addVideoViewModel.getUploadStatus().observe(this, new Observer<Boolean>() {
                     @Override
                     public void onChanged(Boolean isSuccess) {
@@ -514,9 +481,6 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_VIDEO_PICK);
     }
 
-//    private void loadVideoData() {
-//        viewModel.loadVideoData(this, sharedPreferences); //try-behave
-//    }
 
     private int getUpdatedViews(String videoId, int defaultViews) {
         return sharedPreferences.getInt(videoId + "_views", defaultViews);
@@ -527,11 +491,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void filterVideos(String query) {
-        viewModel.filterVideos(query); //try-behave
+        viewModel.filterVideos(query);
     }
 
     private void filterVideosByCategory(String category) {
-        viewModel.filterVideosByCategory(category); //try-behave
+        viewModel.filterVideosByCategory(category);
     }
 
     @Override
@@ -564,7 +528,7 @@ public class MainActivity extends AppCompatActivity {
             if (data != null) {
                 String videoId = data.getStringExtra("VIDEO_ID");
                 int updatedViews = data.getIntExtra("UPDATED_VIEWS", 0);
-                viewModel.updateVideoViews(videoId, updatedViews); //try-behave
+                viewModel.updateVideoViews(videoId, updatedViews);
             }
         }
     }
@@ -583,14 +547,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showLoginPromptDialog() { //try90
-        LoginPromptDialog dialog = new LoginPromptDialog(); //try90
-        dialog.show(getSupportFragmentManager(), "LoginPromptDialog"); //try90
-    } //try90
+    private void showLoginPromptDialog() {
+        LoginPromptDialog dialog = new LoginPromptDialog();
+        dialog.show(getSupportFragmentManager(), "LoginPromptDialog");
+    }
 
     private class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
         private List<Video> videoList;
-        private SharedPreferences sharedPreferences; //try90
+        private SharedPreferences sharedPreferences;
 
         public VideoAdapter(List<Video> videoList, SharedPreferences sharedPreferences) {
             this.videoList = videoList != null ? videoList : new ArrayList<>();
@@ -609,17 +573,6 @@ public class MainActivity extends AppCompatActivity {
             notifyDataSetChanged();
             Log.d("VideoAdapter", "Videos updated, new size: " + (newVideos != null ? newVideos.size() : 0));
         }
-
-        //        public void updateVideos(List<Video> newVideos) {
-//            this.videoList = newVideos;
-//            notifyDataSetChanged();
-//        }
-//        public void updateVideos(List<Video> newVideos) {
-//            this.videoList.clear();
-//            this.videoList.addAll(newVideos);
-//            notifyDataSetChanged();
-//            Log.d("VideoAdapter", "Videos updated, new size: " + newVideos.size()); //try-behave
-//        }
 
         @Override
         public VideoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -641,36 +594,6 @@ public class MainActivity extends AppCompatActivity {
                 MenuInflater inflater = popupMenu.getMenuInflater();
                 inflater.inflate(R.menu.video_item_menu, popupMenu.getMenu());
 
-//                // Apply custom styles to menu items
-//                for (int i = 0; i < popupMenu.getMenu().size(); i++) {
-//                    MenuItem menuItem = popupMenu.getMenu().getItem(i);
-//                    SpannableString spannableTitle = new SpannableString(menuItem.getTitle());
-//                    spannableTitle.setSpan(new ForegroundColorSpan(Color.parseColor("#D31E1E")), 0, spannableTitle.length(), 0);
-//                    menuItem.setTitle(spannableTitle);
-//                }
-//
-//                popupMenu.setOnMenuItemClickListener(item -> {
-//                    if (item.getItemId() == R.id.edit_video) {
-//                        if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) {
-//                            EditVideoDialog dialog = EditVideoDialog.newInstance(video.getId());
-//                            dialog.setOnDismissListener(dialogInterface -> notifyDataSetChanged());
-//                            dialog.show(((AppCompatActivity) holder.itemView.getContext()).getSupportFragmentManager(), "EditVideoDialog");
-//                        } else {
-//                            showLoginPromptDialog();
-//                        }
-//                        return true;
-//                    } else if (item.getItemId() == R.id.delete_video) {
-//                        if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) {
-//                            viewModel.removeVideo(video.getId()); //try-behave
-//                        } else {
-//                            showLoginPromptDialog();
-//                        }
-//                        return true;
-//                    }
-//                    return false;
-//                });
-//                popupMenu.show();
-//            });
                 if (isAuthor) {
                     // Apply custom styles to menu items
                     for (int i = 0; i < popupMenu.getMenu().size(); i++) {
@@ -685,7 +608,6 @@ public class MainActivity extends AppCompatActivity {
                             if (sharedPreferences.getBoolean(LOGGED_IN_KEY, false)) {
                                 EditVideoDialog dialog = EditVideoDialog.newInstance(video.getId());
                                 dialog.setOnDismissListener(dialogInterface -> refreshVideoList());
-//                            dialog.setOnDismissListener(dialogInterface -> notifyDataSetChanged());
                                 dialog.show(((AppCompatActivity) holder.itemView.getContext()).getSupportFragmentManager(), "EditVideoDialog");
                             } else {
                                 showLoginPromptDialog();
@@ -696,14 +618,13 @@ public class MainActivity extends AppCompatActivity {
                                 editVideoViewModel.deleteVideo(video.getId());
                                 editVideoViewModel.getDeleteVideoResult().observe(MainActivity.this, isSuccess -> {
                                     if (isSuccess) {
-                                        viewModel.removeVideo(video.getId()); //try-behave
-//                                    refreshVideoList();
+                                        viewModel.removeVideo(video.getId());
                                         Toast.makeText(MyApplication.context, "Video deleted successfully!", Toast.LENGTH_SHORT).show();
                                     } else {
                                         Toast.makeText(MyApplication.context, "Failed to delete video", Toast.LENGTH_SHORT).show();
                                     }
                                 });
-                                //call to derver - if response is ok - continue to existing local delte code
+                                //call to server - if response is ok - continue to existing local delte code
                             } else {
                                 showLoginPromptDialog();
                             }
@@ -797,23 +718,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-            //            private void loadImageView(ImageView imageView, String imageUrl) {
-//                if (imageUrl.startsWith("drawable/")) {
-//                    // Handle drawable resources
-//                    int imageResId = getResources().getIdentifier(imageUrl, null, getPackageName());
-//                    if (imageResId != 0) {
-//                        imageView.setImageResource(imageResId);
-//                    } else {
-//                        imageView.setImageResource(R.drawable.policy); // Fallback to error image if resource not found
-//                    }
-//                } else if (imageUrl != null) {
-//                    // Handle remote images or local file URIs
-//                    Picasso.get().load(imageUrl).error(R.drawable.policy).into(imageView);
-//                } else {
-//                    // Fallback for unexpected image URL formats
-//                    imageView.setImageResource(R.drawable.policy);
-//                }
-//            }
             private void loadImageView(ImageView imageView, String imageUrl) {
                 if (imageUrl == null || imageUrl.isEmpty()) {
                     imageView.setImageResource(R.drawable.policy);
