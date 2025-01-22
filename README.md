@@ -56,7 +56,7 @@ Start the server using:
    ```bash
     npm start
 
-Contribution
+## Contribution
 This project benefits from the collective efforts of our team, combining diverse ideas and coding practices to create a functional and engaging application.
 
 Feel free to explore the code and suggest improvements or enhancements by submitting pull requests or opening issues.
