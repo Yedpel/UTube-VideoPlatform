@@ -54,7 +54,7 @@ development and testing purposes. Follow these simple steps to get started.
   and that the BASE_URL in the app's configuration is correct. Also, ensure that your firewall
   is not blocking the connection.
 - For any server-related issues, refer to the UTUBE-Server README for troubleshooting steps.
-  **Contributing**
+### Contributing
   We welcome contributions to improve the UTUBE Android app. Feel free to fork the repository,
   make your changes, and submit a pull request.
 
