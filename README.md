@@ -91,3 +91,13 @@ const int SERVER_PORT = 55551;
 ```js
 const CPP_SERVER_PORT = 55551;
 ```
+
+## Contribution
+This project benefits from the collective efforts of our team, combining diverse ideas and coding practices to create a functional and engaging application.
+
+Feel free to explore the code and suggest improvements or enhancements by submitting pull requests or opening issues.
+
+Thank you for visiting our project!
+
+---
+© 2024 Yedidya Peles, Shimon Rahamim, Avrham Bicha. All Rights Reserved.
